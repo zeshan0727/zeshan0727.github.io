@@ -20,7 +20,11 @@ jobs:
         run: |
           brew install dpkg ldid
           export THEOS="$HOME/theos"
-          bash -c "$(curl -fsSL https://raw.githubusercontent.com/roothide/theos/master/bin/install-theos)"
+          git clone --recursive https://github.com/roothide/theos.git "$THEOS"
+          mkdir -p "$THEOS/sdks"
+          curl -fL --retry 3 \
+            https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz \
+            | tar -xJ -C "$THEOS/sdks"
 
       - name: Build RootHide package
         run: |
