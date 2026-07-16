@@ -16,19 +16,19 @@ Author: Next Solution
 Name: Shake to Run Automation (RootHide)
 
 Package: com.nextsolution.unlockvibrate
-Version: 2.1.0
+Version: 2.2.0
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
 Installed-Size: 580
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/SweatMyPhone_RootHide_2.1.0_iOS16.deb
-Size: 28040
-MD5sum: 762e0688d9d810b04a04537361f646fe
-SHA1: 6e0d2b47871ed0b0cbf009db5b7406a00890981f
-SHA256: 96e81f35ae91035ee3bbebe96d5aaaf0c3e7956a72d5216d97f9b87e44b37e63
+Filename: ./debfiles/SweatMyPhone_RootHide_2.2.0_iOS16.deb
+Size: 30960
+MD5sum: f9dce010e8a38abb6c632012602c2354
+SHA1: e0e4ec0a98bff6ac2a92d13e77a92cf5326b1bc1
+SHA256: a6101b11b68c27e76011b494dbb523f6274a82b42436f0869242c8b78c33dc32
 Section: Tweaks
 Priority: optional
-Description: Adds realistic full-screen sweat drops and animated collected water from 37°C, plus battery temperature colors, unlock vibration, and call-connect vibration. Includes four independent enabled-by-default Settings switches. Built for RootHide on iOS 16.
+Description: Adds realistic full-screen sweat drops and dock-limited collected water that reacts to left/right phone tilt from 37°C, including on the Home Screen and inside apps. Also includes battery temperature colors, unlock vibration, and call-connect vibration. Built for RootHide on iOS 16.
 Author: Next Solution
 Name: Sweat My Phone (RootHide)
 
