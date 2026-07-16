@@ -15,3 +15,20 @@ Description: Vibrates once after a successful unlock. Includes an enabled-by-def
 Author: Next Solution
 Name: Unlock Vibrate (RootHide)
 
+Package: com.nextsolution.shaketorun
+Version: 1.0.0
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 376
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/ShakeToRun_RootHide_1.0.0_iOS16.deb
+Size: 10800
+MD5sum: 937be84c1a917e530602127bd44e3698
+SHA1: 524193fd30f8254ca84764549d188438d5ffb8ae
+SHA256: 28e4329ee330444c5b584fc878ba8d2a7888ce2df1dbe9ea1c94f93d71676c22
+Section: Tweaks
+Priority: optional
+Description: Runs the most recent Shortcuts automation prompt when the unlocked device is shaken. Separate SpringBoard-only RootHide Bootstrap tweak for iOS 16.
+Author: Next Solution
+Name: Shake to Run Automation (RootHide)
+
