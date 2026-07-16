@@ -1,17 +1,17 @@
 Package: com.nextsolution.shaketorun
-Version: 1.0.0
+Version: 1.1.0
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 376
+Installed-Size: 380
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/ShakeToRun_RootHide_1.0.0_iOS16.deb
-Size: 10800
-MD5sum: 937be84c1a917e530602127bd44e3698
-SHA1: 524193fd30f8254ca84764549d188438d5ffb8ae
-SHA256: 28e4329ee330444c5b584fc878ba8d2a7888ce2df1dbe9ea1c94f93d71676c22
+Filename: ./debfiles/ShakeToRun_RootHide_1.1.0_iOS16.deb
+Size: 11872
+MD5sum: 3b04ba29e3923c9af0798276be92079c
+SHA1: bf4851ab5f7812d55362e37f9360628701bf3fb3
+SHA256: 24ec6ef33be3fc7d27554d28dc5ef9d4b3ba601fb99c1311094db1d2f8584f8e
 Section: Tweaks
 Priority: optional
-Description: Runs the most recent Shortcuts automation prompt when the unlocked device is shaken. Separate SpringBoard-only RootHide Bootstrap tweak for iOS 16.
+Description: Detects shakes directly, vibrates as confirmation, and runs the most recent Shortcuts automation prompt while unlocked. Includes an enabled-by-default Settings pane. Separate SpringBoard-only RootHide Bootstrap tweak for iOS 16.
 Author: Next Solution
 Name: Shake to Run Automation (RootHide)
 
