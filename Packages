@@ -16,19 +16,19 @@ Author: Next Solution
 Name: Shake to Run Automation (RootHide)
 
 Package: com.nextsolution.unlockvibrate
-Version: 1.8.0
+Version: 1.9.0
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
 Installed-Size: 548
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/UnlockVibrate_RootHide_1.8.0_iOS16.deb
-Size: 13546
-MD5sum: 4caca6978b409a0f724a987e431301d9
-SHA1: 044fe9d95e9614c98166c47cf7f69096fac8abbe
-SHA256: bc51c46a46cae25d89ae33db773b6f63e13751db339c7eaa4cdb9e8859c21152
+Filename: ./debfiles/UnlockVibrate_RootHide_1.9.0_iOS16.deb
+Size: 18100
+MD5sum: 8bdf017e57ba87d88f15e167719143e9
+SHA1: 0cea688ad26e5ef90338f0f1d52a201636dac183
+SHA256: a8ee107380ea668b88ba91d1a82f052b2c3bf63ac34623deb7c0256b77009c03
 Section: Tweaks
 Priority: optional
-Description: Vibrates after unlock and when a call connects, and colors the battery fill by fixed battery-temperature ranges, including while charging. Includes three separate enabled-by-default Settings switches. Built from the stable RootHide base for iOS 16.
+Description: Vibrates after unlock and when a call connects, and colors the battery fill by fixed temperature ranges with animated ice and sweat effects, including while charging. Includes three enabled-by-default Settings switches. Built for RootHide on iOS 16.
 Author: Next Solution
 Name: Unlock Vibrate (RootHide)
 
