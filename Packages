@@ -33,16 +33,16 @@ Author: Next Solution
 Name: Sweat My Phone (RootHide)
 
 Package: com.nextsolution.dailyledger.smsimport
-Version: 1.1.2
+Version: 1.1.3
 Architecture: iphoneos-arm64e
 Maintainer: NextSolution
-Filename: ./debfiles/DailyLedgerSMSImport-1.1.2-roothide.deb
-Size: 18684
-MD5sum: 9e2e4bb21bfdd36894d8805c3b8731ea
-SHA1: 79165315dee846ba0792944ca31c80905ad627c4
-SHA256: 45f1489af33ec28ec69a7463af6786b2d9fd8c31411eaa8a738e75d020389095
+Filename: ./debfiles/DailyLedgerSMSImport-1.1.3-roothide.deb
+Size: 18716
+MD5sum: c9b58e8a9431cf091b84240346f018fd
+SHA1: 7d9298f2602421dfc2ea818118f9c3646d44b586
+SHA256: b2a1fed9e703cef27de761525591ec0dce49a6b5981b4ea2278fd468f7a24843
 Section: Utilities
 Priority: optional
-Description: Automatically imports QAR bank SMS containing the exact configured marker, including **6760, into a selected Daily Ledger account. Includes RootHide container entitlements, attributed-message decoding, recent-message recovery, importer status, and one vibration after a successful import. Requires RootHide Bootstrap 2.0 or later and Daily Ledger 1.3.2 or later.
+Description: Automatically imports QAR bank SMS containing the exact configured marker, including **6760, into a selected Daily Ledger account. Runs in the RootHide mobile foreground domain and includes attributed-message decoding, recovery, status, and one vibration after a successful import. Requires RootHide Bootstrap 2.0 or later and Daily Ledger 1.3.2 or later.
 Author: NextSolution
 Name: Daily Ledger SMS Import
