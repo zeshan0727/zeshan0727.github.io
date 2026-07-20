@@ -19,59 +19,39 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-roothide:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install build dependencies and toolchains
+      - name: Install RootHide toolchain
         run: |
           brew install dpkg ldid >/dev/null
-
-          git clone --quiet --recursive https://github.com/roothide/theos.git "$HOME/theos-roothide"
-          git clone --quiet --recursive https://github.com/theos/theos.git "$HOME/theos-rootless"
-
-          for THEOS_DIR in "$HOME/theos-roothide" "$HOME/theos-rootless"; do
-            mkdir -p "$THEOS_DIR/sdks"
-            curl -fsSL --retry 3 \
-              https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz \
-              | tar -xJ -C "$THEOS_DIR/sdks"
-          done
+          export THEOS="$HOME/theos"
+          git clone --quiet --recursive https://github.com/roothide/theos.git "$THEOS"
+          mkdir -p "$THEOS/sdks"
+          curl -fsSL --retry 3 \
+            https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz \
+            | tar -xJ -C "$THEOS/sdks"
 
       - name: Build RootHide package
         run: |
-          set -o pipefail
-          export THEOS="$HOME/theos-roothide"
-          mkdir -p "$GITHUB_WORKSPACE/release"
+          export THEOS="$HOME/theos"
           cd source/PhoneAura
           cp control.roothide control
-          rm -rf packages .theos
-          make clean >/dev/null 2>&1 || true
-          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide 2>&1 | tee build-roothide.log
+          set +e
+          make clean > build-roothide.log 2>&1
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide >> build-roothide.log 2>&1
+          STATUS=$?
+          tail -n 200 build-roothide.log
+          if [ "$STATUS" -ne 0 ]; then exit "$STATUS"; fi
 
           DEB="$(find packages -name '*.deb' -type f | head -n 1)"
           test -n "$DEB"
           test "$(dpkg-deb -f "$DEB" Architecture)" = "iphoneos-arm64e"
           VERSION="$(dpkg-deb -f "$DEB" Version)"
-          cp "$DEB" "$GITHUB_WORKSPACE/release/PhoneAura_${VERSION}_RootHide_iOS16.deb"
-          dpkg-deb -f "$DEB" Package Version Architecture | tee -a build-roothide.log
-
-      - name: Build rootless package
-        run: |
-          set -o pipefail
-          export THEOS="$HOME/theos-rootless"
-          cd source/PhoneAura
-          cp control.rootless control
-          rm -rf packages .theos
-          make clean >/dev/null 2>&1 || true
-          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless 2>&1 | tee build-rootless.log
-
-          DEB="$(find packages -name '*.deb' -type f | head -n 1)"
-          test -n "$DEB"
-          test "$(dpkg-deb -f "$DEB" Architecture)" = "iphoneos-arm64"
-          VERSION="$(dpkg-deb -f "$DEB" Version)"
-          cp "$DEB" "$GITHUB_WORKSPACE/release/PhoneAura_${VERSION}_Rootless_iOS16.deb"
-          dpkg-deb -f "$DEB" Package Version Architecture | tee -a build-rootless.log
+          mkdir -p "$GITHUB_WORKSPACE/output"
+          cp "$DEB" "$GITHUB_WORKSPACE/output/PhoneAura_${VERSION}_RootHide_iOS16.deb"
 
       - name: Upload RootHide build log
         if: always()
@@ -81,6 +61,47 @@ jobs:
           path: source/PhoneAura/build-roothide.log
           if-no-files-found: warn
 
+      - name: Upload RootHide package
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoneAura-RootHide
+          path: output/*_RootHide_iOS16.deb
+          if-no-files-found: error
+
+  build-rootless:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install rootless toolchain
+        run: |
+          brew install dpkg ldid >/dev/null
+          export THEOS="$HOME/theos"
+          git clone --quiet --recursive https://github.com/theos/theos.git "$THEOS"
+          mkdir -p "$THEOS/sdks"
+          curl -fsSL --retry 3 \
+            https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz \
+            | tar -xJ -C "$THEOS/sdks"
+
+      - name: Build rootless package
+        run: |
+          export THEOS="$HOME/theos"
+          cd source/PhoneAura
+          cp control.rootless control
+          set +e
+          make clean > build-rootless.log 2>&1
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless >> build-rootless.log 2>&1
+          STATUS=$?
+          tail -n 200 build-rootless.log
+          if [ "$STATUS" -ne 0 ]; then exit "$STATUS"; fi
+
+          DEB="$(find packages -name '*.deb' -type f | head -n 1)"
+          test -n "$DEB"
+          test "$(dpkg-deb -f "$DEB" Architecture)" = "iphoneos-arm64"
+          VERSION="$(dpkg-deb -f "$DEB" Version)"
+          mkdir -p "$GITHUB_WORKSPACE/output"
+          cp "$DEB" "$GITHUB_WORKSPACE/output/PhoneAura_${VERSION}_Rootless_iOS16.deb"
+
       - name: Upload rootless build log
         if: always()
         uses: actions/upload-artifact@v4
@@ -89,22 +110,38 @@ jobs:
           path: source/PhoneAura/build-rootless.log
           if-no-files-found: warn
 
-      - name: Upload RootHide package
-        uses: actions/upload-artifact@v4
-        with:
-          name: PhoneAura-RootHide
-          path: release/*_RootHide_iOS16.deb
-          if-no-files-found: error
-
       - name: Upload rootless package
         uses: actions/upload-artifact@v4
         with:
           name: PhoneAura-Rootless
-          path: release/*_Rootless_iOS16.deb
+          path: output/*_Rootless_iOS16.deb
           if-no-files-found: error
 
-      - name: Publish both PhoneAura variants to Sileo repo
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  publish:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - build-roothide
+      - build-rootless
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install repository tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq dpkg-dev bzip2 gzip
+
+      - name: Download RootHide package
+        uses: actions/download-artifact@v4
+        with:
+          name: PhoneAura-RootHide
+          path: release
+
+      - name: Download rootless package
+        uses: actions/download-artifact@v4
+        with:
+          name: PhoneAura-Rootless
+          path: release
+
+      - name: Publish both variants
         run: |
           VERSION="$(awk '/^Version:/{print $2; exit}' source/PhoneAura/control.roothide)"
           test -n "$VERSION"
