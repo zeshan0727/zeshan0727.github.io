@@ -12,7 +12,7 @@ PhoneAura_LDFLAGS = -Wl,-segalign,4000
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
-SUBPROJECTS += phoneauraprefs
+SUBPROJECTS += phoneauraprefs phoneaurastudio
 include $(THEOS_MAKE_PATH)/aggregate.mk
 
 after-install::
