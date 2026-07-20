@@ -2,11 +2,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static void PASettingsChangedV4(CFNotificationCenterRef center,
-                                void *observer,
-                                CFStringRef name,
-                                const void *object,
-                                CFDictionaryRef _Nullable userInfo);
+static void __attribute__((unused)) PASettingsChangedV4(CFNotificationCenterRef center,
+                                                        void *observer,
+                                                        CFStringRef name,
+                                                        const void *object,
+                                                        CFDictionaryRef _Nullable userInfo);
 
 @interface PhoneAuraManager : NSObject
 + (instancetype)sharedManager;
