@@ -1,9 +1,9 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.0
+Version: 0.4.1
 Architecture: iphoneos-arm64e
-Description: Advanced Bold Card Studio redesign for the iOS 16 Phone app. Adds full custom Favorites, Recents, Contacts and Keypad surfaces, an adaptive CallHistory and Contacts data layer, a Home Screen PhoneAura Studio settings app, RootHide PreferenceLoader controls, and safe stock detail navigation.
+Description: RootHide registration and full-surface release for the iOS 16 Phone app. Includes a visible PhoneAura Studio Home Screen app, a repaired PreferenceLoader Settings pane, complete custom Favorites, Recents, Contacts and Keypad surfaces, selectable favorite contacts, adaptive call-history and Contacts data, and safe stock detail and in-call navigation.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
-Depends: mobilesubstrate, preferenceloader, firmware (>= 16.0)
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
