@@ -1,0 +1,44 @@
+name: Build PhoneAura RootHide
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - phoneaura-v0.1
+    paths:
+      - "source/PhoneAura/**"
+      - ".github/workflows/build-phoneaura.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          brew install dpkg ldid
+          export THEOS="$HOME/theos"
+          git clone --recursive https://github.com/roothide/theos.git "$THEOS"
+          mkdir -p "$THEOS/sdks"
+          curl -fL --retry 3 \
+            https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz \
+            | tar -xJ -C "$THEOS/sdks"
+
+      - name: Build RootHide package
+        run: |
+          export THEOS="$HOME/theos"
+          cd source/PhoneAura
+          make clean
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
+
+      - name: Upload PhoneAura deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoneAura-RootHide
+          path: source/PhoneAura/packages/*.deb
+          if-no-files-found: error

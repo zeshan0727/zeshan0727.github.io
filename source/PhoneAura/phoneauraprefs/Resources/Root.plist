@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+    <dict>
+        <key>cell</key><string>PSGroupCell</string>
+        <key>label</key><string>PHONEAURA</string>
+        <key>footerText</key><string>A modern glass redesign for the stock Phone app. Long-press the floating dock inside Phone for quick controls.</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSwitchCell</string>
+        <key>label</key><string>Enabled</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>enabled</string>
+        <key>default</key><true/>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSwitchCell</string>
+        <key>label</key><string>Haptic Feedback</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>haptics</string>
+        <key>default</key><true/>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSwitchCell</string>
+        <key>label</key><string>Fluid Animations</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>animations</string>
+        <key>default</key><true/>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSwitchCell</string>
+        <key>label</key><string>Midnight Appearance</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>forceDark</string>
+        <key>default</key><true/>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSGroupCell</string>
+        <key>label</key><string>ACCENT</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSegmentCell</string>
+        <key>label</key><string>Atmosphere</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>accentStyle</string>
+        <key>default</key><integer>0</integer>
+        <key>validTitles</key>
+        <array><string>Ocean</string><string>Aurora</string><string>Emerald</string><string>Sunset</string></array>
+        <key>validValues</key>
+        <array><integer>0</integer><integer>1</integer><integer>2</integer><integer>3</integer></array>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSliderCell</string>
+        <key>label</key><string>Glass Intensity</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>glassIntensity</string>
+        <key>default</key><real>0.72</real>
+        <key>min</key><real>0.35</real>
+        <key>max</key><real>1.0</real>
+        <key>showValue</key><true/>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSGroupCell</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSButtonCell</string>
+        <key>label</key><string>Reset PhoneAura Settings</string>
+        <key>action</key><string>resetPreferences</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSButtonCell</string>
+        <key>label</key><string>Developer GitHub</string>
+        <key>action</key><string>openGitHub</string>
+    </dict>
+</array>
+</plist>
