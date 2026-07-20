@@ -1,8 +1,6 @@
 #import <Contacts/Contacts.h>
 #import <objc/message.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 /*
  * Apple exposes My Card publicly on macOS but marks the direct method
  * unavailable in the iOS SDK. MobilePhone/Siri builds may still provide one
@@ -47,5 +45,3 @@ NS_ASSUME_NONNULL_BEGIN
 /* Rewrite only the source-level unavailable call after Contacts.h is parsed. */
 #define unifiedMeContactWithKeysToFetch PA46DynamicMeContact
 #include "PAContactFlowV46.m"
-
-NS_ASSUME_NONNULL_END
