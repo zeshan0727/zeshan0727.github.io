@@ -8,7 +8,7 @@ TWEAK_NAME = PhoneAura
 PhoneAura_FILES = Tweak.xm PhoneAuraManagerV46.m PAConceptDUI.m PAConceptDSurfaces.m PAContactFlowV46Fixed.m PADataStoreV45.m
 PhoneAura_FRAMEWORKS = UIKit QuartzCore Contacts ContactsUI
 PhoneAura_LIBRARIES = sqlite3
-PhoneAura_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
+PhoneAura_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness
 PhoneAura_LDFLAGS = -Wl,-segalign,4000
 
 include $(THEOS_MAKE_PATH)/tweak.mk
