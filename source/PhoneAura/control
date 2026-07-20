@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.3
+Version: 0.4.4
 Architecture: iphoneos-arm64e
-Description: RootHide iOS 16 overlap and Settings repair. Generates preference controls directly in code, treats the iOS 16 Lists to Contacts stack as a root screen, hosts each custom tab in one opaque isolated container, restores the complete Apple screen when a custom tab is disabled, and preserves stock contact details and active-call controllers.
+Description: RootHide iOS 16 full-stage overlap repair. Covers Apple’s entire root Phone screen with one opaque Concept D stage, separates the header from tab content inside that stage, prevents stock titles and first rows from appearing behind Favorites or Recents, limits runtime hooks to tab and navigation controllers, preserves Settings controls, and restores Apple contact-detail and active-call screens.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
