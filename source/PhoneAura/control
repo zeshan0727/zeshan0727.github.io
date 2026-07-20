@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.1
+Version: 0.4.2
 Architecture: iphoneos-arm64e
-Description: RootHide registration and full-surface release for the iOS 16 Phone app. Includes a visible PhoneAura Studio Home Screen app, a repaired PreferenceLoader Settings pane, complete custom Favorites, Recents, Contacts and Keypad surfaces, selectable favorite contacts, adaptive call-history and Contacts data, and safe stock detail and in-call navigation.
+Description: Stability rebuild for RootHide iOS 16. Fixes the blank Settings configuration page, removes recursive layout hooks and mixed tab controllers, uses one isolated full-screen overlay for Favorites, Recents, Contacts and Keypad, serializes Contacts and CallHistory access, and keeps PhoneAura Studio for favorite-contact selection.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
