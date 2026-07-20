@@ -7,6 +7,7 @@
 @interface PADataStore ()
 @property(nonatomic,strong) CNContactStore *contactStore;
 @property(nonatomic,strong) NSCache<NSString *, NSString *> *nameCache;
+@property(nonatomic) dispatch_queue_t workQueue;
 @end
 
 @implementation PADataStore
@@ -14,9 +15,7 @@
 + (instancetype)sharedStore {
     static PADataStore *store;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        store = [[self alloc] init];
-    });
+    dispatch_once(&onceToken, ^{ store = [[self alloc] init]; });
     return store;
 }
 
@@ -25,6 +24,7 @@
         _contactStore = [[CNContactStore alloc] init];
         _nameCache = [[NSCache alloc] init];
         _nameCache.countLimit = 600;
+        _workQueue = dispatch_queue_create("com.zeshan.phoneaura.data", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
@@ -41,61 +41,72 @@
     ];
 }
 
-- (NSArray<CNContact *> *)fallbackFavoriteContacts {
-    NSMutableArray<CNContact *> *contacts = [NSMutableArray array];
-    CNContactFetchRequest *request = [[CNContactFetchRequest alloc] initWithKeysToFetch:[self contactKeys]];
-    request.sortOrder = CNContactSortOrderUserDefault;
-    request.unifyResults = YES;
-    NSError *error = nil;
-    [self.contactStore enumerateContactsWithFetchRequest:request
-                                                   error:&error
-                                              usingBlock:^(CNContact *contact, BOOL *stop) {
-        if (contact.phoneNumbers.count == 0) return;
-        if (!(contact.givenName.length || contact.familyName.length || contact.organizationName.length)) return;
-        [contacts addObject:contact];
-        if (contacts.count >= 4) *stop = YES;
-    }];
-    return error ? @[] : contacts;
+- (BOOL)contactsCanBeRead {
+    CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
+    return status != CNAuthorizationStatusDenied && status != CNAuthorizationStatusRestricted;
+}
+
+- (void)finishContacts:(NSArray<CNContact *> *)contacts completion:(void (^)(NSArray<CNContact *> *contacts))completion {
+    dispatch_async(dispatch_get_main_queue(), ^{ if (completion) completion(contacts ?: @[]); });
 }
 
 - (void)favoriteContactsForIdentifiers:(NSArray<NSString *> *)identifiers
                              completion:(void (^)(NSArray<CNContact *> *contacts))completion {
-    NSArray<NSString *> *cleanIdentifiers = [identifiers isKindOfClass:[NSArray class]] ? identifiers : @[];
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-        NSMutableArray<CNContact *> *contacts = [NSMutableArray array];
-        for (NSString *identifier in cleanIdentifiers) {
-            if (![identifier isKindOfClass:[NSString class]] || identifier.length == 0) continue;
-            NSError *error = nil;
-            CNContact *contact = [self.contactStore unifiedContactWithIdentifier:identifier
-                                                                       keysToFetch:[self contactKeys]
-                                                                             error:&error];
-            if (contact && !error && contact.phoneNumbers.count > 0) [contacts addObject:contact];
-            if (contacts.count >= 4) break;
+    NSArray<NSString *> *cleanIdentifiers = [identifiers isKindOfClass:[NSArray class]] ? [identifiers copy] : @[];
+    if (cleanIdentifiers.count == 0 || ![self contactsCanBeRead]) {
+        [self finishContacts:@[] completion:completion];
+        return;
+    }
+
+    dispatch_async(self.workQueue, ^{
+        @autoreleasepool {
+            NSMutableArray<CNContact *> *contacts = [NSMutableArray array];
+            @try {
+                for (NSString *identifier in cleanIdentifiers) {
+                    if (![identifier isKindOfClass:[NSString class]] || identifier.length == 0) continue;
+                    NSError *error = nil;
+                    CNContact *contact = [self.contactStore unifiedContactWithIdentifier:identifier
+                                                                              keysToFetch:[self contactKeys]
+                                                                                    error:&error];
+                    if (contact && !error && contact.phoneNumbers.count > 0) [contacts addObject:contact];
+                    if (contacts.count >= 4) break;
+                }
+            } @catch (__unused NSException *exception) {
+                [contacts removeAllObjects];
+            }
+            [self finishContacts:contacts completion:completion];
         }
-        if (contacts.count == 0) [contacts addObjectsFromArray:[self fallbackFavoriteContacts]];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completion) completion(contacts);
-        });
     });
 }
 
 - (void)allContactsWithCompletion:(void (^)(NSArray<CNContact *> *contacts))completion {
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-        NSMutableArray<CNContact *> *contacts = [NSMutableArray array];
-        CNContactFetchRequest *request = [[CNContactFetchRequest alloc] initWithKeysToFetch:[self contactKeys]];
-        request.sortOrder = CNContactSortOrderUserDefault;
-        request.unifyResults = YES;
-        NSError *error = nil;
-        [self.contactStore enumerateContactsWithFetchRequest:request
-                                                       error:&error
-                                                  usingBlock:^(CNContact *contact, BOOL *stop) {
-            if (contact.givenName.length || contact.familyName.length || contact.organizationName.length) {
-                [contacts addObject:contact];
+    if (![self contactsCanBeRead]) {
+        [self finishContacts:@[] completion:completion];
+        return;
+    }
+
+    dispatch_async(self.workQueue, ^{
+        @autoreleasepool {
+            NSMutableArray<CNContact *> *contacts = [NSMutableArray array];
+            @try {
+                CNContactFetchRequest *request = [[CNContactFetchRequest alloc] initWithKeysToFetch:[self contactKeys]];
+                request.sortOrder = CNContactSortOrderUserDefault;
+                request.unifyResults = YES;
+                NSError *error = nil;
+                [self.contactStore enumerateContactsWithFetchRequest:request
+                                                               error:&error
+                                                          usingBlock:^(CNContact *contact, BOOL *stop) {
+                    if (contact.givenName.length || contact.familyName.length || contact.organizationName.length) {
+                        [contacts addObject:contact];
+                    }
+                    if (contacts.count >= 1000) *stop = YES;
+                }];
+                if (error) [contacts removeAllObjects];
+            } @catch (__unused NSException *exception) {
+                [contacts removeAllObjects];
             }
-        }];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completion) completion(error ? @[] : contacts);
-        });
+            [self finishContacts:contacts completion:completion];
+        }
     });
 }
 
@@ -134,85 +145,90 @@ static NSString *PAStringFromColumn(sqlite3_stmt *statement, int index) {
     if (cached) return cached;
 
     NSString *name = number;
-    CNPhoneNumber *phoneNumber = [CNPhoneNumber phoneNumberWithStringValue:number];
-    NSPredicate *predicate = [CNContact predicateForContactsMatchingPhoneNumber:phoneNumber];
-    NSError *error = nil;
-    NSArray<CNContact *> *matches = [self.contactStore unifiedContactsMatchingPredicate:predicate
-                                                                             keysToFetch:@[CNContactGivenNameKey, CNContactFamilyNameKey, CNContactOrganizationNameKey]
-                                                                                   error:&error];
-    CNContact *contact = matches.firstObject;
-    if (contact && !error) {
-        NSString *fullName = [CNContactFormatter stringFromContact:contact style:CNContactFormatterStyleFullName];
-        if (fullName.length) name = fullName;
-        else if (contact.organizationName.length) name = contact.organizationName;
+    if ([self contactsCanBeRead]) {
+        @try {
+            CNPhoneNumber *phoneNumber = [CNPhoneNumber phoneNumberWithStringValue:number];
+            NSPredicate *predicate = [CNContact predicateForContactsMatchingPhoneNumber:phoneNumber];
+            NSError *error = nil;
+            NSArray<CNContact *> *matches = [self.contactStore unifiedContactsMatchingPredicate:predicate
+                                                                                     keysToFetch:@[CNContactGivenNameKey, CNContactFamilyNameKey, CNContactOrganizationNameKey]
+                                                                                           error:&error];
+            CNContact *contact = matches.firstObject;
+            if (contact && !error) {
+                NSString *fullName = [CNContactFormatter stringFromContact:contact style:CNContactFormatterStyleFullName];
+                if (fullName.length) name = fullName;
+                else if (contact.organizationName.length) name = contact.organizationName;
+            }
+        } @catch (__unused NSException *exception) {
+        }
     }
     [self.nameCache setObject:name forKey:number];
     return name;
 }
 
 - (void)recentCallsMissedOnly:(BOOL)missedOnly
-                         limit:(NSUInteger)limit
-                    completion:(void (^)(NSArray<PARecentCall *> *calls))completion {
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-        NSMutableArray<PARecentCall *> *calls = [NSMutableArray array];
-        NSString *databasePath = [self callHistoryDatabasePath];
-        sqlite3 *database = NULL;
-        if (!databasePath || sqlite3_open_v2(databasePath.fileSystemRepresentation, &database, SQLITE_OPEN_READONLY | SQLITE_OPEN_NOMUTEX, NULL) != SQLITE_OK) {
-            if (database) sqlite3_close(database);
-            dispatch_async(dispatch_get_main_queue(), ^{ if (completion) completion(@[]); });
-            return;
-        }
-
-        NSDictionary<NSString *, NSString *> *columns = [self columnsForTable:@"ZCALLRECORD" database:database];
-        NSString *address = columns[@"ZADDRESS"];
-        NSString *date = columns[@"ZDATE"];
-        if (!address || !date) {
-            sqlite3_close(database);
-            dispatch_async(dispatch_get_main_queue(), ^{ if (completion) completion(@[]); });
-            return;
-        }
-
-        NSString *(^columnOrZero)(NSString *) = ^NSString *(NSString *key) {
-            NSString *column = columns[key];
-            return column ?: @"0";
-        };
-        NSString *duration = columnOrZero(@"ZDURATION");
-        NSString *originated = columnOrZero(@"ZORIGINATED");
-        NSString *answered = columnOrZero(@"ZANSWERED");
-
-        NSUInteger safeLimit = MAX((NSUInteger)10, MIN(limit ?: 80, (NSUInteger)250));
-        NSString *sql = [NSString stringWithFormat:
-            @"SELECT %@, %@, %@, %@, %@ FROM ZCALLRECORD ORDER BY %@ DESC LIMIT %lu",
-            address, date, duration, originated, answered, date, (unsigned long)safeLimit];
-
-        sqlite3_stmt *statement = NULL;
-        if (sqlite3_prepare_v2(database, sql.UTF8String, -1, &statement, NULL) == SQLITE_OK) {
-            while (sqlite3_step(statement) == SQLITE_ROW) {
-                NSString *number = PAStringFromColumn(statement, 0);
-                NSTimeInterval rawDate = sqlite3_column_double(statement, 1);
-                NSTimeInterval callDuration = sqlite3_column_double(statement, 2);
-                BOOL callOriginated = sqlite3_column_int(statement, 3) != 0;
-                BOOL callAnswered = sqlite3_column_int(statement, 4) != 0;
-                BOOL callMissed = !callOriginated && !callAnswered;
-                if (missedOnly && !callMissed) continue;
-
-                NSTimeInterval unixDate = rawDate < 1200000000.0 ? rawDate + 978307200.0 : rawDate;
-                PARecentCall *call = [[PARecentCall alloc] init];
-                call.number = number.length ? number : @"Unknown";
-                call.displayName = [self displayNameForNumber:number];
-                call.date = [NSDate dateWithTimeIntervalSince1970:unixDate];
-                call.duration = callDuration;
-                call.missed = callMissed;
-                call.outgoing = callOriginated;
-                [calls addObject:call];
+                        limit:(NSUInteger)limit
+                   completion:(void (^)(NSArray<PARecentCall *> *calls))completion {
+    dispatch_async(self.workQueue, ^{
+        @autoreleasepool {
+            NSMutableArray<PARecentCall *> *calls = [NSMutableArray array];
+            NSString *databasePath = [self callHistoryDatabasePath];
+            sqlite3 *database = NULL;
+            if (!databasePath || sqlite3_open_v2(databasePath.fileSystemRepresentation, &database, SQLITE_OPEN_READONLY | SQLITE_OPEN_NOMUTEX, NULL) != SQLITE_OK) {
+                if (database) sqlite3_close(database);
+                dispatch_async(dispatch_get_main_queue(), ^{ if (completion) completion(@[]); });
+                return;
             }
-        }
-        if (statement) sqlite3_finalize(statement);
-        sqlite3_close(database);
 
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completion) completion(calls);
-        });
+            NSDictionary<NSString *, NSString *> *columns = [self columnsForTable:@"ZCALLRECORD" database:database];
+            NSString *address = columns[@"ZADDRESS"];
+            NSString *date = columns[@"ZDATE"];
+            if (!address || !date) {
+                sqlite3_close(database);
+                dispatch_async(dispatch_get_main_queue(), ^{ if (completion) completion(@[]); });
+                return;
+            }
+
+            NSString *(^columnOrZero)(NSString *) = ^NSString *(NSString *key) {
+                NSString *column = columns[key];
+                return column ?: @"0";
+            };
+            NSString *duration = columnOrZero(@"ZDURATION");
+            NSString *originated = columnOrZero(@"ZORIGINATED");
+            NSString *answered = columnOrZero(@"ZANSWERED");
+
+            NSUInteger safeLimit = MAX((NSUInteger)10, MIN(limit ?: 80, (NSUInteger)250));
+            NSString *sql = [NSString stringWithFormat:
+                @"SELECT %@, %@, %@, %@, %@ FROM ZCALLRECORD ORDER BY %@ DESC LIMIT %lu",
+                address, date, duration, originated, answered, date, (unsigned long)safeLimit];
+
+            sqlite3_stmt *statement = NULL;
+            if (sqlite3_prepare_v2(database, sql.UTF8String, -1, &statement, NULL) == SQLITE_OK) {
+                while (sqlite3_step(statement) == SQLITE_ROW) {
+                    NSString *number = PAStringFromColumn(statement, 0);
+                    NSTimeInterval rawDate = sqlite3_column_double(statement, 1);
+                    NSTimeInterval callDuration = sqlite3_column_double(statement, 2);
+                    BOOL callOriginated = sqlite3_column_int(statement, 3) != 0;
+                    BOOL callAnswered = sqlite3_column_int(statement, 4) != 0;
+                    BOOL callMissed = !callOriginated && !callAnswered;
+                    if (missedOnly && !callMissed) continue;
+
+                    NSTimeInterval unixDate = rawDate < 1200000000.0 ? rawDate + 978307200.0 : rawDate;
+                    PARecentCall *call = [[PARecentCall alloc] init];
+                    call.number = number.length ? number : @"Unknown";
+                    call.displayName = [self displayNameForNumber:number];
+                    call.date = [NSDate dateWithTimeIntervalSince1970:unixDate];
+                    call.duration = callDuration;
+                    call.missed = callMissed;
+                    call.outgoing = callOriginated;
+                    [calls addObject:call];
+                }
+            }
+            if (statement) sqlite3_finalize(statement);
+            sqlite3_close(database);
+
+            dispatch_async(dispatch_get_main_queue(), ^{ if (completion) completion(calls); });
+        }
     });
 }
 
