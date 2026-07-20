@@ -2,14 +2,10 @@ ARCHS = arm64 arm64e
 TARGET = iphone:clang:latest:16.0
 THEOS_PACKAGE_SCHEME = roothide
 
-ifeq ($(wildcard PhoneAuraManager.m),)
-$(shell gzip -dc PhoneAuraManager.m.gz > PhoneAuraManager.m)
-endif
-
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = PhoneAura
-PhoneAura_FILES = Tweak.xm PhoneAuraManager.m
+PhoneAura_FILES = Tweak.xm PhoneAuraManager.m PAConceptDUI.m
 PhoneAura_FRAMEWORKS = UIKit QuartzCore
 PhoneAura_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
 PhoneAura_LDFLAGS = -Wl,-segalign,4000
