@@ -1,6 +1,8 @@
 #import <Contacts/Contacts.h>
 #import <objc/message.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /*
  * Apple exposes My Card publicly on macOS but marks the direct method
  * unavailable in the iOS SDK. MobilePhone/Siri builds may still provide one
@@ -8,14 +10,14 @@
  * returns nil when the current iOS build does not expose a My Card lookup.
  */
 @interface CNContactStore (PhoneAuraMyCardBridge)
-- (nullable CNContact *)PA46DynamicMeContact:(NSArray<id<CNKeyDescriptor>> *)keys
-                                       error:(NSError **)error;
+- (CNContact *)PA46DynamicMeContact:(NSArray<id<CNKeyDescriptor>> *)keys
+                              error:(NSError **)error;
 @end
 
 @implementation CNContactStore (PhoneAuraMyCardBridge)
 
-- (nullable CNContact *)PA46DynamicMeContact:(NSArray<id<CNKeyDescriptor>> *)keys
-                                       error:(NSError **)error {
+- (CNContact *)PA46DynamicMeContact:(NSArray<id<CNKeyDescriptor>> *)keys
+                              error:(NSError **)error {
     NSArray<NSString *> *selectorNames = @[
         @"unifiedMeContactWithKeysToFetch:error:",
         @"_crossPlatformUnifiedMeContactWithKeysToFetch:error:",
@@ -45,3 +47,5 @@
 /* Rewrite only the source-level unavailable call after Contacts.h is parsed. */
 #define unifiedMeContactWithKeysToFetch PA46DynamicMeContact
 #include "PAContactFlowV46.m"
+
+NS_ASSUME_NONNULL_END
