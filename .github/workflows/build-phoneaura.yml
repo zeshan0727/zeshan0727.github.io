@@ -9,6 +9,12 @@ on:
     paths:
       - "source/PhoneAura/**"
       - ".github/workflows/build-phoneaura.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "source/PhoneAura/**"
+      - ".github/workflows/build-phoneaura.yml"
 
 permissions:
   contents: read
