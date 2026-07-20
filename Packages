@@ -142,18 +142,18 @@ Author: Next Solution
 Name: Sweat My Phone (RootHide)
 
 Package: com.nextsolution.woolcontrolcenter
-Version: 1.0.0
+Version: 1.1.0
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
 Installed-Size: 280
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/WoolControlCenter_1.0.0_RootHide_iOS16.deb
-Size: 24052
-MD5sum: 1f171d1307340e12dd0ad916003752fb
-SHA1: 649ab94778696b2dddae1e08da7a5b2227f3c474
-SHA256: d664f8ac4da39f0879c8a30cb176ace3d947157b2ce16cdd4c732dc9f6b3a646
+Filename: ./debfiles/WoolControlCenter_1.1.0_RootHide_iOS16.deb
+Size: 24316
+MD5sum: 0663bdcfef6cbb646b45cb1ea12db0d5
+SHA1: 971caba813c4076e39f25d9ca0d5150d26c3ea37
+SHA256: 142b76f33f9da4dd1aa7ac81b226259263f2aca3ff58867dbbb3c8f1100775bd
 Section: Tweaks
-Description: Redesigns iOS 16 Control Center modules with realistic 3D wool and felt backgrounds. Includes global and per-module wool palettes, solid backgrounds, custom photos, opacity, texture density, depth, and corner radius controls.
+Description: Applies realistic 3D wool and felt directly to each real iOS 16 Control Center module background while preserving icons, sliders, live content, animations, and touch handling. Includes a repaired Settings preference pane with global and per-module styles, photos, opacity, texture density, depth, and corner radius controls.
 Author: Next Solution
 Name: Wool Control Center
 
