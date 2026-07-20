@@ -2,84 +2,69 @@
 #import "PAConceptDUI.h"
 #import "PAConceptDSurfaces.h"
 #import <ContactsUI/ContactsUI.h>
-#import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
 static CFStringRef const PADomain = CFSTR("com.zeshan.phoneaura");
 static CFStringRef const PAChanged = CFSTR("com.zeshan.phoneaura/preferences.changed");
-static const void *PAHeaderKeyV4 = &PAHeaderKeyV4;
-static const void *PADockKeyV4 = &PADockKeyV4;
-static const void *PAFavoritesKeyV4 = &PAFavoritesKeyV4;
-static const void *PARecentsKeyV4 = &PARecentsKeyV4;
-static const void *PAContactsKeyV4 = &PAContactsKeyV4;
-static const void *PAKeypadKeyV4 = &PAKeypadKeyV4;
-static const void *PACardKeyV4 = &PACardKeyV4;
-static const void *PABackgroundKeyV4 = &PABackgroundKeyV4;
 
-static id PAReadV4(NSString *key) {
+static const void *PAHeaderKey = &PAHeaderKey;
+static const void *PADockKey = &PADockKey;
+static const void *PAOverlayKey = &PAOverlayKey;
+static const void *PAFavoritesKey = &PAFavoritesKey;
+static const void *PARecentsKey = &PARecentsKey;
+static const void *PAContactsKey = &PAContactsKey;
+static const void *PAKeypadKey = &PAKeypadKey;
+static const void *PAFavoritesSignatureKey = &PAFavoritesSignatureKey;
+
+static id PARead(NSString *key) {
     CFPreferencesAppSynchronize(PADomain);
     return CFBridgingRelease(CFPreferencesCopyAppValue((__bridge CFStringRef)key, PADomain));
 }
 
-static BOOL PABoolV4(NSString *key, BOOL fallback) {
-    id value = PAReadV4(key);
+static BOOL PABool(NSString *key, BOOL fallback) {
+    id value = PARead(key);
     return value ? [value boolValue] : fallback;
 }
 
-static CGFloat PAFloatV4(NSString *key, CGFloat fallback) {
-    id value = PAReadV4(key);
+static CGFloat PAFloat(NSString *key, CGFloat fallback) {
+    id value = PARead(key);
     return value ? [value doubleValue] : fallback;
 }
 
-static NSArray<UIView *> *PASubviewsV4(UIView *view) {
-    if (!view) return @[];
-    NSMutableArray *result = [NSMutableArray array];
-    for (UIView *subview in view.subviews) {
-        [result addObject:subview];
-        [result addObjectsFromArray:PASubviewsV4(subview)];
-    }
-    return result;
-}
-
-static UINavigationController *PANavigationV4(UITabBarController *tabController) {
+static UINavigationController *PANavigation(UITabBarController *tabController) {
     UIViewController *selected = tabController.selectedViewController;
     return [selected isKindOfClass:[UINavigationController class]] ? (UINavigationController *)selected : nil;
 }
 
-static UIViewController *PATopV4(UITabBarController *tabController) {
-    UINavigationController *navigationController = PANavigationV4(tabController);
+static UIViewController *PATop(UITabBarController *tabController) {
+    UINavigationController *navigationController = PANavigation(tabController);
     return navigationController ? navigationController.topViewController : tabController.selectedViewController;
 }
 
-static BOOL PAIsRootV4(UITabBarController *tabController) {
-    UINavigationController *navigationController = PANavigationV4(tabController);
+static BOOL PAIsRoot(UITabBarController *tabController) {
+    UINavigationController *navigationController = PANavigation(tabController);
     return !navigationController || navigationController.viewControllers.count <= 1;
 }
 
-static UITabBarController *PAFindTabV4(UIViewController *controller) {
-    UIViewController *cursor = controller;
+static UITabBarController *PAFindTab(UIViewController *controller) {
+    if ([controller isKindOfClass:[UITabBarController class]]) return (UITabBarController *)controller;
+    if (controller.tabBarController) return controller.tabBarController;
+    UIViewController *cursor = controller.parentViewController;
     while (cursor) {
         if ([cursor isKindOfClass:[UITabBarController class]]) return (UITabBarController *)cursor;
         if (cursor.tabBarController) return cursor.tabBarController;
-        cursor = cursor.parentViewController ?: cursor.presentingViewController;
-    }
-    for (UIWindow *window in UIApplication.sharedApplication.windows) {
-        UIViewController *root = window.rootViewController;
-        if ([root isKindOfClass:[UITabBarController class]]) return (UITabBarController *)root;
-        for (UIViewController *child in root.childViewControllers) {
-            if ([child isKindOfClass:[UITabBarController class]]) return (UITabBarController *)child;
-        }
+        cursor = cursor.parentViewController;
     }
     return nil;
 }
 
-static BOOL PAViewInsideV4(UIView *view, UIView *ancestor) {
-    UIView *cursor = view;
-    while (cursor) {
-        if (cursor == ancestor) return YES;
-        cursor = cursor.superview;
-    }
-    return NO;
+static void PASettingsChanged(CFNotificationCenterRef center,
+                              void *observer,
+                              CFStringRef name,
+                              const void *object,
+                              CFDictionaryRef userInfo) {
+    PhoneAuraManager *manager = (__bridge PhoneAuraManager *)observer;
+    dispatch_async(dispatch_get_main_queue(), ^{ [manager reloadPreferences]; });
 }
 
 @interface PhoneAuraManager ()
@@ -97,6 +82,10 @@ static BOOL PAViewInsideV4(UIView *view, UIView *ancestor) {
 @property(nonatomic,weak) UITabBarController *tabController;
 @property(nonatomic,strong) PAStudioHeaderView *header;
 @property(nonatomic,strong) PAStudioDock *dock;
+@property(nonatomic,strong) UIView *overlay;
+@property(nonatomic) BOOL applying;
+@property(nonatomic) NSUInteger lastSelectedIndex;
+@property(nonatomic) BOOL hasLastSelectedIndex;
 @end
 
 @implementation PhoneAuraManager
@@ -110,24 +99,16 @@ static BOOL PAViewInsideV4(UIView *view, UIView *ancestor) {
 
 - (instancetype)init {
     if ((self = [super init])) {
+        _lastSelectedIndex = NSNotFound;
         [self reloadPreferences];
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
                                         (__bridge const void *)self,
-                                        PASettingsChangedV4,
+                                        PASettingsChanged,
                                         PAChanged,
                                         NULL,
                                         CFNotificationSuspensionBehaviorDeliverImmediately);
     }
     return self;
-}
-
-static void PASettingsChangedV4(CFNotificationCenterRef center,
-                                void *observer,
-                                CFStringRef name,
-                                const void *object,
-                                CFDictionaryRef userInfo) {
-    PhoneAuraManager *manager = (__bridge PhoneAuraManager *)observer;
-    dispatch_async(dispatch_get_main_queue(), ^{ [manager reloadPreferences]; });
 }
 
 - (void)dealloc {
@@ -138,85 +119,109 @@ static void PASettingsChangedV4(CFNotificationCenterRef center,
 }
 
 - (void)reloadPreferences {
-    self.enabled = PABoolV4(@"enabled", YES);
-    self.haptics = PABoolV4(@"haptics", YES);
-    self.animations = PABoolV4(@"animations", YES);
-    self.showSubtitles = PABoolV4(@"showSubtitles", YES);
-    self.fullFavorites = PABoolV4(@"fullFavorites", YES);
-    self.fullRecents = PABoolV4(@"fullRecents", YES);
-    self.fullContacts = PABoolV4(@"fullContacts", YES);
-    self.fullKeypad = PABoolV4(@"fullKeypad", YES);
-    self.cardOpacity = MAX(0.65, MIN(PAFloatV4(@"cardOpacity", 0.96), 1.0));
-    self.cornerRadius = MAX(10.0, MIN(PAFloatV4(@"cornerRadius", 16.0), 26.0));
-    id identifiers = PAReadV4(@"favoriteIdentifiers");
+    self.enabled = PABool(@"enabled", YES);
+    self.haptics = PABool(@"haptics", YES);
+    self.animations = PABool(@"animations", YES);
+    self.showSubtitles = PABool(@"showSubtitles", YES);
+    self.fullFavorites = PABool(@"fullFavorites", YES);
+    self.fullRecents = PABool(@"fullRecents", YES);
+    self.fullContacts = PABool(@"fullContacts", YES);
+    self.fullKeypad = PABool(@"fullKeypad", YES);
+    self.cardOpacity = MAX(0.65, MIN(PAFloat(@"cardOpacity", 0.96), 1.0));
+    self.cornerRadius = MAX(10.0, MIN(PAFloat(@"cornerRadius", 16.0), 26.0));
+    id identifiers = PARead(@"favoriteIdentifiers");
     self.favoriteIdentifiers = [identifiers isKindOfClass:[NSArray class]] ? identifiers : @[];
 
+    self.hasLastSelectedIndex = NO;
     if (!self.tabController) return;
-    if (self.enabled) [self applyToTabController:self.tabController animated:NO];
+    if (self.enabled) [self applyToTabController:self.tabController animated:NO forceDataRefresh:YES];
     else [self restoreTabController:self.tabController];
 }
 
 - (void)controllerDidAppear:(UIViewController *)controller {
-    UITabBarController *tabController = PAFindTabV4(controller);
+    UITabBarController *tabController = PAFindTab(controller);
     if (!tabController) return;
     self.tabController = tabController;
-    if (self.enabled) [self applyToTabController:tabController animated:NO];
+    if (self.enabled) [self applyToTabController:tabController animated:NO forceDataRefresh:NO];
     else [self restoreTabController:tabController];
 }
 
 - (void)controllerDidLayout:(UIViewController *)controller {
-    UITabBarController *tabController = PAFindTabV4(controller);
+    UITabBarController *tabController = PAFindTab(controller);
     if (!self.enabled || !tabController || tabController != self.tabController) return;
-    [self applyToTabController:tabController animated:NO];
+    [self layoutChromeForTabController:tabController];
 }
 
 - (void)tabSelectionChanged:(UITabBarController *)tabController {
     self.tabController = tabController;
-    if (self.enabled) [self applyToTabController:tabController animated:YES];
-    else [self restoreTabController:tabController];
+    __weak typeof(self) weakSelf = self;
+    __weak UITabBarController *weakTab = tabController;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        PhoneAuraManager *strongSelf = weakSelf;
+        UITabBarController *strongTab = weakTab;
+        if (!strongSelf || !strongTab) return;
+        if (strongSelf.enabled) [strongSelf applyToTabController:strongTab animated:YES forceDataRefresh:NO];
+        else [strongSelf restoreTabController:strongTab];
+    });
 }
 
-- (void)applyToTabController:(UITabBarController *)tabController animated:(BOOL)animated {
-    if (!tabController.view.window && !tabController.view.superview) return;
-    if (!PAIsRootV4(tabController)) {
+- (void)applyToTabController:(UITabBarController *)tabController animated:(BOOL)animated forceDataRefresh:(BOOL)forceRefresh {
+    if (self.applying || !tabController.view.window) return;
+    self.applying = YES;
+
+    if (!PAIsRoot(tabController)) {
         [self showSystemNavigation:tabController];
+        self.applying = NO;
         return;
     }
 
     tabController.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
     [self installDock:tabController];
     [self installHeader:tabController];
-    [self configureChrome:tabController animated:animated];
-    [self installSelectedSurface:tabController];
-    [self styleFallbackSurface:tabController];
+    [self installOverlay:tabController];
+    [self layoutChromeForTabController:tabController];
+
+    NSUInteger index = MIN(tabController.selectedIndex, (NSUInteger)4);
+    BOOL changed = !self.hasLastSelectedIndex || self.lastSelectedIndex != index;
+    [self configureChromeForIndex:index animated:(animated && changed) tabController:tabController];
+    [self showSurfaceForIndex:index tabController:tabController refresh:(forceRefresh || changed)];
+    self.lastSelectedIndex = index;
+    self.hasLastSelectedIndex = YES;
+
+    [tabController.view bringSubviewToFront:self.overlay];
     [tabController.view bringSubviewToFront:self.header];
+    [tabController.view bringSubviewToFront:tabController.tabBar];
     [tabController.tabBar bringSubviewToFront:self.dock];
+    self.applying = NO;
 }
 
 - (void)installDock:(UITabBarController *)tabController {
     UITabBar *tabBar = tabController.tabBar;
-    PAStudioDock *dock = objc_getAssociatedObject(tabBar, PADockKeyV4);
+    PAStudioDock *dock = objc_getAssociatedObject(tabBar, PADockKey);
     if (!dock) {
         dock = [[PAStudioDock alloc] init];
         __weak typeof(self) weakSelf = self;
         __weak UITabBarController *weakTab = tabController;
         dock.selectionHandler = ^(NSUInteger index) {
             UITabBarController *strongTab = weakTab;
-            if (!strongTab || index >= strongTab.viewControllers.count) return;
-            if (weakSelf.haptics) {
+            PhoneAuraManager *strongSelf = weakSelf;
+            if (!strongTab || !strongSelf || index >= strongTab.viewControllers.count) return;
+            if (strongSelf.haptics) {
                 UISelectionFeedbackGenerator *generator = [[UISelectionFeedbackGenerator alloc] init];
                 [generator selectionChanged];
             }
-            strongTab.selectedIndex = index;
-            [weakSelf applyToTabController:strongTab animated:YES];
+            if (strongTab.selectedIndex == index) {
+                [strongSelf applyToTabController:strongTab animated:NO forceDataRefresh:NO];
+            } else {
+                strongTab.selectedIndex = index;
+            }
         };
         [tabBar addSubview:dock];
-        objc_setAssociatedObject(tabBar, PADockKeyV4, dock, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(tabBar, PADockKey, dock, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     self.dock = dock;
     dock.hidden = NO;
-    dock.frame = CGRectInset(tabBar.bounds, 8, 4);
-    dock.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
     tabBar.backgroundImage = [UIImage new];
     tabBar.shadowImage = [UIImage new];
     tabBar.backgroundColor = UIColor.clearColor;
@@ -232,23 +237,51 @@ static void PASettingsChangedV4(CFNotificationCenterRef center,
 }
 
 - (void)installHeader:(UITabBarController *)tabController {
-    PAStudioHeaderView *header = objc_getAssociatedObject(tabController.view, PAHeaderKeyV4);
+    PAStudioHeaderView *header = objc_getAssociatedObject(tabController.view, PAHeaderKey);
     if (!header) {
         header = [[PAStudioHeaderView alloc] init];
         __weak typeof(self) weakSelf = self;
         header.actionHandler = ^{ [weakSelf headerAction]; };
         [tabController.view addSubview:header];
-        objc_setAssociatedObject(tabController.view, PAHeaderKeyV4, header, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(tabController.view, PAHeaderKey, header, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     self.header = header;
     header.hidden = NO;
-    CGFloat safeTop = tabController.view.safeAreaInsets.top;
-    header.frame = CGRectMake(20, safeTop + 2, CGRectGetWidth(tabController.view.bounds) - 40, 66);
-    header.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
 }
 
-- (void)configureChrome:(UITabBarController *)tabController animated:(BOOL)animated {
-    NSUInteger index = MIN(tabController.selectedIndex, 4);
+- (void)installOverlay:(UITabBarController *)tabController {
+    UIView *overlay = objc_getAssociatedObject(tabController.view, PAOverlayKey);
+    if (!overlay) {
+        overlay = [[UIView alloc] init];
+        overlay.backgroundColor = PAColorHex(0x040817, 1.0);
+        overlay.clipsToBounds = YES;
+        [tabController.view addSubview:overlay];
+        objc_setAssociatedObject(tabController.view, PAOverlayKey, overlay, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    self.overlay = overlay;
+}
+
+- (void)layoutChromeForTabController:(UITabBarController *)tabController {
+    if (!tabController.view.window) return;
+    CGFloat width = CGRectGetWidth(tabController.view.bounds);
+    CGFloat height = CGRectGetHeight(tabController.view.bounds);
+    CGFloat safeTop = tabController.view.safeAreaInsets.top;
+    self.header.frame = CGRectMake(20.0, safeTop + 2.0, MAX(0.0, width - 40.0), 66.0);
+
+    CGRect tabFrame = tabController.tabBar.frame;
+    CGFloat overlayTop = safeTop + 72.0;
+    CGFloat overlayBottom = CGRectGetMinY(tabFrame);
+    if (overlayBottom <= overlayTop || overlayBottom > height) {
+        overlayBottom = height - MAX(49.0, CGRectGetHeight(tabController.tabBar.bounds));
+    }
+    self.overlay.frame = CGRectMake(0, overlayTop, width, MAX(0.0, overlayBottom - overlayTop));
+    for (UIView *surface in self.overlay.subviews) surface.frame = self.overlay.bounds;
+
+    self.dock.frame = CGRectInset(tabController.tabBar.bounds, 8.0, 4.0);
+    self.dock.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+}
+
+- (void)configureChromeForIndex:(NSUInteger)index animated:(BOOL)animated tabController:(UITabBarController *)tabController {
     NSArray *titles = @[@"Favorites", @"Recents", @"Contacts", @"Keypad", @"Voicemail"];
     NSArray *subtitles = @[@"Your people, one tap away.", @"Your call history at a glance.", @"All your connections.", @"Dial with confidence.", @"Messages that matter."];
     NSArray *icons = @[@"plus", @"arrow.clockwise", @"person.badge.plus", @"ellipsis", @"pencil"];
@@ -258,146 +291,95 @@ static void PASettingsChangedV4(CFNotificationCenterRef center,
                          accent:PAAccentForIndex(index)
                    showSubtitle:self.showSubtitles];
     [self.dock updateSelectedIndex:index animated:(animated && self.animations)];
-    UINavigationController *navigationController = PANavigationV4(tabController);
+
+    UINavigationController *navigationController = PANavigation(tabController);
     if (navigationController) navigationController.navigationBarHidden = YES;
-    UIViewController *top = PATopV4(tabController);
-    top.additionalSafeAreaInsets = UIEdgeInsetsMake(78, 0, 0, 0);
+    UIViewController *top = PATop(tabController);
+    top.additionalSafeAreaInsets = UIEdgeInsetsZero;
 }
 
-- (void)hideAllCustomSurfaces:(UIViewController *)controller except:(UIView *)visible {
-    NSArray *keys = @[[NSValue valueWithPointer:PAFavoritesKeyV4],
-                      [NSValue valueWithPointer:PARecentsKeyV4],
-                      [NSValue valueWithPointer:PAContactsKeyV4],
-                      [NSValue valueWithPointer:PAKeypadKeyV4]];
-    for (NSValue *value in keys) {
-        UIView *surface = objc_getAssociatedObject(controller.view, value.pointerValue);
-        if (surface) surface.hidden = surface != visible;
+- (void)hideAllOverlaySurfacesExcept:(UIView *)visible {
+    for (UIView *surface in self.overlay.subviews) {
+        surface.hidden = surface != visible;
+        surface.userInteractionEnabled = surface == visible;
     }
 }
 
-- (void)installSelectedSurface:(UITabBarController *)tabController {
-    UIViewController *top = PATopV4(tabController);
-    if (!top || !top.isViewLoaded) return;
-    NSUInteger index = MIN(tabController.selectedIndex, 4);
+- (void)showSurfaceForIndex:(NSUInteger)index tabController:(UITabBarController *)tabController refresh:(BOOL)refresh {
     UIView *visible = nil;
 
     if (index == 0 && self.fullFavorites) {
-        PAFavoritesDashboardView *surface = objc_getAssociatedObject(top.view, PAFavoritesKeyV4);
+        PAFavoritesDashboardView *surface = objc_getAssociatedObject(self.overlay, PAFavoritesKey);
         if (!surface) {
-            surface = [[PAFavoritesDashboardView alloc] initWithFrame:top.view.bounds];
-            surface.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+            surface = [[PAFavoritesDashboardView alloc] initWithFrame:self.overlay.bounds];
             __weak typeof(self) weakSelf = self;
             surface.callHandler = ^(NSString *number) { [weakSelf callNumber:number]; };
             surface.settingsHandler = ^{ [weakSelf openStudioApp]; };
-            [top.view addSubview:surface];
-            objc_setAssociatedObject(top.view, PAFavoritesKeyV4, surface, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            [self.overlay addSubview:surface];
+            objc_setAssociatedObject(self.overlay, PAFavoritesKey, surface, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
         surface.hapticsEnabled = self.haptics;
-        [surface reloadFavoriteIdentifiers:self.favoriteIdentifiers];
+        NSString *signature = [self.favoriteIdentifiers componentsJoinedByString:@"|"] ?: @"";
+        NSString *loadedSignature = objc_getAssociatedObject(surface, PAFavoritesSignatureKey);
+        if (refresh || ![loadedSignature isEqualToString:signature]) {
+            objc_setAssociatedObject(surface, PAFavoritesSignatureKey, signature, OBJC_ASSOCIATION_COPY_NONATOMIC);
+            [surface reloadFavoriteIdentifiers:self.favoriteIdentifiers];
+        }
         visible = surface;
     } else if (index == 1 && self.fullRecents) {
-        PARecentsDashboardView *surface = objc_getAssociatedObject(top.view, PARecentsKeyV4);
+        PARecentsDashboardView *surface = objc_getAssociatedObject(self.overlay, PARecentsKey);
         if (!surface) {
-            surface = [[PARecentsDashboardView alloc] initWithFrame:top.view.bounds];
-            surface.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+            surface = [[PARecentsDashboardView alloc] initWithFrame:self.overlay.bounds];
             __weak typeof(self) weakSelf = self;
             surface.callHandler = ^(NSString *number) { [weakSelf callNumber:number]; };
-            [top.view addSubview:surface];
-            objc_setAssociatedObject(top.view, PARecentsKeyV4, surface, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            [self.overlay addSubview:surface];
+            objc_setAssociatedObject(self.overlay, PARecentsKey, surface, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        } else if (refresh) {
+            [surface refresh];
         }
         surface.hapticsEnabled = self.haptics;
-        [surface refresh];
         visible = surface;
     } else if (index == 2 && self.fullContacts) {
-        PAContactsDashboardView *surface = objc_getAssociatedObject(top.view, PAContactsKeyV4);
+        PAContactsDashboardView *surface = objc_getAssociatedObject(self.overlay, PAContactsKey);
         if (!surface) {
-            surface = [[PAContactsDashboardView alloc] initWithFrame:top.view.bounds];
-            surface.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+            surface = [[PAContactsDashboardView alloc] initWithFrame:self.overlay.bounds];
             __weak typeof(self) weakSelf = self;
             surface.contactHandler = ^(CNContact *contact) { [weakSelf showContact:contact]; };
-            [top.view addSubview:surface];
-            objc_setAssociatedObject(top.view, PAContactsKeyV4, surface, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            [self.overlay addSubview:surface];
+            objc_setAssociatedObject(self.overlay, PAContactsKey, surface, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        } else if (refresh) {
+            [surface refresh];
         }
         surface.hapticsEnabled = self.haptics;
         visible = surface;
     } else if (index == 3 && self.fullKeypad) {
-        PAStudioKeypadView *surface = objc_getAssociatedObject(top.view, PAKeypadKeyV4);
+        PAStudioKeypadView *surface = objc_getAssociatedObject(self.overlay, PAKeypadKey);
         if (!surface) {
-            surface = [[PAStudioKeypadView alloc] initWithFrame:top.view.bounds];
-            surface.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-            [top.view addSubview:surface];
-            objc_setAssociatedObject(top.view, PAKeypadKeyV4, surface, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            surface = [[PAStudioKeypadView alloc] initWithFrame:self.overlay.bounds];
+            [self.overlay addSubview:surface];
+            objc_setAssociatedObject(self.overlay, PAKeypadKey, surface, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
-        surface.backgroundColor = PAColorHex(0x040817,1);
+        surface.backgroundColor = PAColorHex(0x040817, 1.0);
         surface.hapticsEnabled = self.haptics;
         surface.animationsEnabled = self.animations;
         surface.studioCornerRadius = self.cornerRadius;
         visible = surface;
     }
 
-    [self hideAllCustomSurfaces:top except:visible];
+    BOOL hasCustomSurface = visible != nil;
+    self.overlay.hidden = !hasCustomSurface;
+    self.overlay.userInteractionEnabled = hasCustomSurface;
+    [self hideAllOverlaySurfacesExcept:visible];
     if (visible) {
-        visible.hidden = NO;
-        visible.frame = top.view.bounds;
-        [top.view bringSubviewToFront:visible];
+        visible.frame = self.overlay.bounds;
+        [self.overlay bringSubviewToFront:visible];
     }
-}
-
-- (void)styleFallbackSurface:(UITabBarController *)tabController {
-    UIViewController *top = PATopV4(tabController);
-    NSUInteger index = MIN(tabController.selectedIndex, 4);
-    BOOL custom = (index == 0 && self.fullFavorites) || (index == 1 && self.fullRecents) || (index == 2 && self.fullContacts) || (index == 3 && self.fullKeypad);
-    if (custom || !top.isViewLoaded) return;
-
-    CAGradientLayer *background = objc_getAssociatedObject(top.view, PABackgroundKeyV4);
-    if (!background) {
-        background = [CAGradientLayer layer];
-        [top.view.layer insertSublayer:background atIndex:0];
-        objc_setAssociatedObject(top.view, PABackgroundKeyV4, background, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    background.frame = top.view.bounds;
-    background.colors = @[(id)[PAAccentForIndex(index) colorWithAlphaComponent:0.15].CGColor,
-                          (id)PAColorHex(0x08132B,1).CGColor,
-                          (id)PAColorHex(0x030712,1).CGColor];
-    top.view.backgroundColor = PAColorHex(0x030712,1);
-    for (UIView *view in PASubviewsV4(top.view)) {
-        if ([view isKindOfClass:[UITableView class]]) [self styleTableView:(UITableView *)view tabIndex:index];
-        else if ([view isKindOfClass:[UIScrollView class]]) view.backgroundColor = UIColor.clearColor;
-    }
-}
-
-- (void)styleTableView:(UITableView *)tableView tabIndex:(NSUInteger)tabIndex {
-    tableView.backgroundColor = UIColor.clearColor;
-    tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    for (UITableViewCell *cell in tableView.visibleCells) {
-        NSIndexPath *indexPath = [tableView indexPathForCell:cell];
-        PAStudioCardBackgroundView *background = objc_getAssociatedObject(cell, PACardKeyV4);
-        if (!background) {
-            background = [[PAStudioCardBackgroundView alloc] initWithFrame:cell.bounds];
-            cell.backgroundView = background;
-            objc_setAssociatedObject(cell, PACardKeyV4, background, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        }
-        [background configureForTab:tabIndex row:indexPath.row opacity:self.cardOpacity cornerRadius:self.cornerRadius];
-        cell.backgroundColor = UIColor.clearColor;
-        cell.contentView.backgroundColor = UIColor.clearColor;
-        cell.tintColor = PAAccentForIndex(tabIndex);
-    }
-}
-
-- (void)tableViewDidLayout:(UITableView *)tableView {
-    if (!self.enabled || !self.tabController || !PAIsRootV4(self.tabController)) return;
-    NSUInteger index = MIN(self.tabController.selectedIndex, 4);
-    if (index != 4) return;
-    UIViewController *top = PATopV4(self.tabController);
-    if (top && PAViewInsideV4(tableView, top.view)) [self styleTableView:tableView tabIndex:index];
-}
-
-- (void)collectionViewDidLayout:(UICollectionView *)collectionView {
 }
 
 - (void)showContact:(CNContact *)contact {
-    UINavigationController *navigationController = PANavigationV4(self.tabController);
+    UINavigationController *navigationController = PANavigation(self.tabController);
     if (!navigationController || !contact) return;
+    [self showSystemNavigation:self.tabController];
     CNContactViewController *controller = [CNContactViewController viewControllerForContact:contact];
     controller.allowsEditing = YES;
     controller.allowsActions = YES;
@@ -418,17 +400,16 @@ static void PASettingsChangedV4(CFNotificationCenterRef center,
 }
 
 - (void)headerAction {
-    NSUInteger index = MIN(self.tabController.selectedIndex, 4);
-    UIViewController *top = PATopV4(self.tabController);
-    if (index == 0) [self openStudioApp];
-    else if (index == 1) {
-        PARecentsDashboardView *surface = objc_getAssociatedObject(top.view, PARecentsKeyV4);
+    NSUInteger index = MIN(self.tabController.selectedIndex, (NSUInteger)4);
+    if (index == 0 || index == 2 || index == 4) {
+        [self openStudioApp];
+    } else if (index == 1) {
+        PARecentsDashboardView *surface = objc_getAssociatedObject(self.overlay, PARecentsKey);
         [surface refresh];
-    } else if (index == 2) [self openStudioApp];
-    else if (index == 3) {
-        PAStudioKeypadView *surface = objc_getAssociatedObject(top.view, PAKeypadKeyV4);
+    } else if (index == 3) {
+        PAStudioKeypadView *surface = objc_getAssociatedObject(self.overlay, PAKeypadKey);
         [surface clearNumber];
-    } else [self openStudioApp];
+    }
 }
 
 - (void)openStudioApp {
@@ -443,6 +424,8 @@ static void PASettingsChangedV4(CFNotificationCenterRef center,
 
 - (void)showSystemNavigation:(UITabBarController *)tabController {
     self.header.hidden = YES;
+    self.overlay.hidden = YES;
+    self.overlay.userInteractionEnabled = NO;
     self.dock.hidden = YES;
     for (UIView *subview in tabController.tabBar.subviews) {
         if (subview == self.dock) continue;
@@ -452,17 +435,16 @@ static void PASettingsChangedV4(CFNotificationCenterRef center,
             subview.userInteractionEnabled = YES;
         }
     }
-    UINavigationController *navigationController = PANavigationV4(tabController);
+    UINavigationController *navigationController = PANavigation(tabController);
     if (navigationController) navigationController.navigationBarHidden = NO;
-    UIViewController *top = PATopV4(tabController);
+    UIViewController *top = PATop(tabController);
     top.additionalSafeAreaInsets = UIEdgeInsetsZero;
 }
 
 - (void)restoreTabController:(UITabBarController *)tabController {
     [self showSystemNavigation:tabController];
     tabController.overrideUserInterfaceStyle = UIUserInterfaceStyleUnspecified;
-    UIViewController *top = PATopV4(tabController);
-    [self hideAllCustomSurfaces:top except:nil];
+    self.hasLastSelectedIndex = NO;
 }
 
 @end
