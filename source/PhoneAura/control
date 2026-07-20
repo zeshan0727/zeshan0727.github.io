@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.3.1
+Version: 0.4.0
 Architecture: iphoneos-arm64e
-Description: Bold Card Studio reconstruction for the iOS 16 Phone app with a native Concept D keypad, deep navy studio surfaces, coral/indigo/teal/orange/pink card treatments, custom headers and dock, and RootHide PreferenceLoader settings while preserving Apple's real tab controller and calling flows.
+Description: Full Concept D redesign for the iOS 16 Phone app. Includes the PhoneAura Studio home-screen settings app, full replacement of the original keypad and Favorites root surfaces, deep navy card layouts, custom dock and headers, RootHide PreferenceLoader controls, and automatic restoration of Apple detail and call navigation.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
