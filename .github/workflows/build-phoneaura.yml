@@ -24,55 +24,69 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install build dependencies
+      - name: Install build dependencies and toolchains
         run: |
           brew install dpkg ldid >/dev/null
-          export THEOS="$HOME/theos"
-          git clone --quiet --recursive https://github.com/roothide/theos.git "$THEOS"
-          mkdir -p "$THEOS/sdks"
-          curl -fsSL --retry 3 \
-            https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz \
-            | tar -xJ -C "$THEOS/sdks"
 
-      - name: Build RootHide and rootless packages
+          git clone --quiet --recursive https://github.com/roothide/theos.git "$HOME/theos-roothide"
+          git clone --quiet --recursive https://github.com/theos/theos.git "$HOME/theos-rootless"
+
+          for THEOS_DIR in "$HOME/theos-roothide" "$HOME/theos-rootless"; do
+            mkdir -p "$THEOS_DIR/sdks"
+            curl -fsSL --retry 3 \
+              https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz \
+              | tar -xJ -C "$THEOS_DIR/sdks"
+          done
+
+      - name: Build RootHide package
         run: |
-          export THEOS="$HOME/theos"
-          mkdir -p release
+          set -o pipefail
+          export THEOS="$HOME/theos-roothide"
+          mkdir -p "$GITHUB_WORKSPACE/release"
           cd source/PhoneAura
-          : > build.log
+          cp control.roothide control
+          rm -rf packages .theos
+          make clean >/dev/null 2>&1 || true
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide 2>&1 | tee build-roothide.log
 
-          build_variant() {
-            SCHEME="$1"
-            CONTROL_FILE="$2"
-            LABEL="$3"
-            EXPECTED_ARCH="$4"
+          DEB="$(find packages -name '*.deb' -type f | head -n 1)"
+          test -n "$DEB"
+          test "$(dpkg-deb -f "$DEB" Architecture)" = "iphoneos-arm64e"
+          VERSION="$(dpkg-deb -f "$DEB" Version)"
+          cp "$DEB" "$GITHUB_WORKSPACE/release/PhoneAura_${VERSION}_RootHide_iOS16.deb"
+          dpkg-deb -f "$DEB" Package Version Architecture | tee -a build-roothide.log
 
-            echo "===== Building ${LABEL} (${SCHEME}) =====" | tee -a build.log
-            cp "$CONTROL_FILE" control
-            rm -rf packages .theos
-            make clean >> build.log 2>&1 || true
-            make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME="$SCHEME" >> build.log 2>&1
+      - name: Build rootless package
+        run: |
+          set -o pipefail
+          export THEOS="$HOME/theos-rootless"
+          cd source/PhoneAura
+          cp control.rootless control
+          rm -rf packages .theos
+          make clean >/dev/null 2>&1 || true
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless 2>&1 | tee build-rootless.log
 
-            DEB="$(find packages -name '*.deb' -type f | head -n 1)"
-            test -n "$DEB"
-            ACTUAL_ARCH="$(dpkg-deb -f "$DEB" Architecture)"
-            test "$ACTUAL_ARCH" = "$EXPECTED_ARCH"
+          DEB="$(find packages -name '*.deb' -type f | head -n 1)"
+          test -n "$DEB"
+          test "$(dpkg-deb -f "$DEB" Architecture)" = "iphoneos-arm64"
+          VERSION="$(dpkg-deb -f "$DEB" Version)"
+          cp "$DEB" "$GITHUB_WORKSPACE/release/PhoneAura_${VERSION}_Rootless_iOS16.deb"
+          dpkg-deb -f "$DEB" Package Version Architecture | tee -a build-rootless.log
 
-            VERSION="$(dpkg-deb -f "$DEB" Version)"
-            cp "$DEB" "../../release/PhoneAura_${VERSION}_${LABEL}_iOS16.deb"
-            echo "Built ${LABEL}: version=${VERSION}, architecture=${ACTUAL_ARCH}" | tee -a build.log
-          }
-
-          build_variant roothide control.roothide RootHide iphoneos-arm64e
-          build_variant rootless control.rootless Rootless iphoneos-arm64
-          tail -n 220 build.log
-
-      - name: Upload build log
+      - name: Upload RootHide build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PhoneAura-Build-Log
-          path: source/PhoneAura/build.log
+          name: PhoneAura-RootHide-Build-Log
+          path: source/PhoneAura/build-roothide.log
+          if-no-files-found: warn
+
+      - name: Upload rootless build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoneAura-Rootless-Build-Log
+          path: source/PhoneAura/build-rootless.log
           if-no-files-found: warn
 
       - name: Upload RootHide package
