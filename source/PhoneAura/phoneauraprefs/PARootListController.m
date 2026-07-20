@@ -31,13 +31,13 @@ static NSString * const PANotification = @"com.zeshan.phoneaura/preferences.chan
     [header.layer addSublayer:gradient];
 
     UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(38, 31, UIScreen.mainScreen.bounds.size.width - 120, 38)];
-    title.text = @"PhoneAura 0.4";
+    title.text = @"PhoneAura 0.4.2";
     title.textColor = UIColor.whiteColor;
     title.font = [UIFont systemFontOfSize:29 weight:UIFontWeightBold];
     [header addSubview:title];
 
     UILabel *subtitle = [[UILabel alloc] initWithFrame:CGRectMake(39, 71, UIScreen.mainScreen.bounds.size.width - 120, 25)];
-    subtitle.text = @"Full custom surfaces · Studio app";
+    subtitle.text = @"Stable isolated tab surfaces";
     subtitle.textColor = [UIColor colorWithWhite:1 alpha:0.85];
     subtitle.font = [UIFont systemFontOfSize:13 weight:UIFontWeightSemibold];
     [header addSubview:subtitle];
