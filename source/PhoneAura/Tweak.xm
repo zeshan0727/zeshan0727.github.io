@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 #import "PhoneAuraManager.h"
+#import "PAContactsRootBridge.h"
 
 static BOOL PAIsPhoneProcess(void) {
     return [[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.mobilephone"];
@@ -15,6 +16,7 @@ static const void *PACollectionLayoutGuard = &PACollectionLayoutGuard;
     %orig;
     if (PAIsPhoneProcess()) {
         [[PhoneAuraManager sharedManager] controllerDidAppear:self];
+        PAForceContactsRootSurfaceIfNeeded(self);
     }
 }
 
@@ -22,6 +24,7 @@ static const void *PACollectionLayoutGuard = &PACollectionLayoutGuard;
     %orig;
     if (PAIsPhoneProcess()) {
         [[PhoneAuraManager sharedManager] controllerDidLayout:self];
+        PAForceContactsRootSurfaceIfNeeded(self);
     }
 }
 
@@ -33,6 +36,7 @@ static const void *PACollectionLayoutGuard = &PACollectionLayoutGuard;
     %orig;
     if (PAIsPhoneProcess()) {
         [[PhoneAuraManager sharedManager] tabSelectionChanged:self];
+        PAForceContactsRootSurfaceIfNeeded(self.selectedViewController);
     }
 }
 
@@ -40,6 +44,9 @@ static const void *PACollectionLayoutGuard = &PACollectionLayoutGuard;
     %orig;
     if (PAIsPhoneProcess()) {
         [[PhoneAuraManager sharedManager] tabSelectionChanged:self];
+        UIViewController *top = [selectedViewController isKindOfClass:[UINavigationController class]]
+            ? ((UINavigationController *)selectedViewController).topViewController : selectedViewController;
+        PAForceContactsRootSurfaceIfNeeded(top);
     }
 }
 
@@ -47,6 +54,10 @@ static const void *PACollectionLayoutGuard = &PACollectionLayoutGuard;
     %orig;
     if (PAIsPhoneProcess()) {
         [[PhoneAuraManager sharedManager] tabSelectionChanged:self];
+        UIViewController *selected = self.selectedViewController;
+        UIViewController *top = [selected isKindOfClass:[UINavigationController class]]
+            ? ((UINavigationController *)selected).topViewController : selected;
+        PAForceContactsRootSurfaceIfNeeded(top);
     }
 }
 
