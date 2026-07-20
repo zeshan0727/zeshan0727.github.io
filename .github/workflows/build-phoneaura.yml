@@ -1,4 +1,4 @@
-name: Build PhoneAura RootHide
+name: Build PhoneAura RootHide and Rootless
 
 on:
   workflow_dispatch:
@@ -19,12 +19,12 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-roothide:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install build dependencies
+      - name: Install RootHide toolchain
         run: |
           brew install dpkg ldid >/dev/null
           export THEOS="$HOME/theos"
@@ -38,40 +38,124 @@ jobs:
         run: |
           export THEOS="$HOME/theos"
           cd source/PhoneAura
+          cp control.roothide control
           set +e
-          make clean > build.log 2>&1
-          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide >> build.log 2>&1
+          make clean > build-roothide.log 2>&1
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide >> build-roothide.log 2>&1
           STATUS=$?
-          tail -n 160 build.log
-          exit $STATUS
+          tail -n 200 build-roothide.log
+          if [ "$STATUS" -ne 0 ]; then exit "$STATUS"; fi
 
-      - name: Upload build log
+          DEB="$(find packages -name '*.deb' -type f | head -n 1)"
+          test -n "$DEB"
+          test "$(dpkg-deb -f "$DEB" Architecture)" = "iphoneos-arm64e"
+          VERSION="$(dpkg-deb -f "$DEB" Version)"
+          mkdir -p "$GITHUB_WORKSPACE/output"
+          cp "$DEB" "$GITHUB_WORKSPACE/output/PhoneAura_${VERSION}_RootHide_iOS16.deb"
+
+      - name: Upload RootHide build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PhoneAura-Build-Log
-          path: source/PhoneAura/build.log
+          name: PhoneAura-RootHide-Build-Log
+          path: source/PhoneAura/build-roothide.log
           if-no-files-found: warn
 
-      - name: Upload PhoneAura deb
+      - name: Upload RootHide package
         uses: actions/upload-artifact@v4
         with:
           name: PhoneAura-RootHide
-          path: source/PhoneAura/packages/*.deb
+          path: output/*_RootHide_iOS16.deb
           if-no-files-found: error
 
-      - name: Publish PhoneAura to Sileo repo
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  build-rootless:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install rootless toolchain
         run: |
-          DEB="$(find source/PhoneAura/packages -name '*.deb' -type f | head -n 1)"
-          VERSION="$(awk '/^Version:/{print $2; exit}' source/PhoneAura/control)"
+          brew install dpkg ldid >/dev/null
+          export THEOS="$HOME/theos"
+          git clone --quiet --recursive https://github.com/theos/theos.git "$THEOS"
+          mkdir -p "$THEOS/sdks"
+          curl -fsSL --retry 3 \
+            https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz \
+            | tar -xJ -C "$THEOS/sdks"
+
+      - name: Build rootless package
+        run: |
+          export THEOS="$HOME/theos"
+          cd source/PhoneAura
+          cp control.rootless control
+          set +e
+          make clean > build-rootless.log 2>&1
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless >> build-rootless.log 2>&1
+          STATUS=$?
+          tail -n 200 build-rootless.log
+          if [ "$STATUS" -ne 0 ]; then exit "$STATUS"; fi
+
+          DEB="$(find packages -name '*.deb' -type f | head -n 1)"
           test -n "$DEB"
+          test "$(dpkg-deb -f "$DEB" Architecture)" = "iphoneos-arm64"
+          VERSION="$(dpkg-deb -f "$DEB" Version)"
+          mkdir -p "$GITHUB_WORKSPACE/output"
+          cp "$DEB" "$GITHUB_WORKSPACE/output/PhoneAura_${VERSION}_Rootless_iOS16.deb"
+
+      - name: Upload rootless build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoneAura-Rootless-Build-Log
+          path: source/PhoneAura/build-rootless.log
+          if-no-files-found: warn
+
+      - name: Upload rootless package
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoneAura-Rootless
+          path: output/*_Rootless_iOS16.deb
+          if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - build-roothide
+      - build-rootless
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install repository tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq dpkg-dev bzip2 gzip
+
+      - name: Download RootHide package
+        uses: actions/download-artifact@v4
+        with:
+          name: PhoneAura-RootHide
+          path: release
+
+      - name: Download rootless package
+        uses: actions/download-artifact@v4
+        with:
+          name: PhoneAura-Rootless
+          path: release
+
+      - name: Publish both variants
+        run: |
+          VERSION="$(awk '/^Version:/{print $2; exit}' source/PhoneAura/control.roothide)"
           test -n "$VERSION"
+          test -f "release/PhoneAura_${VERSION}_RootHide_iOS16.deb"
+          test -f "release/PhoneAura_${VERSION}_Rootless_iOS16.deb"
+
           rm -f debfiles/PhoneAura_*.deb debfiles/com.zeshan.phoneaura_*.deb
-          cp "$DEB" "debfiles/PhoneAura_${VERSION}_RootHide_iOS16.deb"
+          cp "release/PhoneAura_${VERSION}_RootHide_iOS16.deb" debfiles/
+          cp "release/PhoneAura_${VERSION}_Rootless_iOS16.deb" debfiles/
+
           dpkg-scanpackages -m ./debfiles > Packages
           bzip2 -c9 Packages > Packages.bz2
           gzip -c9 Packages > Packages.gz
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add debfiles Packages Packages.bz2 Packages.gz
@@ -79,5 +163,5 @@ jobs:
             echo "Sileo repo is already current."
             exit 0
           fi
-          git commit -m "Publish PhoneAura RootHide ${VERSION}"
+          git commit -m "Publish PhoneAura ${VERSION} RootHide and rootless"
           git push origin HEAD:main

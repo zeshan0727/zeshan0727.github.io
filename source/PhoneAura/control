@@ -1,9 +1,9 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.2.1
+Version: 0.4.6
 Architecture: iphoneos-arm64e
-Description: Navigation safety release for the iOS 16 Phone app. Restores Apple's real tab controller and overlays a compact interactive glass dock without replacing the keypad, blocking content, or trapping the user on one screen.
+Description: RootHide iOS 16 inline Contacts and Favorites repair. Keeps the successful Concept D full-stage interface while replacing the crashing Apple contact-detail push with a native PhoneAura contact page inside the same tab, adding an in-app searchable favorite-contact selector, and showing Apple’s Siri/My Info contact as the Contacts My Card hero.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
-Depends: mobilesubstrate, preferenceloader, firmware (>= 16.0)
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
