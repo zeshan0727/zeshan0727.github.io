@@ -1,0 +1,10 @@
+Package: com.zeshan.phoneaura
+Name: PhoneAura
+Version: 0.1.0
+Architecture: iphoneos-arm64e
+Description: A modern glass redesign for the stock iOS 16 Phone app.
+Maintainer: Muhammad Zeeshan Barvi
+Author: Muhammad Zeeshan Barvi
+Section: Tweaks
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Conflicts: com.zeshan.phoneglass
