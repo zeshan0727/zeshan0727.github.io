@@ -3,6 +3,7 @@
         bundle = PhoneAuraPrefs;
         cell = PSLinkCell;
         detail = PARootListController;
+        isController = 1;
         icon = "/Library/PreferenceBundles/PhoneAuraPrefs.bundle/icon.png";
         label = PhoneAura;
     };
