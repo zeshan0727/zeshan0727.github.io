@@ -1,11 +1,19 @@
-name: Build Wool Control Center
+name: Build Wool Control Center RootHide
 
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
-      - 'source/WoolControlCenter/**'
-      - '.github/workflows/build-wool-control-center.yml'
+      - "source/WoolControlCenter/**"
+      - ".github/workflows/build-wool-control-center.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "source/WoolControlCenter/**"
+      - ".github/workflows/build-wool-control-center.yml"
 
 permissions:
   contents: write
@@ -14,8 +22,7 @@ jobs:
   build:
     runs-on: macos-14
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Expand source bundle
         run: |
@@ -29,43 +36,58 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          brew update
-          brew install ldid dpkg xz
-
-      - name: Install RootHide Theos
-        env:
-          THEOS: ${{ github.workspace }}/theos
-        run: |
-          bash -c "$(curl -fsSL https://raw.githubusercontent.com/roothide/theos/master/bin/install-theos)"
+          brew install dpkg ldid >/dev/null
+          export THEOS="$HOME/theos"
+          git clone --quiet --recursive https://github.com/roothide/theos.git "$THEOS"
+          mkdir -p "$THEOS/sdks"
+          curl -fsSL --retry 3 \
+            https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz \
+            | tar -xJ -C "$THEOS/sdks"
 
       - name: Build RootHide package
-        env:
-          THEOS: ${{ github.workspace }}/theos
         run: |
-          set -euo pipefail
+          export THEOS="$HOME/theos"
           cd source/WoolControlCenter
-          make clean
-          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
-          find packages -type f -name '*.deb' -print
+          set +e
+          make clean > build.log 2>&1
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide >> build.log 2>&1
+          STATUS=$?
+          tail -n 200 build.log
+          exit $STATUS
 
-      - name: Publish package to Sileo repo
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Wool-Control-Center-Build-Log
+          path: source/WoolControlCenter/build.log
+          if-no-files-found: warn
+
+      - name: Upload Wool Control Center deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: Wool-Control-Center-RootHide
+          path: source/WoolControlCenter/packages/*.deb
+          if-no-files-found: error
+
+      - name: Publish Wool Control Center to Sileo repo
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          set -euo pipefail
-          DEB=$(find source/WoolControlCenter/packages -type f -name '*.deb' | head -n 1)
+          DEB="$(find source/WoolControlCenter/packages -name '*.deb' -type f | head -n 1)"
+          VERSION="$(awk '/^Version:/{print $2; exit}' source/WoolControlCenter/control)"
           test -n "$DEB"
-          mkdir -p debfiles
-          cp "$DEB" debfiles/WoolControlCenter_RootHide_1.0.0_iOS16.deb
-          dpkg-scanpackages -m debfiles /dev/null > Packages
-          gzip -9c Packages > Packages.gz
-          bzip2 -9c Packages > Packages.bz2
-
-          rm -rf source/WoolControlCenter/.theos source/WoolControlCenter/packages
-          git config user.name "Next Solution Build Bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add source/WoolControlCenter debfiles/WoolControlCenter_RootHide_1.0.0_iOS16.deb Packages Packages.gz Packages.bz2
+          test -n "$VERSION"
+          rm -f debfiles/WoolControlCenter_*.deb debfiles/com.nextsolution.woolcontrolcenter_*.deb
+          cp "$DEB" "debfiles/WoolControlCenter_${VERSION}_RootHide_iOS16.deb"
+          dpkg-scanpackages -m ./debfiles > Packages
+          bzip2 -c9 Packages > Packages.bz2
+          gzip -c9 Packages > Packages.gz
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add debfiles Packages Packages.bz2 Packages.gz
           if git diff --cached --quiet; then
-            echo "No package changes to publish."
+            echo "Sileo repo is already current."
             exit 0
           fi
-          git commit -m "Publish Wool Control Center 1.0.0 [skip ci]"
-          git push
+          git commit -m "Publish Wool Control Center RootHide ${VERSION}"
+          git push origin HEAD:main
