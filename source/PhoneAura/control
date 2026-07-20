@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.2
+Version: 0.4.3
 Architecture: iphoneos-arm64e
-Description: Stability rebuild for RootHide iOS 16. Fixes the blank Settings configuration page, removes recursive layout hooks and mixed tab controllers, uses one isolated full-screen overlay for Favorites, Recents, Contacts and Keypad, serializes Contacts and CallHistory access, and keeps PhoneAura Studio for favorite-contact selection.
+Description: RootHide iOS 16 overlap and Settings repair. Generates preference controls directly in code, treats the iOS 16 Lists to Contacts stack as a root screen, hosts each custom tab in one opaque isolated container, restores the complete Apple screen when a custom tab is disabled, and preserves stock contact details and active-call controllers.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
