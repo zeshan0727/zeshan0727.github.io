@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.2.1
+Version: 0.3.1
 Architecture: iphoneos-arm64e
-Description: Navigation safety release for the iOS 16 Phone app. Restores Apple's real tab controller and overlays a compact interactive glass dock without replacing the keypad, blocking content, or trapping the user on one screen.
+Description: Bold Card Studio reconstruction for the iOS 16 Phone app with a native Concept D keypad, deep navy studio surfaces, coral/indigo/teal/orange/pink card treatments, custom headers and dock, and RootHide PreferenceLoader settings while preserving Apple's real tab controller and calling flows.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
