@@ -1,11 +1,13 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 #import "PhoneAuraManager.h"
+#import "PAFullSurfaceFixes.h"
 
 static BOOL PAIsPhoneProcess(void) {
     return [[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.mobilephone"];
 }
 
+static const void *PAControllerLayoutGuard = &PAControllerLayoutGuard;
 static const void *PATableLayoutGuard = &PATableLayoutGuard;
 static const void *PACollectionLayoutGuard = &PACollectionLayoutGuard;
 
@@ -15,14 +17,17 @@ static const void *PACollectionLayoutGuard = &PACollectionLayoutGuard;
     %orig;
     if (PAIsPhoneProcess()) {
         [[PhoneAuraManager sharedManager] controllerDidAppear:self];
+        dispatch_async(dispatch_get_main_queue(), ^{ PAApplyFullSurfaceFixes(self); });
     }
 }
 
 - (void)viewDidLayoutSubviews {
     %orig;
-    if (PAIsPhoneProcess()) {
-        [[PhoneAuraManager sharedManager] controllerDidLayout:self];
-    }
+    if (!PAIsPhoneProcess() || [objc_getAssociatedObject(self, PAControllerLayoutGuard) boolValue]) return;
+    objc_setAssociatedObject(self, PAControllerLayoutGuard, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [[PhoneAuraManager sharedManager] controllerDidLayout:self];
+    PAApplyFullSurfaceFixes(self);
+    objc_setAssociatedObject(self, PAControllerLayoutGuard, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 %end
@@ -33,6 +38,7 @@ static const void *PACollectionLayoutGuard = &PACollectionLayoutGuard;
     %orig;
     if (PAIsPhoneProcess()) {
         [[PhoneAuraManager sharedManager] tabSelectionChanged:self];
+        dispatch_async(dispatch_get_main_queue(), ^{ PARefreshFullSurfaceForTabController(self); });
     }
 }
 
@@ -40,6 +46,7 @@ static const void *PACollectionLayoutGuard = &PACollectionLayoutGuard;
     %orig;
     if (PAIsPhoneProcess()) {
         [[PhoneAuraManager sharedManager] tabSelectionChanged:self];
+        dispatch_async(dispatch_get_main_queue(), ^{ PARefreshFullSurfaceForTabController(self); });
     }
 }
 
@@ -47,6 +54,7 @@ static const void *PACollectionLayoutGuard = &PACollectionLayoutGuard;
     %orig;
     if (PAIsPhoneProcess()) {
         [[PhoneAuraManager sharedManager] tabSelectionChanged:self];
+        PARefreshFullSurfaceForTabController(self);
     }
 }
 
@@ -78,7 +86,5 @@ static const void *PACollectionLayoutGuard = &PACollectionLayoutGuard;
 
 %ctor {
     if (!PAIsPhoneProcess()) return;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [PhoneAuraManager sharedManager];
-    });
+    dispatch_async(dispatch_get_main_queue(), ^{ [PhoneAuraManager sharedManager]; });
 }
