@@ -4,8 +4,8 @@
 <array>
     <dict>
         <key>cell</key><string>PSGroupCell</string>
-        <key>label</key><string>BOLD CARD STUDIO</string>
-        <key>footerText</key><string>PhoneAura 0.3 recreates Concept D with a navy studio background, colorful cards, a custom five-button dock, redesigned keypad surfaces and safe stock navigation underneath.</string>
+        <key>label</key><string>BOLD CARD STUDIO 0.3.1</string>
+        <key>footerText</key><string>Native Concept D reconstruction for RootHide and iOS 16. The custom keypad is rendered by PhoneAura; Apple’s tab controller and system calling flows remain active for safe navigation.</string>
     </dict>
     <dict>
         <key>cell</key><string>PSSwitchCell</string>
@@ -26,11 +26,11 @@
 
     <dict>
         <key>cell</key><string>PSGroupCell</string>
-        <key>label</key><string>LAYOUT</string>
+        <key>label</key><string>CONCEPT D LAYOUT</string>
     </dict>
     <dict>
         <key>cell</key><string>PSSwitchCell</string>
-        <key>label</key><string>Header Subtitles</string>
+        <key>label</key><string>Large Studio Headers</string>
         <key>defaults</key><string>com.zeshan.phoneaura</string>
         <key>key</key><string>showSubtitles</string>
         <key>default</key><true/>
@@ -46,7 +46,7 @@
     </dict>
     <dict>
         <key>cell</key><string>PSSwitchCell</string>
-        <key>label</key><string>Concept D Keypad Styling</string>
+        <key>label</key><string>Native Concept D Keypad</string>
         <key>defaults</key><string>com.zeshan.phoneaura</string>
         <key>key</key><string>styleKeypad</string>
         <key>default</key><true/>
@@ -57,7 +57,7 @@
         <key>label</key><string>Card Opacity</string>
         <key>defaults</key><string>com.zeshan.phoneaura</string>
         <key>key</key><string>cardOpacity</string>
-        <key>default</key><real>0.94</real>
+        <key>default</key><real>0.96</real>
         <key>min</key><real>0.60</real>
         <key>max</key><real>1.00</real>
         <key>showValue</key><true/>
@@ -98,7 +98,7 @@
 
     <dict>
         <key>cell</key><string>PSGroupCell</string>
-        <key>footerText</key><string>Restart the Phone app after major layout changes. Disabling PhoneAura restores the original Phone interface without uninstalling the package.</string>
+        <key>footerText</key><string>Restart Phone after major layout changes. Disabling PhoneAura restores the system Phone interface without uninstalling the package.</string>
     </dict>
     <dict>
         <key>cell</key><string>PSButtonCell</string>
