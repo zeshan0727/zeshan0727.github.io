@@ -4,16 +4,80 @@
 <array>
     <dict>
         <key>cell</key><string>PSGroupCell</string>
-        <key>label</key><string>PHONEAURA</string>
-        <key>footerText</key><string>A modern glass redesign for the stock Phone app. Long-press the floating dock inside Phone for quick controls.</string>
+        <key>label</key><string>BOLD CARD STUDIO</string>
+        <key>footerText</key><string>PhoneAura 0.3 recreates Concept D with a navy studio background, colorful cards, a custom five-button dock, redesigned keypad surfaces and safe stock navigation underneath.</string>
     </dict>
     <dict>
         <key>cell</key><string>PSSwitchCell</string>
-        <key>label</key><string>Enabled</string>
+        <key>label</key><string>Enable PhoneAura</string>
         <key>defaults</key><string>com.zeshan.phoneaura</string>
         <key>key</key><string>enabled</string>
         <key>default</key><true/>
         <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSwitchCell</string>
+        <key>label</key><string>Force Concept D Dark Mode</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>forceDark</string>
+        <key>default</key><true/>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+
+    <dict>
+        <key>cell</key><string>PSGroupCell</string>
+        <key>label</key><string>LAYOUT</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSwitchCell</string>
+        <key>label</key><string>Header Subtitles</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>showSubtitles</string>
+        <key>default</key><true/>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSwitchCell</string>
+        <key>label</key><string>Smart Shortcut Cards</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>showShortcuts</string>
+        <key>default</key><true/>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSwitchCell</string>
+        <key>label</key><string>Concept D Keypad Styling</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>styleKeypad</string>
+        <key>default</key><true/>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSliderCell</string>
+        <key>label</key><string>Card Opacity</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>cardOpacity</string>
+        <key>default</key><real>0.94</real>
+        <key>min</key><real>0.60</real>
+        <key>max</key><real>1.00</real>
+        <key>showValue</key><true/>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSSliderCell</string>
+        <key>label</key><string>Card Corner Radius</string>
+        <key>defaults</key><string>com.zeshan.phoneaura</string>
+        <key>key</key><string>cornerRadius</string>
+        <key>default</key><real>16.0</real>
+        <key>min</key><real>10.0</real>
+        <key>max</key><real>24.0</real>
+        <key>showValue</key><true/>
+        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
+    </dict>
+
+    <dict>
+        <key>cell</key><string>PSGroupCell</string>
+        <key>label</key><string>FEEDBACK</string>
     </dict>
     <dict>
         <key>cell</key><string>PSSwitchCell</string>
@@ -31,47 +95,19 @@
         <key>default</key><true/>
         <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
     </dict>
-    <dict>
-        <key>cell</key><string>PSSwitchCell</string>
-        <key>label</key><string>Midnight Appearance</string>
-        <key>defaults</key><string>com.zeshan.phoneaura</string>
-        <key>key</key><string>forceDark</string>
-        <key>default</key><true/>
-        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
-    </dict>
+
     <dict>
         <key>cell</key><string>PSGroupCell</string>
-        <key>label</key><string>ACCENT</string>
-    </dict>
-    <dict>
-        <key>cell</key><string>PSSegmentCell</string>
-        <key>label</key><string>Atmosphere</string>
-        <key>defaults</key><string>com.zeshan.phoneaura</string>
-        <key>key</key><string>accentStyle</string>
-        <key>default</key><integer>0</integer>
-        <key>validTitles</key>
-        <array><string>Ocean</string><string>Aurora</string><string>Emerald</string><string>Sunset</string></array>
-        <key>validValues</key>
-        <array><integer>0</integer><integer>1</integer><integer>2</integer><integer>3</integer></array>
-        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
-    </dict>
-    <dict>
-        <key>cell</key><string>PSSliderCell</string>
-        <key>label</key><string>Glass Intensity</string>
-        <key>defaults</key><string>com.zeshan.phoneaura</string>
-        <key>key</key><string>glassIntensity</string>
-        <key>default</key><real>0.72</real>
-        <key>min</key><real>0.35</real>
-        <key>max</key><real>1.0</real>
-        <key>showValue</key><true/>
-        <key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string>
-    </dict>
-    <dict>
-        <key>cell</key><string>PSGroupCell</string>
+        <key>footerText</key><string>Restart the Phone app after major layout changes. Disabling PhoneAura restores the original Phone interface without uninstalling the package.</string>
     </dict>
     <dict>
         <key>cell</key><string>PSButtonCell</string>
-        <key>label</key><string>Reset PhoneAura Settings</string>
+        <key>label</key><string>Restart Phone App</string>
+        <key>action</key><string>restartPhoneApp</string>
+    </dict>
+    <dict>
+        <key>cell</key><string>PSButtonCell</string>
+        <key>label</key><string>Reset Concept D Settings</string>
         <key>action</key><string>resetPreferences</string>
     </dict>
     <dict>
