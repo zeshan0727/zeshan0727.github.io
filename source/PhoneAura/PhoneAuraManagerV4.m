@@ -41,11 +41,6 @@ static UIViewController *PATop(UITabBarController *tabController) {
     return navigationController ? navigationController.topViewController : tabController.selectedViewController;
 }
 
-static BOOL PAIsRoot(UITabBarController *tabController) {
-    UINavigationController *navigationController = PANavigation(tabController);
-    return !navigationController || navigationController.viewControllers.count <= 1;
-}
-
 static UITabBarController *PAFindTab(UIViewController *controller) {
     if ([controller isKindOfClass:[UITabBarController class]]) return (UITabBarController *)controller;
     if (controller.tabBarController) return controller.tabBarController;
@@ -56,6 +51,36 @@ static UITabBarController *PAFindTab(UIViewController *controller) {
         cursor = cursor.parentViewController;
     }
     return nil;
+}
+
+/*
+ * The iOS 16 Contacts tab commonly has a two-controller root stack:
+ * Lists -> Contacts.  Treat that stack as the tab root.  Only a real contact
+ * detail controller (or a deeper navigation stack) should expose Apple's UI.
+ */
+static BOOL PAIsSystemDetail(UITabBarController *tabController) {
+    UINavigationController *navigationController = PANavigation(tabController);
+    UIViewController *top = PATop(tabController);
+    if (!top) return NO;
+
+    if ([top isKindOfClass:[CNContactViewController class]]) return YES;
+
+    NSUInteger index = MIN(tabController.selectedIndex, (NSUInteger)4);
+    NSUInteger count = navigationController.viewControllers.count;
+    if (!navigationController || count <= 1) return NO;
+
+    if (index == 2 && count <= 2) {
+        NSString *className = NSStringFromClass(top.class);
+        NSString *title = (top.navigationItem.title ?: top.title ?: @"").lowercaseString;
+        if ([className containsString:@"Contact"] ||
+            [className containsString:@"People"] ||
+            [title containsString:@"contact"] ||
+            [title containsString:@"list"]) {
+            return NO;
+        }
+    }
+
+    return YES;
 }
 
 static void PASettingsChanged(CFNotificationCenterRef center,
@@ -131,8 +156,8 @@ static void PASettingsChanged(CFNotificationCenterRef center,
     self.cornerRadius = MAX(10.0, MIN(PAFloat(@"cornerRadius", 16.0), 26.0));
     id identifiers = PARead(@"favoriteIdentifiers");
     self.favoriteIdentifiers = [identifiers isKindOfClass:[NSArray class]] ? identifiers : @[];
-
     self.hasLastSelectedIndex = NO;
+
     if (!self.tabController) return;
     if (self.enabled) [self applyToTabController:self.tabController animated:NO forceDataRefresh:YES];
     else [self restoreTabController:self.tabController];
@@ -149,6 +174,10 @@ static void PASettingsChanged(CFNotificationCenterRef center,
 - (void)controllerDidLayout:(UIViewController *)controller {
     UITabBarController *tabController = PAFindTab(controller);
     if (!self.enabled || !tabController || tabController != self.tabController) return;
+    if (PAIsSystemDetail(tabController)) {
+        [self showSystemNavigation:tabController];
+        return;
+    }
     [self layoutChromeForTabController:tabController];
 }
 
@@ -165,12 +194,33 @@ static void PASettingsChanged(CFNotificationCenterRef center,
     });
 }
 
-- (void)applyToTabController:(UITabBarController *)tabController animated:(BOOL)animated forceDataRefresh:(BOOL)forceRefresh {
+- (BOOL)customSurfaceEnabledForIndex:(NSUInteger)index {
+    switch (index) {
+        case 0: return self.fullFavorites;
+        case 1: return self.fullRecents;
+        case 2: return self.fullContacts;
+        case 3: return self.fullKeypad;
+        default: return NO;
+    }
+}
+
+- (void)applyToTabController:(UITabBarController *)tabController
+                     animated:(BOOL)animated
+             forceDataRefresh:(BOOL)forceRefresh {
     if (self.applying || !tabController.view.window) return;
     self.applying = YES;
 
-    if (!PAIsRoot(tabController)) {
+    if (PAIsSystemDetail(tabController)) {
         [self showSystemNavigation:tabController];
+        self.applying = NO;
+        return;
+    }
+
+    NSUInteger index = MIN(tabController.selectedIndex, (NSUInteger)4);
+    if (![self customSurfaceEnabledForIndex:index]) {
+        [self showSystemNavigation:tabController];
+        self.lastSelectedIndex = index;
+        self.hasLastSelectedIndex = YES;
         self.applying = NO;
         return;
     }
@@ -179,12 +229,13 @@ static void PASettingsChanged(CFNotificationCenterRef center,
     [self installDock:tabController];
     [self installHeader:tabController];
     [self installOverlay:tabController];
+    [self hideStockRootChrome:tabController];
     [self layoutChromeForTabController:tabController];
 
-    NSUInteger index = MIN(tabController.selectedIndex, (NSUInteger)4);
     BOOL changed = !self.hasLastSelectedIndex || self.lastSelectedIndex != index;
-    [self configureChromeForIndex:index animated:(animated && changed) tabController:tabController];
-    [self showSurfaceForIndex:index tabController:tabController refresh:(forceRefresh || changed)];
+    [self configureChromeForIndex:index animated:(animated && changed)];
+    [self showSurfaceForIndex:index refresh:(forceRefresh || changed)];
+
     self.lastSelectedIndex = index;
     self.hasLastSelectedIndex = YES;
 
@@ -203,9 +254,9 @@ static void PASettingsChanged(CFNotificationCenterRef center,
         __weak typeof(self) weakSelf = self;
         __weak UITabBarController *weakTab = tabController;
         dock.selectionHandler = ^(NSUInteger index) {
-            UITabBarController *strongTab = weakTab;
             PhoneAuraManager *strongSelf = weakSelf;
-            if (!strongTab || !strongSelf || index >= strongTab.viewControllers.count) return;
+            UITabBarController *strongTab = weakTab;
+            if (!strongSelf || !strongTab || index >= strongTab.viewControllers.count) return;
             if (strongSelf.haptics) {
                 UISelectionFeedbackGenerator *generator = [[UISelectionFeedbackGenerator alloc] init];
                 [generator selectionChanged];
@@ -221,19 +272,6 @@ static void PASettingsChanged(CFNotificationCenterRef center,
     }
     self.dock = dock;
     dock.hidden = NO;
-
-    tabBar.backgroundImage = [UIImage new];
-    tabBar.shadowImage = [UIImage new];
-    tabBar.backgroundColor = UIColor.clearColor;
-    tabBar.translucent = YES;
-    for (UIView *subview in tabBar.subviews) {
-        if (subview == dock) continue;
-        NSString *name = NSStringFromClass(subview.class);
-        if ([subview isKindOfClass:[UIControl class]] || [name containsString:@"Button"]) {
-            subview.alpha = 0;
-            subview.userInteractionEnabled = NO;
-        }
-    }
 }
 
 - (void)installHeader:(UITabBarController *)tabController {
@@ -254,36 +292,66 @@ static void PASettingsChanged(CFNotificationCenterRef center,
     if (!overlay) {
         overlay = [[UIView alloc] init];
         overlay.backgroundColor = PAColorHex(0x040817, 1.0);
+        overlay.opaque = YES;
         overlay.clipsToBounds = YES;
         [tabController.view addSubview:overlay];
         objc_setAssociatedObject(tabController.view, PAOverlayKey, overlay, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     self.overlay = overlay;
+    overlay.hidden = NO;
+    overlay.userInteractionEnabled = YES;
+}
+
+- (void)hideStockRootChrome:(UITabBarController *)tabController {
+    UINavigationController *navigationController = PANavigation(tabController);
+    if (navigationController) navigationController.navigationBarHidden = YES;
+
+    UITabBar *tabBar = tabController.tabBar;
+    tabBar.backgroundImage = [UIImage new];
+    tabBar.shadowImage = [UIImage new];
+    tabBar.backgroundColor = UIColor.clearColor;
+    tabBar.translucent = YES;
+    for (UIView *subview in tabBar.subviews) {
+        if (subview == self.dock) continue;
+        NSString *name = NSStringFromClass(subview.class);
+        if ([subview isKindOfClass:[UIControl class]] || [name containsString:@"Button"]) {
+            subview.alpha = 0.0;
+            subview.userInteractionEnabled = NO;
+        }
+    }
+
+    UIViewController *top = PATop(tabController);
+    top.additionalSafeAreaInsets = UIEdgeInsetsZero;
 }
 
 - (void)layoutChromeForTabController:(UITabBarController *)tabController {
-    if (!tabController.view.window) return;
+    if (!tabController.view.window || !self.header || !self.overlay || !self.dock) return;
+
     CGFloat width = CGRectGetWidth(tabController.view.bounds);
     CGFloat height = CGRectGetHeight(tabController.view.bounds);
     CGFloat safeTop = tabController.view.safeAreaInsets.top;
-    self.header.frame = CGRectMake(20.0, safeTop + 2.0, MAX(0.0, width - 40.0), 66.0);
+    self.header.frame = CGRectMake(16.0, safeTop + 8.0, MAX(0.0, width - 32.0), 74.0);
 
     CGRect tabFrame = tabController.tabBar.frame;
-    CGFloat overlayTop = safeTop + 72.0;
+    CGFloat overlayTop = safeTop + 88.0;
     CGFloat overlayBottom = CGRectGetMinY(tabFrame);
     if (overlayBottom <= overlayTop || overlayBottom > height) {
         overlayBottom = height - MAX(49.0, CGRectGetHeight(tabController.tabBar.bounds));
     }
-    self.overlay.frame = CGRectMake(0, overlayTop, width, MAX(0.0, overlayBottom - overlayTop));
+    self.overlay.frame = CGRectMake(0.0, overlayTop, width, MAX(0.0, overlayBottom - overlayTop));
     for (UIView *surface in self.overlay.subviews) surface.frame = self.overlay.bounds;
 
     self.dock.frame = CGRectInset(tabController.tabBar.bounds, 8.0, 4.0);
     self.dock.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 }
 
-- (void)configureChromeForIndex:(NSUInteger)index animated:(BOOL)animated tabController:(UITabBarController *)tabController {
+- (void)configureChromeForIndex:(NSUInteger)index animated:(BOOL)animated {
     NSArray *titles = @[@"Favorites", @"Recents", @"Contacts", @"Keypad", @"Voicemail"];
-    NSArray *subtitles = @[@"Your people, one tap away.", @"Your call history at a glance.", @"All your connections.", @"Dial with confidence.", @"Messages that matter."];
+    NSArray *subtitles = @[@"Your people, one tap away.",
+                           @"Your call history at a glance.",
+                           @"All your connections.",
+                           @"Dial with confidence.",
+                           @"Messages that matter."];
     NSArray *icons = @[@"plus", @"arrow.clockwise", @"person.badge.plus", @"ellipsis", @"pencil"];
     [self.header configureTitle:titles[index]
                        subtitle:subtitles[index]
@@ -291,11 +359,6 @@ static void PASettingsChanged(CFNotificationCenterRef center,
                          accent:PAAccentForIndex(index)
                    showSubtitle:self.showSubtitles];
     [self.dock updateSelectedIndex:index animated:(animated && self.animations)];
-
-    UINavigationController *navigationController = PANavigation(tabController);
-    if (navigationController) navigationController.navigationBarHidden = YES;
-    UIViewController *top = PATop(tabController);
-    top.additionalSafeAreaInsets = UIEdgeInsetsZero;
 }
 
 - (void)hideAllOverlaySurfacesExcept:(UIView *)visible {
@@ -305,7 +368,7 @@ static void PASettingsChanged(CFNotificationCenterRef center,
     }
 }
 
-- (void)showSurfaceForIndex:(NSUInteger)index tabController:(UITabBarController *)tabController refresh:(BOOL)refresh {
+- (void)showSurfaceForIndex:(NSUInteger)index refresh:(BOOL)refresh {
     UIView *visible = nil;
 
     if (index == 0 && self.fullFavorites) {
@@ -366,12 +429,11 @@ static void PASettingsChanged(CFNotificationCenterRef center,
         visible = surface;
     }
 
-    BOOL hasCustomSurface = visible != nil;
-    self.overlay.hidden = !hasCustomSurface;
-    self.overlay.userInteractionEnabled = hasCustomSurface;
     [self hideAllOverlaySurfacesExcept:visible];
     if (visible) {
         visible.frame = self.overlay.bounds;
+        visible.hidden = NO;
+        visible.userInteractionEnabled = YES;
         [self.overlay bringSubviewToFront:visible];
     }
 }
@@ -401,10 +463,13 @@ static void PASettingsChanged(CFNotificationCenterRef center,
 
 - (void)headerAction {
     NSUInteger index = MIN(self.tabController.selectedIndex, (NSUInteger)4);
-    if (index == 0 || index == 2 || index == 4) {
+    if (index == 0 || index == 4) {
         [self openStudioApp];
     } else if (index == 1) {
         PARecentsDashboardView *surface = objc_getAssociatedObject(self.overlay, PARecentsKey);
+        [surface refresh];
+    } else if (index == 2) {
+        PAContactsDashboardView *surface = objc_getAssociatedObject(self.overlay, PAContactsKey);
         [surface refresh];
     } else if (index == 3) {
         PAStudioKeypadView *surface = objc_getAssociatedObject(self.overlay, PAKeypadKey);
@@ -427,23 +492,29 @@ static void PASettingsChanged(CFNotificationCenterRef center,
     self.overlay.hidden = YES;
     self.overlay.userInteractionEnabled = NO;
     self.dock.hidden = YES;
-    for (UIView *subview in tabController.tabBar.subviews) {
+
+    UITabBar *tabBar = tabController.tabBar;
+    tabBar.backgroundImage = nil;
+    tabBar.shadowImage = nil;
+    tabBar.backgroundColor = nil;
+    for (UIView *subview in tabBar.subviews) {
         if (subview == self.dock) continue;
         NSString *name = NSStringFromClass(subview.class);
         if ([subview isKindOfClass:[UIControl class]] || [name containsString:@"Button"]) {
-            subview.alpha = 1;
+            subview.alpha = 1.0;
             subview.userInteractionEnabled = YES;
         }
     }
+
     UINavigationController *navigationController = PANavigation(tabController);
     if (navigationController) navigationController.navigationBarHidden = NO;
     UIViewController *top = PATop(tabController);
     top.additionalSafeAreaInsets = UIEdgeInsetsZero;
+    tabController.overrideUserInterfaceStyle = UIUserInterfaceStyleUnspecified;
 }
 
 - (void)restoreTabController:(UITabBarController *)tabController {
     [self showSystemNavigation:tabController];
-    tabController.overrideUserInterfaceStyle = UIUserInterfaceStyleUnspecified;
     self.hasLastSelectedIndex = NO;
 }
 
