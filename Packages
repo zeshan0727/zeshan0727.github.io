@@ -142,18 +142,18 @@ Author: Next Solution
 Name: Sweat My Phone (RootHide)
 
 Package: com.zeshan.phoneaura
-Version: 0.2.0
+Version: 0.2.1
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 452
+Installed-Size: 384
 Depends: mobilesubstrate, preferenceloader, firmware (>= 16.0)
-Filename: ./debfiles/PhoneAura_0.2.0_RootHide_iOS16.deb
-Size: 39126
-MD5sum: 5d6162abfce07f617e837be68ae75eb0
-SHA1: 20d810ecd66fadafe58cda1f4870a48ecba3dac7
-SHA256: 28e8b16cc7766e5c261e666e5123f3905a0f0f9d47ce2e1834eab61fff127b4e
+Filename: ./debfiles/PhoneAura_0.2.1_RootHide_iOS16.deb
+Size: 21654
+MD5sum: 58e3d4fd9443f586a90dfc71f769d6bd
+SHA1: 5eab8c5e5d189e3ae48376c9fdfcfdd0f58727fe
+SHA256: 42a00cd46143323777b1585ed9c0691c81f9d47e19510cade2eb70ecc3794721
 Section: Tweaks
-Description: A complete modern Phone app shell for iOS 16 with a custom header, orbital navigation dock, compact call cards, and a fully redesigned glass keypad while preserving system calling features.
+Description: Navigation safety release for the iOS 16 Phone app. Restores Apple's real tab controller and overlays a compact interactive glass dock without replacing the keypad, blocking content, or trapping the user on one screen.
 Author: Next Solution
 Name: PhoneAura
 
