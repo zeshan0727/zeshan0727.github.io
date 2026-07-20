@@ -1,0 +1,9 @@
+Package: com.zeshan.phoneaura
+Name: PhoneAura
+Version: 0.2.0
+Architecture: iphoneos-arm64e
+Description: A complete modern Phone app shell for iOS 16 with a custom header, orbital navigation dock, compact call cards, and a fully redesigned glass keypad while preserving system calling features.
+Maintainer: Next Solution
+Author: Next Solution
+Section: Tweaks
+Depends: mobilesubstrate, preferenceloader, firmware (>= 16.0)
