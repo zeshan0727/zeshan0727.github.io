@@ -158,18 +158,34 @@ Author: Next Solution
 Name: Wool Control Center
 
 Package: com.zeshan.phoneaura
-Version: 0.2.1
+Version: 0.4.6
+Architecture: iphoneos-arm64
+Maintainer: Next Solution
+Installed-Size: 908
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/PhoneAura_0.4.6_Rootless_iOS16.deb
+Size: 112974
+MD5sum: f8982bdd2db8475147bc4c4950c1c09f
+SHA1: 5321056540861cca02441a1f86c3d2b1f14f1976
+SHA256: f3089ae165453b066f9337330e3b40b40debcf4c8c6ac0f4d82ef21d97ffff48
+Section: Tweaks
+Description: Concept D redesign for the stock iOS 16 Phone app, built for rootless jailbreaks such as Dopamine. Includes stable full-stage Favorites, Recents, Contacts and Keypad screens, inline contact details, in-app favorite selection, Siri/My Info My Card lookup, PhoneAura Studio and a rootless PreferenceLoader pane.
+Author: Next Solution
+Name: PhoneAura
+
+Package: com.zeshan.phoneaura
+Version: 0.4.6
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 384
-Depends: mobilesubstrate, preferenceloader, firmware (>= 16.0)
-Filename: ./debfiles/PhoneAura_0.2.1_RootHide_iOS16.deb
-Size: 21654
-MD5sum: 58e3d4fd9443f586a90dfc71f769d6bd
-SHA1: 5eab8c5e5d189e3ae48376c9fdfcfdd0f58727fe
-SHA256: 42a00cd46143323777b1585ed9c0691c81f9d47e19510cade2eb70ecc3794721
+Installed-Size: 908
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/PhoneAura_0.4.6_RootHide_iOS16.deb
+Size: 112790
+MD5sum: 0ed441b54073404564b2be98724c795c
+SHA1: 0f841fc112398677d33ef790d251d30d58311df8
+SHA256: bbafe7131f412acf29485f54c5ac90c23921e2bdcefd7212462a2e71378be233
 Section: Tweaks
-Description: Navigation safety release for the iOS 16 Phone app. Restores Apple's real tab controller and overlays a compact interactive glass dock without replacing the keypad, blocking content, or trapping the user on one screen.
+Description: Concept D redesign for the stock iOS 16 Phone app, built for RootHide. Includes stable full-stage Favorites, Recents, Contacts and Keypad screens, inline contact details, in-app favorite selection, Siri/My Info My Card lookup, PhoneAura Studio and a RootHide PreferenceLoader pane.
 Author: Next Solution
 Name: PhoneAura
 
