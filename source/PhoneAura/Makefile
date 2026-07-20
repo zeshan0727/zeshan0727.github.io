@@ -16,5 +16,11 @@ include $(THEOS_MAKE_PATH)/tweak.mk
 SUBPROJECTS += phoneauraprefs phoneaurastudio
 include $(THEOS_MAKE_PATH)/aggregate.mk
 
+after-stage::
+	$(ECHO_NOTHING)mkdir -p "$(THEOS_STAGING_DIR)/DEBIAN"$(ECHO_END)
+	$(ECHO_NOTHING)cp postinst "$(THEOS_STAGING_DIR)/DEBIAN/postinst"$(ECHO_END)
+	$(ECHO_NOTHING)cp prerm "$(THEOS_STAGING_DIR)/DEBIAN/prerm"$(ECHO_END)
+	$(ECHO_NOTHING)chmod 0755 "$(THEOS_STAGING_DIR)/DEBIAN/postinst" "$(THEOS_STAGING_DIR)/DEBIAN/prerm"$(ECHO_END)
+
 after-install::
-	install.exec "killall -9 MobilePhone PhoneAuraStudio 2>/dev/null || true"
+	install.exec "uicache -a 2>/dev/null || true; killall -9 Preferences MobilePhone PhoneAuraStudio 2>/dev/null || true"
