@@ -24,11 +24,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Upload raw source bundle
+      - name: Export valid source bundle from main
+        run: |
+          git fetch origin main --depth=1
+          git show origin/main:source/WoolControlCenter/project-source.tar.gz.b64 > /tmp/project-source-main.tar.gz.b64
+
+      - name: Upload main source bundle
         uses: actions/upload-artifact@v4
         with:
-          name: Wool-Control-Center-Raw-Source
-          path: source/WoolControlCenter/project-source.tar.gz.b64
+          name: Wool-Control-Center-Main-Source
+          path: /tmp/project-source-main.tar.gz.b64
           if-no-files-found: error
 
       - name: Expand source bundle
