@@ -6,31 +6,44 @@ static BOOL PAIsPhoneProcess(void) {
 }
 
 %hook UIViewController
+
 - (void)viewDidAppear:(BOOL)animated {
     %orig;
-    if (PAIsPhoneProcess()) [[PhoneAuraManager sharedManager] controllerDidAppear:self];
+    if (PAIsPhoneProcess()) {
+        [[PhoneAuraManager sharedManager] controllerDidAppear:self];
+    }
 }
+
 %end
 
 %hook UITabBarController
+
 - (void)setSelectedIndex:(NSUInteger)selectedIndex {
     %orig;
-    if (PAIsPhoneProcess()) [[PhoneAuraManager sharedManager] tabSelectionChanged:self];
+    if (PAIsPhoneProcess()) {
+        [[PhoneAuraManager sharedManager] tabSelectionChanged:self];
+    }
 }
+
 - (void)setSelectedViewController:(UIViewController *)selectedViewController {
     %orig;
-    if (PAIsPhoneProcess()) [[PhoneAuraManager sharedManager] tabSelectionChanged:self];
+    if (PAIsPhoneProcess()) {
+        [[PhoneAuraManager sharedManager] tabSelectionChanged:self];
+    }
 }
-%end
 
-%hook UITableView
-- (void)layoutSubviews {
+- (void)viewDidLayoutSubviews {
     %orig;
-    if (PAIsPhoneProcess()) [[PhoneAuraManager sharedManager] tableViewDidLayout:self];
+    if (PAIsPhoneProcess()) {
+        [[PhoneAuraManager sharedManager] tabSelectionChanged:self];
+    }
 }
+
 %end
 
 %ctor {
     if (!PAIsPhoneProcess()) return;
-    dispatch_async(dispatch_get_main_queue(), ^{ [PhoneAuraManager sharedManager]; });
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [PhoneAuraManager sharedManager];
+    });
 }
