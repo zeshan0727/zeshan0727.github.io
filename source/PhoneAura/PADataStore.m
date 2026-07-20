@@ -41,8 +41,25 @@
     ];
 }
 
+- (NSArray<CNContact *> *)fallbackFavoriteContacts {
+    NSMutableArray<CNContact *> *contacts = [NSMutableArray array];
+    CNContactFetchRequest *request = [[CNContactFetchRequest alloc] initWithKeysToFetch:[self contactKeys]];
+    request.sortOrder = CNContactSortOrderUserDefault;
+    request.unifyResults = YES;
+    NSError *error = nil;
+    [self.contactStore enumerateContactsWithFetchRequest:request
+                                                   error:&error
+                                              usingBlock:^(CNContact *contact, BOOL *stop) {
+        if (contact.phoneNumbers.count == 0) return;
+        if (!(contact.givenName.length || contact.familyName.length || contact.organizationName.length)) return;
+        [contacts addObject:contact];
+        if (contacts.count >= 4) *stop = YES;
+    }];
+    return error ? @[] : contacts;
+}
+
 - (void)favoriteContactsForIdentifiers:(NSArray<NSString *> *)identifiers
-                            completion:(void (^)(NSArray<CNContact *> *contacts))completion {
+                             completion:(void (^)(NSArray<CNContact *> *contacts))completion {
     NSArray<NSString *> *cleanIdentifiers = [identifiers isKindOfClass:[NSArray class]] ? identifiers : @[];
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
         NSMutableArray<CNContact *> *contacts = [NSMutableArray array];
@@ -50,10 +67,12 @@
             if (![identifier isKindOfClass:[NSString class]] || identifier.length == 0) continue;
             NSError *error = nil;
             CNContact *contact = [self.contactStore unifiedContactWithIdentifier:identifier
-                                                                      keysToFetch:[self contactKeys]
-                                                                            error:&error];
-            if (contact && !error) [contacts addObject:contact];
+                                                                       keysToFetch:[self contactKeys]
+                                                                             error:&error];
+            if (contact && !error && contact.phoneNumbers.count > 0) [contacts addObject:contact];
+            if (contacts.count >= 4) break;
         }
+        if (contacts.count == 0) [contacts addObjectsFromArray:[self fallbackFavoriteContacts]];
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completion) completion(contacts);
         });
@@ -119,8 +138,8 @@ static NSString *PAStringFromColumn(sqlite3_stmt *statement, int index) {
     NSPredicate *predicate = [CNContact predicateForContactsMatchingPhoneNumber:phoneNumber];
     NSError *error = nil;
     NSArray<CNContact *> *matches = [self.contactStore unifiedContactsMatchingPredicate:predicate
-                                                                            keysToFetch:@[CNContactGivenNameKey, CNContactFamilyNameKey, CNContactOrganizationNameKey]
-                                                                                  error:&error];
+                                                                             keysToFetch:@[CNContactGivenNameKey, CNContactFamilyNameKey, CNContactOrganizationNameKey]
+                                                                                   error:&error];
     CNContact *contact = matches.firstObject;
     if (contact && !error) {
         NSString *fullName = [CNContactFormatter stringFromContact:contact style:CNContactFormatterStyleFullName];
@@ -132,8 +151,8 @@ static NSString *PAStringFromColumn(sqlite3_stmt *statement, int index) {
 }
 
 - (void)recentCallsMissedOnly:(BOOL)missedOnly
-                        limit:(NSUInteger)limit
-                   completion:(void (^)(NSArray<PARecentCall *> *calls))completion {
+                         limit:(NSUInteger)limit
+                    completion:(void (^)(NSArray<PARecentCall *> *calls))completion {
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
         NSMutableArray<PARecentCall *> *calls = [NSMutableArray array];
         NSString *databasePath = [self callHistoryDatabasePath];
