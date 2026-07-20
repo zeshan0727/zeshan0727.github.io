@@ -1,4 +1,4 @@
-name: Build PhoneAura RootHide
+name: Build PhoneAura RootHide and Rootless
 
 on:
   workflow_dispatch:
@@ -34,16 +34,38 @@ jobs:
             https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz \
             | tar -xJ -C "$THEOS/sdks"
 
-      - name: Build RootHide package
+      - name: Build RootHide and rootless packages
         run: |
           export THEOS="$HOME/theos"
+          mkdir -p release
           cd source/PhoneAura
-          set +e
-          make clean > build.log 2>&1
-          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide >> build.log 2>&1
-          STATUS=$?
-          tail -n 160 build.log
-          exit $STATUS
+          : > build.log
+
+          build_variant() {
+            SCHEME="$1"
+            CONTROL_FILE="$2"
+            LABEL="$3"
+            EXPECTED_ARCH="$4"
+
+            echo "===== Building ${LABEL} (${SCHEME}) =====" | tee -a build.log
+            cp "$CONTROL_FILE" control
+            rm -rf packages .theos
+            make clean >> build.log 2>&1 || true
+            make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME="$SCHEME" >> build.log 2>&1
+
+            DEB="$(find packages -name '*.deb' -type f | head -n 1)"
+            test -n "$DEB"
+            ACTUAL_ARCH="$(dpkg-deb -f "$DEB" Architecture)"
+            test "$ACTUAL_ARCH" = "$EXPECTED_ARCH"
+
+            VERSION="$(dpkg-deb -f "$DEB" Version)"
+            cp "$DEB" "../../release/PhoneAura_${VERSION}_${LABEL}_iOS16.deb"
+            echo "Built ${LABEL}: version=${VERSION}, architecture=${ACTUAL_ARCH}" | tee -a build.log
+          }
+
+          build_variant roothide control.roothide RootHide iphoneos-arm64e
+          build_variant rootless control.rootless Rootless iphoneos-arm64
+          tail -n 220 build.log
 
       - name: Upload build log
         if: always()
@@ -53,25 +75,36 @@ jobs:
           path: source/PhoneAura/build.log
           if-no-files-found: warn
 
-      - name: Upload PhoneAura deb
+      - name: Upload RootHide package
         uses: actions/upload-artifact@v4
         with:
           name: PhoneAura-RootHide
-          path: source/PhoneAura/packages/*.deb
+          path: release/*_RootHide_iOS16.deb
           if-no-files-found: error
 
-      - name: Publish PhoneAura to Sileo repo
+      - name: Upload rootless package
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoneAura-Rootless
+          path: release/*_Rootless_iOS16.deb
+          if-no-files-found: error
+
+      - name: Publish both PhoneAura variants to Sileo repo
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          DEB="$(find source/PhoneAura/packages -name '*.deb' -type f | head -n 1)"
-          VERSION="$(awk '/^Version:/{print $2; exit}' source/PhoneAura/control)"
-          test -n "$DEB"
+          VERSION="$(awk '/^Version:/{print $2; exit}' source/PhoneAura/control.roothide)"
           test -n "$VERSION"
+          test -f "release/PhoneAura_${VERSION}_RootHide_iOS16.deb"
+          test -f "release/PhoneAura_${VERSION}_Rootless_iOS16.deb"
+
           rm -f debfiles/PhoneAura_*.deb debfiles/com.zeshan.phoneaura_*.deb
-          cp "$DEB" "debfiles/PhoneAura_${VERSION}_RootHide_iOS16.deb"
+          cp "release/PhoneAura_${VERSION}_RootHide_iOS16.deb" debfiles/
+          cp "release/PhoneAura_${VERSION}_Rootless_iOS16.deb" debfiles/
+
           dpkg-scanpackages -m ./debfiles > Packages
           bzip2 -c9 Packages > Packages.bz2
           gzip -c9 Packages > Packages.gz
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add debfiles Packages Packages.bz2 Packages.gz
@@ -79,5 +112,5 @@ jobs:
             echo "Sileo repo is already current."
             exit 0
           fi
-          git commit -m "Publish PhoneAura RootHide ${VERSION}"
+          git commit -m "Publish PhoneAura ${VERSION} RootHide and rootless"
           git push origin HEAD:main
