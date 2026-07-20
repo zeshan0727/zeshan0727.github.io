@@ -27,12 +27,14 @@ jobs:
       - name: Expand source bundle
         run: |
           python3 - <<'PY'
-          import base64, io, pathlib, tarfile
+          import base64, pathlib
           project = pathlib.Path('source/WoolControlCenter')
           payload = base64.b64decode((project / 'project-source.tar.gz.b64').read_text().strip())
-          with tarfile.open(fileobj=io.BytesIO(payload), mode='r:gz') as archive:
-              archive.extractall(project)
+          pathlib.Path('/tmp/WoolControlCenter-source.tar.gz').write_bytes(payload)
           PY
+          tar -xzf /tmp/WoolControlCenter-source.tar.gz -C source/WoolControlCenter
+          test -f source/WoolControlCenter/Tweak.x
+          test -f source/WoolControlCenter/Preferences/Makefile
 
       - name: Install build dependencies
         run: |
