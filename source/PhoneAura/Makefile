@@ -5,7 +5,7 @@ THEOS_PACKAGE_SCHEME = roothide
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = PhoneAura
-PhoneAura_FILES = Tweak.xm PhoneAuraManagerV5.m PAConceptDUI.m PAConceptDSurfaces.m PADataStore.m
+PhoneAura_FILES = Tweak.xm PhoneAuraManagerV5.m PAConceptDUI.m PAConceptDSurfaces.m PADataStoreV45.m
 PhoneAura_FRAMEWORKS = UIKit QuartzCore Contacts ContactsUI
 PhoneAura_LIBRARIES = sqlite3
 PhoneAura_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
