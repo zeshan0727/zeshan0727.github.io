@@ -27,10 +27,18 @@ jobs:
       - name: Expand and validate source bundle
         run: |
           python3 - <<'PY'
-          import base64, pathlib
+          import base64, hashlib, pathlib
           project = pathlib.Path('source/WoolControlCenter')
-          encoded = (project / 'project-source.tar.gz.b64').read_text().strip()
+          parts = sorted((project / 'source-parts').glob('part-*'))
+          if parts:
+              encoded = ''.join(part.read_text().strip() for part in parts)
+          else:
+              encoded = (project / 'project-source.tar.gz.b64').read_text().strip()
           payload = base64.b64decode(encoded, validate=True)
+          digest = hashlib.sha256(payload).hexdigest()
+          expected = '612ef4c72425f1f97508628e0c05482619610dc4581690687db3033618a8ad14'
+          if digest != expected:
+              raise SystemExit(f'Unexpected source archive SHA256: {digest}')
           pathlib.Path('/tmp/WoolControlCenter-source.tar.gz').write_bytes(payload)
           PY
           tar -xzf /tmp/WoolControlCenter-source.tar.gz -C source/WoolControlCenter
