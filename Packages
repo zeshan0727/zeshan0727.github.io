@@ -1,3 +1,112 @@
+Package: com.nextsolution.dailyledger.smsimport
+Version: 1.1.0
+Architecture: iphoneos-arm64e
+Maintainer: NextSolution
+Filename: ./debfiles/DailyLedgerSMSImport-1.1.0-roothide.deb
+Size: 17988
+MD5sum: 3ecb94061123f739f8ae42f7dd39be7f
+SHA1: 34ccacbba36fd834c07d05c964d15658bbbf5f4f
+SHA256: 4f10d6f12704cb3a42fc7815963d10697009b8694e39f28be506b73c91d7529e
+Section: Utilities
+Priority: optional
+Description: Automatically imports matching QAR bank SMS into a selected Daily Ledger account. Includes editable matching preferences, recent-message recovery, and importer status. Requires RootHide Bootstrap 2.0 or later and Daily Ledger 1.3.0 or later.
+Author: NextSolution
+Name: Daily Ledger SMS Import
+
+Package: com.nextsolution.dailyledger.smsimport
+Version: 1.1.1
+Architecture: iphoneos-arm64e
+Maintainer: NextSolution
+Filename: ./debfiles/DailyLedgerSMSImport-1.1.1-roothide.deb
+Size: 18256
+MD5sum: 04c256fa30824a088a46df5ad11ca461
+SHA1: e29ef993a635e5243fff225eb7242267e34f3017
+SHA256: 06fcde433b129b388b5bca13d56164f5720902203b9f81c5ac2c8a513fa44cd5
+Section: Utilities
+Priority: optional
+Description: Automatically imports matching QAR bank SMS into a selected Daily Ledger account. Adds the RootHide container-access entitlements required for SMS database and TrollStore app data access. Includes editable matching preferences, recent-message recovery, and importer status. Requires RootHide Bootstrap 2.0 or later and Daily Ledger 1.3.0 or later.
+Author: NextSolution
+Name: Daily Ledger SMS Import
+
+Package: com.nextsolution.dailyledger.smsimport
+Version: 1.1.2
+Architecture: iphoneos-arm64e
+Maintainer: NextSolution
+Filename: ./debfiles/DailyLedgerSMSImport-1.1.2-roothide.deb
+Size: 18684
+MD5sum: 9e2e4bb21bfdd36894d8805c3b8731ea
+SHA1: 79165315dee846ba0792944ca31c80905ad627c4
+SHA256: 45f1489af33ec28ec69a7463af6786b2d9fd8c31411eaa8a738e75d020389095
+Section: Utilities
+Priority: optional
+Description: Automatically imports QAR bank SMS containing the exact configured marker, including **6760, into a selected Daily Ledger account. Includes RootHide container entitlements, attributed-message decoding, recent-message recovery, importer status, and one vibration after a successful import. Requires RootHide Bootstrap 2.0 or later and Daily Ledger 1.3.2 or later.
+Author: NextSolution
+Name: Daily Ledger SMS Import
+
+Package: com.nextsolution.dailyledger.smsimport
+Version: 1.1.3
+Architecture: iphoneos-arm64e
+Maintainer: NextSolution
+Filename: ./debfiles/DailyLedgerSMSImport-1.1.3-roothide.deb
+Size: 18716
+MD5sum: c9b58e8a9431cf091b84240346f018fd
+SHA1: 7d9298f2602421dfc2ea818118f9c3646d44b586
+SHA256: b2a1fed9e703cef27de761525591ec0dce49a6b5981b4ea2278fd468f7a24843
+Section: Utilities
+Priority: optional
+Description: Automatically imports QAR bank SMS containing the exact configured marker, including **6760, into a selected Daily Ledger account. Runs in the RootHide mobile foreground domain and includes attributed-message decoding, recovery, status, and one vibration after a successful import. Requires RootHide Bootstrap 2.0 or later and Daily Ledger 1.3.2 or later.
+Author: NextSolution
+Name: Daily Ledger SMS Import
+
+Package: com.nextsolution.dailyledger.smsimport
+Version: 1.2.0
+Architecture: iphoneos-arm64e
+Maintainer: NextSolution
+Depends: firmware (>= 16.0), mobilesubstrate
+Filename: ./debfiles/DailyLedgerSMSImport-1.2.0-roothide.deb
+Size: 17792
+MD5sum: db68ce0dc3ce533447184a16e4ff29be
+SHA1: 34582003d07b9e0bca711012903ab66907f2745a
+SHA256: a0009aee2d4005f2c2288f30df35682dc94c08918d82c50b1f16dd88402ff8a6
+Section: Tweaks
+Priority: optional
+Description: RootHide SpringBoard tweak that automatically imports QAR bank SMS containing the exact configured marker, including **6760, into Daily Ledger. Includes attributed-message decoding, recovery, status, and one vibration after a successful import. Requires RootHide Bootstrap 2.0 or later and Daily Ledger 1.3.2 or later.
+Author: NextSolution
+Name: Daily Ledger SMS Import
+
+Package: com.nextsolution.dailyledger.smsimport
+Version: 1.3.0
+Architecture: iphoneos-arm64e
+Maintainer: NextSolution
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/DailyLedgerSMSImport-1.3.0-roothide.deb
+Size: 21724
+MD5sum: 8a87828850d303421ca9eb6ef8458d09
+SHA1: 7d1fe7201d0305bf58aafbd0737f10da2f441d57
+SHA256: 2d532d79a1e1910d7223b46f1285ac1a04ed3c832eb571eeeb1c2536e0447af2
+Section: Tweaks
+Priority: optional
+Description: RootHide SpringBoard tweak that automatically imports QAR bank SMS containing the exact configured marker, including **6760, into Daily Ledger. Includes attributed-message decoding, recovery, status, and one vibration after a successful import. Requires RootHide Bootstrap 2.0 or later and Daily Ledger 1.3.2 or later.
+Author: NextSolution
+Name: Daily Ledger SMS Import
+
+Package: com.nextsolution.dailyledger.smsimport
+Version: 1.4.0
+Architecture: iphoneos-arm64e
+Maintainer: NextSolution
+Installed-Size: 176
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/DailyLedgerSMSImport-1.4.0-roothide.deb
+Size: 16932
+MD5sum: 5711170bd7e2e2f20e08926db430710a
+SHA1: a53458741d1363850151a448c23993877fea009b
+SHA256: 757cb7e0626855d40196458e1bd7ed63d1345749878c16efd640faab8d1af33a
+Section: Tweaks
+Priority: optional
+Description: Native RootHide SpringBoard tweak that automatically imports matching bank SMS into Daily Ledger and vibrates after successful recording.
+Author: NextSolution
+Name: Daily Ledger SMS Import
+
 Package: com.nextsolution.shaketorun
 Version: 1.1.0
 Architecture: iphoneos-arm64e
@@ -32,19 +141,19 @@ Description: Stability release that loads all thermal and sweat hooks only in Sp
 Author: Next Solution
 Name: Sweat My Phone (RootHide)
 
-Package: com.nextsolution.dailyledger.smsimport
-Version: 1.4.0
+Package: com.zeshan.phoneaura
+Version: 0.2.0
 Architecture: iphoneos-arm64e
-Maintainer: NextSolution
-Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/DailyLedgerSMSImport-1.4.0-roothide.deb
-Size: 16932
-MD5sum: 5711170bd7e2e2f20e08926db430710a
-SHA1: a53458741d1363850151a448c23993877fea009b
-SHA256: 757cb7e0626855d40196458e1bd7ed63d1345749878c16efd640faab8d1af33a
+Maintainer: Next Solution
+Installed-Size: 452
+Depends: mobilesubstrate, preferenceloader, firmware (>= 16.0)
+Filename: ./debfiles/PhoneAura_0.2.0_RootHide_iOS16.deb
+Size: 39126
+MD5sum: 5d6162abfce07f617e837be68ae75eb0
+SHA1: 20d810ecd66fadafe58cda1f4870a48ecba3dac7
+SHA256: 28e8b16cc7766e5c261e666e5123f3905a0f0f9d47ce2e1834eab61fff127b4e
 Section: Tweaks
-Priority: optional
-Description: Native RootHide SpringBoard tweak that automatically imports QAR bank SMS containing the exact configured marker, including **6760, into Daily Ledger. Built with the RootHide toolchain and includes automatic polling, manual recovery scan, diagnostic status, and one vibration after a successful import.
-Author: NextSolution
-Name: Daily Ledger SMS Import
+Description: A complete modern Phone app shell for iOS 16 with a custom header, orbital navigation dock, compact call cards, and a fully redesigned glass keypad while preserving system calling features.
+Author: Next Solution
+Name: PhoneAura
 
