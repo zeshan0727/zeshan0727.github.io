@@ -2,10 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
-    <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>PHONEAURA 0.4</string><key>footerText</key><string>The full editor is installed as PhoneAura Studio on the Home Screen. These quick controls remain available through PreferenceLoader.</string></dict>
+    <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>PHONEAURA 0.4.1</string><key>footerText</key><string>RootHide registration repair. PhoneAura Studio is installed on the Home Screen; this pane provides quick and emergency controls using the same PreferenceLoader structure as your working Next Solution tweaks.</string></dict>
     <dict><key>cell</key><string>PSButtonCell</string><key>label</key><string>Open PhoneAura Studio</string><key>action</key><string>openStudioApp</string></dict>
     <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Enable PhoneAura</string><key>defaults</key><string>com.zeshan.phoneaura</string><key>key</key><string>enabled</string><key>default</key><true/><key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string></dict>
-    <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>FULL CUSTOM SURFACES</string><key>footerText</key><string>Enabled surfaces completely cover the old Apple root screen. Disable any item to use its stock Phone tab.</string></dict>
+    <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>FULL CUSTOM SURFACES</string><key>footerText</key><string>Each enabled surface completely covers Apple’s original root screen. Contact details and active calls continue to use Apple’s reliable controllers.</string></dict>
     <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Replace Favorites</string><key>defaults</key><string>com.zeshan.phoneaura</string><key>key</key><string>fullFavorites</string><key>default</key><true/><key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string></dict>
     <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Replace Recents</string><key>defaults</key><string>com.zeshan.phoneaura</string><key>key</key><string>fullRecents</string><key>default</key><true/><key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string></dict>
     <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Replace Contacts</string><key>defaults</key><string>com.zeshan.phoneaura</string><key>key</key><string>fullContacts</string><key>default</key><true/><key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string></dict>
@@ -17,7 +17,7 @@
     <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>FEEDBACK</string></dict>
     <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Haptic Feedback</string><key>defaults</key><string>com.zeshan.phoneaura</string><key>key</key><string>haptics</string><key>default</key><true/><key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string></dict>
     <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Fluid Animations</string><key>defaults</key><string>com.zeshan.phoneaura</string><key>key</key><string>animations</string><key>default</key><true/><key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string></dict>
-    <dict><key>cell</key><string>PSGroupCell</string><key>footerText</key><string>Use PhoneAura Studio to select favorite contacts. Restart Phone after changing major surfaces.</string></dict>
+    <dict><key>cell</key><string>PSGroupCell</string><key>footerText</key><string>Favorites automatically show up to four contacts until you choose your own in PhoneAura Studio. Restart Phone after changing complete surfaces.</string></dict>
     <dict><key>cell</key><string>PSButtonCell</string><key>label</key><string>Restart Phone App</string><key>action</key><string>restartPhoneApp</string></dict>
     <dict><key>cell</key><string>PSButtonCell</string><key>label</key><string>Reset PhoneAura Settings</string><key>action</key><string>resetPreferences</string></dict>
 </array>
