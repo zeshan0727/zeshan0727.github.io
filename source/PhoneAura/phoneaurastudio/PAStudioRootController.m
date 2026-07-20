@@ -49,7 +49,7 @@ static const void *PAControlKey = &PAControlKey;
     [card addSubview:title];
 
     UILabel *subtitle = [[UILabel alloc] initWithFrame:CGRectMake(23, 67, CGRectGetWidth(card.bounds)-46, 52)];
-    subtitle.text = @"Full custom Phone surfaces\nRootHide · iOS 16";
+    subtitle.text = @"Stable custom Phone surfaces\nRootHide · iOS 16 · 0.4.2";
     subtitle.numberOfLines = 2;
     subtitle.textColor = [UIColor colorWithWhite:1 alpha:0.86];
     subtitle.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
@@ -81,8 +81,8 @@ static const void *PAControlKey = &PAControlKey;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
-    if (section == 0) return @"Each enabled surface completely covers Apple’s old root screen. Disable a surface to use the stock version for that tab.";
-    if (section == 3) return @"Selected contacts appear as the large coral hero card and smaller Concept D favorite cards.";
+    if (section == 0) return @"Each enabled surface replaces only its matching root Phone tab. Disable a surface to use Apple’s stock tab.";
+    if (section == 3) return @"Selected contacts appear on the custom Favorites screen. Select up to four contacts for the cleanest layout.";
     return nil;
 }
 
@@ -164,6 +164,7 @@ static const void *PAControlKey = &PAControlKey;
     NSMutableArray *identifiers = [NSMutableArray array];
     for (CNContact *contact in contacts) {
         if (contact.identifier.length) [identifiers addObject:contact.identifier];
+        if (identifiers.count >= 4) break;
     }
     self.favoriteIdentifiers = identifiers;
     [self writeValue:identifiers key:@"favoriteIdentifiers"];
