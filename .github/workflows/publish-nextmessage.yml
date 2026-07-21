@@ -1,0 +1,143 @@
+name: Publish Next Message v0.2.1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/publish-nextmessage.yml"
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_REPOSITORY: zeshan0727/NextSolution
+  SOURCE_SHA: 7f8411c287570d74bbbf4ac364fa0d52b108d899
+  VERSION: 0.2.1
+
+jobs:
+  build:
+    name: Build ${{ matrix.scheme }}
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        scheme:
+          - roothide
+          - rootless
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install signing and packaging tools
+        uses: dhinakg/procursus-action@main
+        with:
+          packages: ldid dpkg
+
+      - name: Fetch pinned Next Message source
+        run: |
+          set -euxo pipefail
+          git clone --filter=blob:none --no-checkout "https://github.com/${SOURCE_REPOSITORY}.git" source-checkout
+          git -C source-checkout fetch --depth 1 origin "${SOURCE_SHA}"
+          git -C source-checkout checkout "${SOURCE_SHA}"
+          cp -R source-checkout/NextMessage "$GITHUB_WORKSPACE/NextMessage"
+          if ! grep -q '^Depiction:' "$GITHUB_WORKSPACE/NextMessage/control"; then
+            printf '\nDepiction: https://zeshan0727.github.io/depictions/nextmessage.html\n' >> "$GITHUB_WORKSPACE/NextMessage/control"
+          fi
+          chmod 0755 "$GITHUB_WORKSPACE/NextMessage/layout/DEBIAN/postinst" "$GITHUB_WORKSPACE/NextMessage/layout/DEBIAN/postrm"
+
+      - name: Install RootHide Theos and iOS 16.5 SDK
+        run: |
+          set -euxo pipefail
+          export THEOS="$GITHUB_WORKSPACE/theos"
+          git clone --depth 1 https://github.com/roothide/theos.git "$THEOS"
+          git -C "$THEOS" submodule update --init --recursive --depth 1
+          mkdir -p "$THEOS/sdks"
+          curl -L --fail --retry 3 \
+            https://github.com/theos/sdks/releases/latest/download/iPhoneOS16.5.sdk.tar.xz \
+            -o /tmp/iPhoneOS16.5.sdk.tar.xz
+          tar -xJf /tmp/iPhoneOS16.5.sdk.tar.xz -C "$THEOS/sdks"
+
+      - name: Build package
+        working-directory: NextMessage
+        run: |
+          set -euxo pipefail
+          export THEOS="$GITHUB_WORKSPACE/theos"
+          make clean
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME="${{ matrix.scheme }}" messages=yes
+          DEB="$(find packages -maxdepth 1 -name '*.deb' -type f | head -n 1)"
+          test -n "$DEB"
+          PACKAGE="$(dpkg-deb -f "$DEB" Package)"
+          BUILT_VERSION="$(dpkg-deb -f "$DEB" Version)"
+          ARCH="$(dpkg-deb -f "$DEB" Architecture)"
+          test "$PACKAGE" = "com.nextsolution.nextmessage"
+          test "$BUILT_VERSION" = "$VERSION"
+          if [ "${{ matrix.scheme }}" = "roothide" ]; then
+            test "$ARCH" = "iphoneos-arm64e"
+            OUTPUT_NAME="NextMessage_${VERSION}_RootHide_Diagnostic_iOS15.deb"
+          else
+            test "$ARCH" = "iphoneos-arm64"
+            OUTPUT_NAME="NextMessage_${VERSION}_Rootless_Diagnostic_iOS15.deb"
+          fi
+          mkdir -p "$GITHUB_WORKSPACE/output"
+          cp "$DEB" "$GITHUB_WORKSPACE/output/$OUTPUT_NAME"
+          dpkg-deb -f "$DEB"
+          shasum -a 256 "$GITHUB_WORKSPACE/output/$OUTPUT_NAME"
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextMessage-${{ matrix.scheme }}-${{ env.VERSION }}
+          path: output/*.deb
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Publish to Sileo repository
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install repository tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq dpkg-dev bzip2 gzip
+
+      - name: Download RootHide package
+        uses: actions/download-artifact@v4
+        with:
+          name: NextMessage-roothide-${{ env.VERSION }}
+          path: release
+
+      - name: Download rootless package
+        uses: actions/download-artifact@v4
+        with:
+          name: NextMessage-rootless-${{ env.VERSION }}
+          path: release
+
+      - name: Publish Next Message packages
+        run: |
+          set -euxo pipefail
+          test -f "release/NextMessage_${VERSION}_RootHide_Diagnostic_iOS15.deb"
+          test -f "release/NextMessage_${VERSION}_Rootless_Diagnostic_iOS15.deb"
+
+          rm -f debfiles/NextMessage_*.deb debfiles/com.nextsolution.nextmessage_*.deb
+          cp release/NextMessage_*.deb debfiles/
+
+          dpkg-scanpackages -m ./debfiles > Packages
+          bzip2 -c9 Packages > Packages.bz2
+          gzip -c9 Packages > Packages.gz
+
+          grep -A20 '^Package: com.nextsolution.nextmessage$' Packages
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add debfiles Packages Packages.bz2 Packages.gz
+          if git diff --cached --quiet; then
+            echo "Next Message is already published."
+            exit 0
+          fi
+          git commit -m "Publish Next Message ${VERSION} diagnostics"
+          git push origin HEAD:main
