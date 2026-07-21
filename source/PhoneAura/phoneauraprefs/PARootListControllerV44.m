@@ -7,13 +7,12 @@ extern char **environ;
 
 static NSString * const PADomain = @"com.zeshan.phoneaura";
 static NSString * const PANotification = @"com.zeshan.phoneaura/preferences.changed";
+static NSString * const PARepoURL = @"https://zeshan0727.github.io/";
 
 @implementation PARootListController
 
-- (PSSpecifier *)groupNamed:(NSString *)name footer:(NSString *)footer {
-    PSSpecifier *specifier = [PSSpecifier groupSpecifierWithName:name];
-    if (footer.length) [specifier setProperty:footer forKey:@"footerText"];
-    return specifier;
+- (PSSpecifier *)groupNamed:(NSString *)name {
+    return [PSSpecifier groupSpecifierWithName:name];
 }
 
 - (PSSpecifier *)switchNamed:(NSString *)name
@@ -74,8 +73,7 @@ static NSString * const PANotification = @"com.zeshan.phoneaura/preferences.chan
 
     NSMutableArray *items = [NSMutableArray array];
 
-    [items addObject:[self groupNamed:@"PHONEAURA 0.4.4"
-                               footer:@"RootHide controls are generated directly in code. Version 0.4.4 uses one opaque full-height stage so Apple’s titles and rows cannot overlap the Concept D interface."]];
+    [items addObject:[self groupNamed:@"PHONEAURA"]];
     [items addObject:[self buttonNamed:@"Open PhoneAura Studio"
                                 action:@selector(openStudioApp)
                            destructive:NO]];
@@ -83,8 +81,7 @@ static NSString * const PANotification = @"com.zeshan.phoneaura/preferences.chan
                                    key:@"enabled"
                           defaultValue:YES]];
 
-    [items addObject:[self groupNamed:@"CUSTOM PHONE SCREENS"
-                               footer:@"When a screen is disabled, PhoneAura restores Apple’s complete screen. Contact details and active calls always remain Apple-controlled."]];
+    [items addObject:[self groupNamed:@"CUSTOM PHONE SCREENS"]];
     [items addObject:[self switchNamed:@"Replace Favorites"
                                    key:@"fullFavorites"
                           defaultValue:YES]];
@@ -98,7 +95,7 @@ static NSString * const PANotification = @"com.zeshan.phoneaura/preferences.chan
                                    key:@"fullKeypad"
                           defaultValue:YES]];
 
-    [items addObject:[self groupNamed:@"APPEARANCE" footer:nil]];
+    [items addObject:[self groupNamed:@"APPEARANCE"]];
     [items addObject:[self switchNamed:@"Header Subtitles"
                                    key:@"showSubtitles"
                           defaultValue:YES]];
@@ -113,8 +110,7 @@ static NSString * const PANotification = @"com.zeshan.phoneaura/preferences.chan
                                    min:10.0
                                    max:26.0]];
 
-    [items addObject:[self groupNamed:@"BEHAVIOR"
-                               footer:@"Use Restart Phone App after changing complete screens. Favorite contacts are selected in PhoneAura Studio."]];
+    [items addObject:[self groupNamed:@"BEHAVIOR"]];
     [items addObject:[self switchNamed:@"Haptic Feedback"
                                    key:@"haptics"
                           defaultValue:YES]];
@@ -128,8 +124,20 @@ static NSString * const PANotification = @"com.zeshan.phoneaura/preferences.chan
                                 action:@selector(resetPreferences)
                            destructive:YES]];
 
+    [items addObject:[self groupNamed:@"CREDITS & MORE"]];
+    [items addObject:[self buttonNamed:@"Know more about other tweaks"
+                                action:@selector(openSileoRepo)
+                           destructive:NO]];
+
     _specifiers = [items copy];
     return _specifiers;
+}
+
+- (UIImage *)nextSolutionLogo {
+    NSBundle *bundle = [NSBundle bundleForClass:self.class];
+    NSString *path = [bundle pathForResource:@"icon" ofType:@"png"];
+    UIImage *image = path.length ? [UIImage imageWithContentsOfFile:path] : nil;
+    return image ?: [UIImage systemImageNamed:@"sparkles"];
 }
 
 - (void)viewDidLoad {
@@ -138,7 +146,14 @@ static NSString * const PANotification = @"com.zeshan.phoneaura/preferences.chan
     self.title = @"PhoneAura";
     self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeNever;
 
-    UIView *header = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 142)];
+    CGFloat screenWidth = UIScreen.mainScreen.bounds.size.width;
+    UIView *header = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 178)];
+
+    UIView *card = [[UIView alloc] initWithFrame:CGRectMake(16, 16, screenWidth - 48, 142)];
+    card.layer.cornerRadius = 26;
+    card.layer.cornerCurve = kCACornerCurveContinuous;
+    card.layer.masksToBounds = YES;
+    [header addSubview:card];
 
     CAGradientLayer *gradient = [CAGradientLayer layer];
     gradient.colors = @[
@@ -146,44 +161,40 @@ static NSString * const PANotification = @"com.zeshan.phoneaura/preferences.chan
         (id)[UIColor colorWithRed:0.42 green:0.38 blue:1.0 alpha:1].CGColor,
         (id)[UIColor colorWithRed:0.05 green:0.78 blue:0.72 alpha:1].CGColor
     ];
-    gradient.startPoint = CGPointMake(0, 0.5);
-    gradient.endPoint = CGPointMake(1, 0.5);
-    gradient.frame = CGRectMake(18,
-                                14,
-                                UIScreen.mainScreen.bounds.size.width - 54,
-                                108);
-    gradient.cornerRadius = 24;
-    [header.layer addSublayer:gradient];
+    gradient.startPoint = CGPointMake(0, 0.25);
+    gradient.endPoint = CGPointMake(1, 0.8);
+    gradient.frame = card.bounds;
+    [card.layer insertSublayer:gradient atIndex:0];
 
-    UILabel *title =
-        [[UILabel alloc] initWithFrame:CGRectMake(38,
-                                                  31,
-                                                  UIScreen.mainScreen.bounds.size.width - 120,
-                                                  38)];
-    title.text = @"PhoneAura 0.4.4";
-    title.textColor = UIColor.whiteColor;
-    title.font = [UIFont systemFontOfSize:29 weight:UIFontWeightBold];
-    [header addSubview:title];
+    UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake(20, 24, 74, 74)];
+    logo.image = [self nextSolutionLogo];
+    logo.contentMode = UIViewContentModeScaleAspectFill;
+    logo.clipsToBounds = YES;
+    logo.layer.cornerRadius = 18;
+    logo.layer.borderWidth = 2;
+    logo.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.65].CGColor;
+    logo.tintColor = UIColor.whiteColor;
+    [card addSubview:logo];
 
-    UILabel *subtitle =
-        [[UILabel alloc] initWithFrame:CGRectMake(39,
-                                                  71,
-                                                  UIScreen.mainScreen.bounds.size.width - 120,
-                                                  25)];
-    subtitle.text = @"Opaque stage · clean Concept D roots";
-    subtitle.textColor = [UIColor colorWithWhite:1 alpha:0.85];
-    subtitle.font = [UIFont systemFontOfSize:13 weight:UIFontWeightSemibold];
-    [header addSubview:subtitle];
+    UILabel *brand = [[UILabel alloc] initWithFrame:CGRectMake(110, 24, CGRectGetWidth(card.bounds)-128, 36)];
+    brand.text = @"Next Solution";
+    brand.textColor = UIColor.whiteColor;
+    brand.font = [UIFont systemFontOfSize:26 weight:UIFontWeightBold];
+    brand.adjustsFontSizeToFitWidth = YES;
+    brand.minimumScaleFactor = 0.72;
+    [card addSubview:brand];
 
-    UIImageView *icon =
-        [[UIImageView alloc] initWithFrame:CGRectMake(UIScreen.mainScreen.bounds.size.width - 102,
-                                                      42,
-                                                      46,
-                                                      46)];
-    icon.image = [UIImage systemImageNamed:@"phone.fill"];
-    icon.tintColor = UIColor.whiteColor;
-    icon.contentMode = UIViewContentModeScaleAspectFit;
-    [header addSubview:icon];
+    UILabel *product = [[UILabel alloc] initWithFrame:CGRectMake(111, 61, CGRectGetWidth(card.bounds)-128, 24)];
+    product.text = @"PhoneAura 0.4.8";
+    product.textColor = [UIColor colorWithWhite:1 alpha:0.88];
+    product.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+    [card addSubview:product];
+
+    UILabel *credits = [[UILabel alloc] initWithFrame:CGRectMake(111, 88, CGRectGetWidth(card.bounds)-128, 22)];
+    credits.text = @"Credits: zeshan0727";
+    credits.textColor = [UIColor colorWithWhite:1 alpha:0.78];
+    credits.font = [UIFont systemFontOfSize:12 weight:UIFontWeightMedium];
+    [card addSubview:credits];
 
     self.table.tableHeaderView = header;
 }
@@ -221,6 +232,25 @@ static NSString * const PANotification = @"com.zeshan.phoneaura/preferences.chan
                                            options:@{}
                                  completionHandler:nil];
     }
+}
+
+- (void)openSileoRepo {
+    NSString *sileoString = [NSString stringWithFormat:@"sileo://source/%@", PARepoURL];
+    NSURL *sileoURL = [NSURL URLWithString:sileoString];
+    NSURL *webURL = [NSURL URLWithString:PARepoURL];
+
+    if (!sileoURL) {
+        if (webURL) [[UIApplication sharedApplication] openURL:webURL options:@{} completionHandler:nil];
+        return;
+    }
+
+    [[UIApplication sharedApplication] openURL:sileoURL
+                                       options:@{}
+                             completionHandler:^(BOOL success) {
+        if (!success && webURL) {
+            [[UIApplication sharedApplication] openURL:webURL options:@{} completionHandler:nil];
+        }
+    }];
 }
 
 - (void)resetPreferences {
