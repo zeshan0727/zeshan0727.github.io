@@ -158,34 +158,34 @@ Author: Next Solution
 Name: Wool Control Center
 
 Package: com.zeshan.phoneaura
-Version: 0.4.7
-Architecture: iphoneos-arm64e
-Maintainer: Next Solution
-Installed-Size: 1020
-Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.7_RootHide_iOS16.deb
-Size: 138680
-MD5sum: 4e898cff110d824551da9cd8587118dd
-SHA1: e6cc325b127f347dfe0fabdfd6eedb989a1e5f65
-SHA256: 85902efef473f9da93f1fd2b3cff9565a9f453c30f139c9d1f3b325d1f91f6f7
-Section: Tweaks
-Description: Test-only Concept D update for RootHide. Adds All, Dialed, Received and Missed call filters, an in-app call-detail card from the info button, swipe-to-delete call records, swipe-to-delete contacts, a confirmed Delete Contact action inside contact details, and reduced repeated contact/history loading. Not for live-repo publication until device testing is approved.
-Author: Next Solution
-Name: PhoneAura
-
-Package: com.zeshan.phoneaura
-Version: 0.4.7
+Version: 0.4.8
 Architecture: iphoneos-arm64
 Maintainer: Next Solution
 Installed-Size: 1020
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.7_Rootless_iOS16.deb
-Size: 138990
-MD5sum: 01a2b2312e41d4e9bda96781ff9046bc
-SHA1: c4d6a5bf37501ed77aa344962e313cacb97c59c3
-SHA256: 6b129b5fe04710b710bc543a064da5cd697f13e69c8b7259f2bd8c9152974a60
+Filename: ./debfiles/PhoneAura_0.4.8_Rootless_iOS16.deb
+Size: 139066
+MD5sum: 561d9ee5da2419404697550ba4875a83
+SHA1: f3abaed62aba9ddc3f9e4a66b609905b0eca8b4d
+SHA256: c24e2fe81cf0e550561473bd053e6356d88e0a7bd91d8683492ee77bf17563de
 Section: Tweaks
-Description: Test-only Concept D update for rootless jailbreaks such as Dopamine. Adds All, Dialed, Received and Missed call filters, an in-app call-detail card from the info button, swipe-to-delete call records, swipe-to-delete contacts, a confirmed Delete Contact action inside contact details, and reduced repeated contact/history loading. Not for live-repo publication until device testing is approved.
+Description: PhoneAura for iOS 16 rootless jailbreaks with Concept D Phone screens, Recents filters and call details, call and contact deletion, inline Favorites selection, performance optimizations, clean settings presentation, Next Solution branding, credits to zeshan0727 and a direct Sileo repository link.
+Author: Next Solution
+Name: PhoneAura
+
+Package: com.zeshan.phoneaura
+Version: 0.4.8
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 1020
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/PhoneAura_0.4.8_RootHide_iOS16.deb
+Size: 139026
+MD5sum: 5169c3ab93cc5dd197ee671413ce4bf8
+SHA1: 8a97c640550278c3ef7becc1e896041d4bcd5774
+SHA256: 77705580074f4b0b4234333de57f0f7e055ca94faa96b4a46c30472c8d8ee1dd
+Section: Tweaks
+Description: PhoneAura for iOS 16 RootHide with Concept D Phone screens, Recents filters and call details, call and contact deletion, inline Favorites selection, performance optimizations, clean settings presentation, Next Solution branding, credits to zeshan0727 and a direct Sileo repository link.
 Author: Next Solution
 Name: PhoneAura
 
