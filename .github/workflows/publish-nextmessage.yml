@@ -1,3 +1,4 @@
+# Release trigger for Next Message v0.2.1 diagnostic
 name: Publish Next Message v0.2.1
 
 on:
