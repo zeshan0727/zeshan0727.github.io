@@ -3,6 +3,7 @@ Name: PhoneAura
 Version: 0.4.8
 Architecture: iphoneos-arm64
 Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Enjoy elegant custom Favorites, smart Recents filters, detailed call information, redesigned Contacts and Keypad, swipe-to-delete controls, custom favorite contacts, haptic feedback, fluid animations, and clean Next Solution settings. Built for rootless jailbreaks.
+Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
