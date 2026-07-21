@@ -60,17 +60,16 @@
     }
 
     .logo {
-      width: 92px;
-      height: 92px;
+      width: 104px;
+      height: 104px;
       margin: 0 auto 22px;
-      display: grid;
-      place-items: center;
-      border-radius: 26px;
-      font-size: 39px;
-      font-weight: 900;
-      letter-spacing: -3px;
-      background: linear-gradient(145deg, #31a7ff, #7548ff 55%, #dd49ff);
-      box-shadow: 0 18px 46px rgba(88, 90, 255, 0.42), inset 0 1px rgba(255,255,255,.35);
+      padding: 7px;
+      display: block;
+      object-fit: cover;
+      border-radius: 29px;
+      border: 1px solid rgba(255,255,255,.30);
+      background: rgba(255,255,255,.08);
+      box-shadow: 0 18px 46px rgba(88, 90, 255, 0.42), inset 0 1px rgba(255,255,255,.25);
     }
 
     h1 {
@@ -166,12 +165,13 @@
       body { padding: 16px; }
       main { border-radius: 27px; }
       .repo-button { min-height: 65px; font-size: 17px; }
+      .logo { width: 94px; height: 94px; border-radius: 26px; }
     }
   </style>
 </head>
 <body>
   <main>
-    <div class="logo" aria-hidden="true">NS</div>
+    <img class="logo" src="CydiaIcon.png" alt="Next Solution logo">
     <h1>Next Solution Repo</h1>
     <p class="subtitle">Choose your package manager to add the repository.</p>
 
