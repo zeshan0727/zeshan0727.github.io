@@ -158,34 +158,34 @@ Author: Next Solution
 Name: Wool Control Center
 
 Package: com.zeshan.phoneaura
-Version: 0.4.6
-Architecture: iphoneos-arm64
+Version: 0.4.7
+Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 908
+Installed-Size: 1020
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.6_Rootless_iOS16.deb
-Size: 112974
-MD5sum: f8982bdd2db8475147bc4c4950c1c09f
-SHA1: 5321056540861cca02441a1f86c3d2b1f14f1976
-SHA256: f3089ae165453b066f9337330e3b40b40debcf4c8c6ac0f4d82ef21d97ffff48
+Filename: ./debfiles/PhoneAura_0.4.7_RootHide_iOS16.deb
+Size: 138680
+MD5sum: 4e898cff110d824551da9cd8587118dd
+SHA1: e6cc325b127f347dfe0fabdfd6eedb989a1e5f65
+SHA256: 85902efef473f9da93f1fd2b3cff9565a9f453c30f139c9d1f3b325d1f91f6f7
 Section: Tweaks
-Description: Concept D redesign for the stock iOS 16 Phone app, built for rootless jailbreaks such as Dopamine. Includes stable full-stage Favorites, Recents, Contacts and Keypad screens, inline contact details, in-app favorite selection, Siri/My Info My Card lookup, PhoneAura Studio and a rootless PreferenceLoader pane.
+Description: Test-only Concept D update for RootHide. Adds All, Dialed, Received and Missed call filters, an in-app call-detail card from the info button, swipe-to-delete call records, swipe-to-delete contacts, a confirmed Delete Contact action inside contact details, and reduced repeated contact/history loading. Not for live-repo publication until device testing is approved.
 Author: Next Solution
 Name: PhoneAura
 
 Package: com.zeshan.phoneaura
-Version: 0.4.6
-Architecture: iphoneos-arm64e
+Version: 0.4.7
+Architecture: iphoneos-arm64
 Maintainer: Next Solution
-Installed-Size: 908
+Installed-Size: 1020
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.6_RootHide_iOS16.deb
-Size: 112790
-MD5sum: 0ed441b54073404564b2be98724c795c
-SHA1: 0f841fc112398677d33ef790d251d30d58311df8
-SHA256: bbafe7131f412acf29485f54c5ac90c23921e2bdcefd7212462a2e71378be233
+Filename: ./debfiles/PhoneAura_0.4.7_Rootless_iOS16.deb
+Size: 138990
+MD5sum: 01a2b2312e41d4e9bda96781ff9046bc
+SHA1: c4d6a5bf37501ed77aa344962e313cacb97c59c3
+SHA256: 6b129b5fe04710b710bc543a064da5cd697f13e69c8b7259f2bd8c9152974a60
 Section: Tweaks
-Description: Concept D redesign for the stock iOS 16 Phone app, built for RootHide. Includes stable full-stage Favorites, Recents, Contacts and Keypad screens, inline contact details, in-app favorite selection, Siri/My Info My Card lookup, PhoneAura Studio and a RootHide PreferenceLoader pane.
+Description: Test-only Concept D update for rootless jailbreaks such as Dopamine. Adds All, Dialed, Received and Missed call filters, an in-app call-detail card from the info button, swipe-to-delete call records, swipe-to-delete contacts, a confirmed Delete Contact action inside contact details, and reduced repeated contact/history loading. Not for live-repo publication until device testing is approved.
 Author: Next Solution
 Name: PhoneAura
 
