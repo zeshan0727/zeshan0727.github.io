@@ -164,13 +164,15 @@ Maintainer: Next Solution
 Installed-Size: 1020
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
 Filename: ./debfiles/PhoneAura_0.4.8_Rootless_iOS16.deb
-Size: 139034
-MD5sum: f67a564797bc2028d5bd043d39c64f22
-SHA1: 87666a0b2b83bf93930fedfb927456568398a464
-SHA256: 0395ca8301906bd07ee8e429f3e2f50f66c3a2f6db8f195d305c3f068a63532d
+Size: 139872
+MD5sum: a563c02e4c630b8eb6113b8388a70c36
+SHA1: 7ff5223dc2b896eecc0ec024504f5e53ad3c8516
+SHA256: 97e34629906c7b02574ec327263fa58ff8949ba14324865e001b7b0035109356
 Section: Tweaks
+Homepage: https://zeshan0727.github.io/
 Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Enjoy elegant custom Favorites, smart Recents filters, detailed call information, redesigned Contacts and Keypad, swipe-to-delete controls, custom favorite contacts, haptic feedback, fluid animations, and clean Next Solution settings. Built for rootless jailbreaks.
 Author: Next Solution
+Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
 
 Package: com.zeshan.phoneaura
@@ -180,12 +182,14 @@ Maintainer: Next Solution
 Installed-Size: 1020
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
 Filename: ./debfiles/PhoneAura_0.4.8_RootHide_iOS16.deb
-Size: 139002
-MD5sum: b7942b336942821c67f2cd82a369a571
-SHA1: 733e4ffd9ef62b8aca3e789b951bd9613377df43
-SHA256: c26a5e01db7120214d19cc72dcb6f323c04b28e851885f4bb999ab5358ee1966
+Size: 138936
+MD5sum: 73b61653e4504449275d4dd72f027dfc
+SHA1: 9355a5d76a30c96ef1971166ff901e63a4f951d6
+SHA256: c95dd6fba59abc0cb2d11c5d3729ecdde324a907afba549e5d2acda9820446cb
 Section: Tweaks
+Homepage: https://zeshan0727.github.io/
 Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Enjoy elegant custom Favorites, smart Recents filters, detailed call information, redesigned Contacts and Keypad, swipe-to-delete controls, custom favorite contacts, haptic feedback, fluid animations, and clean Next Solution settings. Built for RootHide.
 Author: Next Solution
+Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
 
