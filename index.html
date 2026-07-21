@@ -2,28 +2,200 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Zeshan Sileo Repo</title>
-  <meta name="description" content="Tweaks for RootHide and rootless jailbreaks.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <title>Next Solution Repo</title>
+  <meta name="description" content="Add the Next Solution jailbreak repository to Sileo, Cydia, or Zebra.">
   <style>
-    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: linear-gradient(145deg, #07111f, #162b4f); color: #fff; }
-    main { width: min(88%, 620px); padding: 38px; border: 1px solid rgba(255,255,255,.16); border-radius: 24px; background: rgba(255,255,255,.08); box-shadow: 0 24px 70px rgba(0,0,0,.35); }
-    h1 { margin-top: 0; }
-    p { color: #d7e3f5; line-height: 1.6; }
-    a.button { display: inline-block; margin: 12px 0 20px; padding: 13px 20px; border-radius: 12px; color: #07111f; background: #7dd3fc; text-decoration: none; font-weight: 700; }
-    code { display: block; overflow-wrap: anywhere; padding: 13px; border-radius: 10px; background: rgba(0,0,0,.28); color: #bae6fd; }
-    ul { color: #d7e3f5; line-height: 1.7; }
+    :root {
+      color-scheme: dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --text: #ffffff;
+      --muted: #b9c8df;
+      --card: rgba(12, 24, 48, 0.76);
+      --border: rgba(255, 255, 255, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow-x: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 15%, rgba(42, 151, 255, 0.34), transparent 34%),
+        radial-gradient(circle at 88% 82%, rgba(163, 65, 255, 0.30), transparent 36%),
+        linear-gradient(145deg, #020712 0%, #07152a 48%, #160b2d 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.18;
+      background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to bottom, black, transparent 88%);
+    }
+
+    main {
+      position: relative;
+      width: min(100%, 610px);
+      padding: clamp(30px, 7vw, 54px);
+      border: 1px solid var(--border);
+      border-radius: 34px;
+      background: var(--card);
+      box-shadow: 0 34px 100px rgba(0, 0, 0, 0.48);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      text-align: center;
+    }
+
+    .logo {
+      width: 92px;
+      height: 92px;
+      margin: 0 auto 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 26px;
+      font-size: 39px;
+      font-weight: 900;
+      letter-spacing: -3px;
+      background: linear-gradient(145deg, #31a7ff, #7548ff 55%, #dd49ff);
+      box-shadow: 0 18px 46px rgba(88, 90, 255, 0.42), inset 0 1px rgba(255,255,255,.35);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 8vw, 52px);
+      line-height: 1.06;
+      letter-spacing: -1.6px;
+    }
+
+    .subtitle {
+      margin: 14px auto 30px;
+      max-width: 430px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .buttons {
+      display: grid;
+      gap: 14px;
+    }
+
+    .repo-button {
+      min-height: 68px;
+      display: grid;
+      grid-template-columns: 48px 1fr 30px;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px 10px 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 20px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 800;
+      text-align: left;
+      box-shadow: 0 12px 34px rgba(0,0,0,.22);
+      transition: transform .18s ease, filter .18s ease, border-color .18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .repo-button:hover,
+    .repo-button:focus-visible {
+      transform: translateY(-2px) scale(1.01);
+      filter: brightness(1.08);
+      border-color: rgba(255,255,255,.34);
+      outline: none;
+    }
+
+    .repo-button:active { transform: scale(.985); }
+
+    .badge {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(255,255,255,.16);
+      box-shadow: inset 0 1px rgba(255,255,255,.22);
+      font-size: 21px;
+      font-weight: 900;
+    }
+
+    .label small {
+      display: block;
+      margin-top: 3px;
+      color: rgba(255,255,255,.68);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .arrow {
+      justify-self: end;
+      color: rgba(255,255,255,.78);
+      font-size: 28px;
+      font-weight: 400;
+    }
+
+    .sileo { background: linear-gradient(120deg, #1457e6, #318dff); }
+    .cydia { background: linear-gradient(120deg, #7b4b2e, #b97b4c); }
+    .zebra { background: linear-gradient(120deg, #222831, #495361); }
+
+    footer {
+      margin-top: 28px;
+      color: rgba(218, 228, 244, .62);
+      font-size: 12px;
+      font-weight: 650;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 430px) {
+      body { padding: 16px; }
+      main { border-radius: 27px; }
+      .repo-button { min-height: 65px; font-size: 17px; }
+    }
   </style>
 </head>
 <body>
   <main>
-    <h1>Zeshan Sileo Repo</h1>
-    <p>Tweaks for RootHide and rootless jailbreaks.</p>
-    <a class="button" href="sileo://source/https://zeshan0727.github.io/">Add to Sileo</a>
-    <code>https://zeshan0727.github.io/</code>
-    <h2>Available packages</h2>
-    <ul><li>Unlock Vibrate 1.2.0 — RootHide, iOS 16</li></ul>
+    <div class="logo" aria-hidden="true">NS</div>
+    <h1>Next Solution Repo</h1>
+    <p class="subtitle">Choose your package manager to add the repository.</p>
+
+    <div class="buttons">
+      <a class="repo-button sileo" href="sileo://source/https://zeshan0727.github.io/">
+        <span class="badge">S</span>
+        <span class="label">Add to Sileo<small>Open and add the source</small></span>
+        <span class="arrow">›</span>
+      </a>
+
+      <a class="repo-button cydia" href="cydia://url/https://cydia.saurik.com/api/share#?source=https://zeshan0727.github.io/">
+        <span class="badge">C</span>
+        <span class="label">Add to Cydia<small>Open and add the source</small></span>
+        <span class="arrow">›</span>
+      </a>
+
+      <a class="repo-button zebra" href="zbra://sources/add/https://zeshan0727.github.io/">
+        <span class="badge">Z</span>
+        <span class="label">Add to Zebra<small>Open and add the source</small></span>
+        <span class="arrow">›</span>
+      </a>
+    </div>
+
+    <footer>Next Solution — zeshan0727</footer>
   </main>
 </body>
 </html>
