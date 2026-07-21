@@ -2,7 +2,7 @@ Package: com.zeshan.phoneaura
 Name: PhoneAura
 Version: 0.4.8
 Architecture: iphoneos-arm64e
-Description: PhoneAura for iOS 16 RootHide with Concept D Phone screens, Recents filters and call details, call and contact deletion, inline Favorites selection, performance optimizations, clean settings presentation, Next Solution branding, credits to zeshan0727 and a direct Sileo repository link.
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Enjoy elegant custom Favorites, smart Recents filters, detailed call information, redesigned Contacts and Keypad, swipe-to-delete controls, custom favorite contacts, haptic feedback, fluid animations, and clean Next Solution settings. Built for RootHide.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
