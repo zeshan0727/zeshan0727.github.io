@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.6
+Version: 0.4.7
 Architecture: iphoneos-arm64e
-Description: RootHide iOS 16 inline Contacts and Favorites repair. Keeps the successful Concept D full-stage interface while replacing the crashing Apple contact-detail push with a native PhoneAura contact page inside the same tab, adding an in-app searchable favorite-contact selector, and showing Apple’s Siri/My Info contact as the Contacts My Card hero.
+Description: Test-only iOS 16 PhoneAura update with four Recents filters, call-detail cards, swipe call-history deletion, contact swipe deletion, contact-detail deletion and performance improvements. Built for RootHide and withheld from the live repo until physical-device testing is approved.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks

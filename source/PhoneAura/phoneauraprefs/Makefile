@@ -1,7 +1,7 @@
 include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = PhoneAuraPrefs
-PhoneAuraPrefs_FILES = PARootListControllerV44.m
+PhoneAuraPrefs_FILES = PARootListControllerV44.m PAVersionDisplayV47.m
 PhoneAuraPrefs_FRAMEWORKS = UIKit
 PhoneAuraPrefs_INSTALL_PATH = /Library/PreferenceBundles
 PhoneAuraPrefs_RESOURCE_DIRS = Resources

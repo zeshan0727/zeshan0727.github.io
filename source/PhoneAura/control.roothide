@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.6
+Version: 0.4.7
 Architecture: iphoneos-arm64e
-Description: Concept D redesign for the stock iOS 16 Phone app, built for RootHide. Includes stable full-stage Favorites, Recents, Contacts and Keypad screens, inline contact details, in-app favorite selection, Siri/My Info My Card lookup, PhoneAura Studio and a RootHide PreferenceLoader pane.
+Description: Test-only Concept D update for RootHide. Adds All, Dialed, Received and Missed call filters, an in-app call-detail card from the info button, swipe-to-delete call records, swipe-to-delete contacts, a confirmed Delete Contact action inside contact details, and reduced repeated contact/history loading. Not for live-repo publication until device testing is approved.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
