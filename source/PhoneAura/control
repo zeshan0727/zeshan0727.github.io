@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.7
+Version: 0.4.8
 Architecture: iphoneos-arm64e
-Description: Test-only iOS 16 PhoneAura update with four Recents filters, call-detail cards, swipe call-history deletion, contact swipe deletion, contact-detail deletion and performance improvements. Built for RootHide and withheld from the live repo until physical-device testing is approved.
+Description: PhoneAura for iOS 16 with Concept D Phone screens, Recents filters and call details, call and contact deletion, inline Favorites selection, performance optimizations, clean settings presentation, Next Solution branding, credits to zeshan0727 and a direct Sileo repository link.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
