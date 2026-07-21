@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.7
+Version: 0.4.8
 Architecture: iphoneos-arm64e
-Description: Test-only Concept D update for RootHide. Adds All, Dialed, Received and Missed call filters, an in-app call-detail card from the info button, swipe-to-delete call records, swipe-to-delete contacts, a confirmed Delete Contact action inside contact details, and reduced repeated contact/history loading. Not for live-repo publication until device testing is approved.
+Description: PhoneAura for iOS 16 RootHide with Concept D Phone screens, Recents filters and call details, call and contact deletion, inline Favorites selection, performance optimizations, clean settings presentation, Next Solution branding, credits to zeshan0727 and a direct Sileo repository link.
 Maintainer: Next Solution
 Author: Next Solution
 Section: Tweaks
