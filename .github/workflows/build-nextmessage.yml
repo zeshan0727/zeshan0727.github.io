@@ -40,6 +40,7 @@ jobs:
           export THEOS="$HOME/theos"
           cd source/NextMessage
           cp control.roothide control
+          python3 -c 'from pathlib import Path; p=Path("NextMessageRuntime.swift"); s=p.read_text().replace("private func refreshAllWindows()", "func refreshAllWindows()"); p.write_text(s)'
           set +e
           make clean > build-roothide.log 2>&1
           make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide >> build-roothide.log 2>&1
@@ -84,6 +85,7 @@ jobs:
           export THEOS="$HOME/theos"
           cd source/NextMessage
           cp control.rootless control
+          python3 -c 'from pathlib import Path; p=Path("NextMessageRuntime.swift"); s=p.read_text().replace("private func refreshAllWindows()", "func refreshAllWindows()"); p.write_text(s)'
           set +e
           make clean > build-rootless.log 2>&1
           make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless >> build-rootless.log 2>&1
