@@ -1,5 +1,9 @@
 #import <UIKit/UIKit.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 FOUNDATION_EXPORT NSString * const NMDomain;
 FOUNDATION_EXPORT NSString * const NMPreferencesChangedNotification;
 
@@ -14,3 +18,7 @@ BOOL NMEnabled(void);
 
 UIViewController *NMControllerForView(UIView *view);
 void NMHaptic(BOOL warning);
+
+#ifdef __cplusplus
+}
+#endif
