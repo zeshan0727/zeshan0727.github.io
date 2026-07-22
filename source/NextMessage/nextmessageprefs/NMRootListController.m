@@ -48,23 +48,6 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     return specifier;
 }
 
-- (PSSpecifier *)sliderNamed:(NSString *)name key:(NSString *)key defaultValue:(CGFloat)value min:(CGFloat)minimum max:(CGFloat)maximum {
-    PSSpecifier *specifier =
-        [PSSpecifier preferenceSpecifierNamed:name
-                                       target:self
-                                          set:@selector(setPreferenceValue:specifier:)
-                                          get:@selector(readPreferenceValue:)
-                                       detail:nil
-                                         cell:PSSliderCell
-                                         edit:nil];
-    [specifier setProperty:key forKey:@"key"];
-    [specifier setProperty:@(value) forKey:@"default"];
-    [specifier setProperty:@(minimum) forKey:@"min"];
-    [specifier setProperty:@(maximum) forKey:@"max"];
-    [specifier setProperty:@YES forKey:@"showValue"];
-    return specifier;
-}
-
 - (PSSpecifier *)buttonNamed:(NSString *)name action:(SEL)action destructive:(BOOL)destructive {
     PSSpecifier *specifier =
         [PSSpecifier preferenceSpecifierNamed:name
@@ -83,25 +66,14 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     if (_specifiers) return _specifiers;
 
     NSMutableArray *items = [NSMutableArray array];
-
     [items addObject:[self groupNamed:@"NEXT MESSAGE"]];
     [items addObject:[self switchNamed:@"Enable Next Message" key:@"enabled" defaultValue:YES]];
 
-    [items addObject:[self groupNamed:@"MESSAGES APPEARANCE"]];
-    [items addObject:[self switchNamed:@"Conversation Cards" key:@"conversationCards" defaultValue:YES]];
-    [items addObject:[self switchNamed:@"Dark Glass Background" key:@"glassBackground" defaultValue:YES]];
-    [items addObject:[self sliderNamed:@"Card Opacity" key:@"cardOpacity" defaultValue:0.96 min:0.70 max:1.0]];
-    [items addObject:[self sliderNamed:@"Corner Radius" key:@"cornerRadius" defaultValue:20.0 min:14.0 max:30.0]];
-
-    [items addObject:[self groupNamed:@"CONVERSATION SWIPE"]];
-    [items addObject:[self switchNamed:@"Info and Delete Actions" key:@"detailsSwipe" defaultValue:YES]];
-    [items addObject:[self switchNamed:@"Show Message Count" key:@"showMessageCount" defaultValue:YES]];
-    [items addObject:[self switchNamed:@"Show First Message Date" key:@"showFirstDate" defaultValue:YES]];
-    [items addObject:[self switchNamed:@"Delete from Details Card" key:@"deleteFromCard" defaultValue:YES]];
-
-    [items addObject:[self groupNamed:@"BEHAVIOR"]];
+    [items addObject:[self groupNamed:@"FLOATING APP INFORMATION"]];
+    [items addObject:[self switchNamed:@"Show Floating Information Button" key:@"floatingInfoButton" defaultValue:YES]];
     [items addObject:[self switchNamed:@"Haptic Feedback" key:@"haptics" defaultValue:YES]];
-    [items addObject:[self switchNamed:@"Fluid Animations" key:@"animations" defaultValue:YES]];
+
+    [items addObject:[self groupNamed:@"ACTIONS"]];
     [items addObject:[self buttonNamed:@"Apply and Restart Messages" action:@selector(restartMessagesApp) destructive:NO]];
     [items addObject:[self buttonNamed:@"Reset Next Message Settings" action:@selector(resetPreferences) destructive:YES]];
 
@@ -134,9 +106,9 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
 
     CAGradientLayer *gradient = [CAGradientLayer layer];
     gradient.colors = @[
-        (id)[UIColor colorWithRed:1.0 green:0.35 blue:0.37 alpha:1].CGColor,
-        (id)[UIColor colorWithRed:0.42 green:0.38 blue:1.0 alpha:1].CGColor,
-        (id)[UIColor colorWithRed:0.05 green:0.78 blue:0.72 alpha:1].CGColor
+        (id)[UIColor colorWithRed:1.0 green:0.32 blue:0.37 alpha:1].CGColor,
+        (id)[UIColor colorWithRed:0.43 green:0.37 blue:1.0 alpha:1].CGColor,
+        (id)[UIColor colorWithRed:0.04 green:0.80 blue:0.72 alpha:1].CGColor
     ];
     gradient.startPoint = CGPointMake(0, 0.25);
     gradient.endPoint = CGPointMake(1, 0.8);
@@ -152,7 +124,7 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     logo.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.65].CGColor;
     [card addSubview:logo];
 
-    UILabel *brand = [[UILabel alloc] initWithFrame:CGRectMake(110, 24, CGRectGetWidth(card.bounds) - 128, 36)];
+    UILabel *brand = [[UILabel alloc] initWithFrame:CGRectMake(110, 24, CGRectGetWidth(card.bounds)-128, 36)];
     brand.text = @"Next Solution";
     brand.textColor = UIColor.whiteColor;
     brand.font = [UIFont systemFontOfSize:26 weight:UIFontWeightBold];
@@ -160,40 +132,37 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     brand.minimumScaleFactor = 0.72;
     [card addSubview:brand];
 
-    UILabel *product = [[UILabel alloc] initWithFrame:CGRectMake(111, 61, CGRectGetWidth(card.bounds) - 128, 24)];
-    product.text = @"Next Message 1.4.0 SWIFT TEST";
+    UILabel *product = [[UILabel alloc] initWithFrame:CGRectMake(111, 61, CGRectGetWidth(card.bounds)-128, 24)];
+    product.text = @"Next Message 1.5.0 TEST";
     product.textColor = [UIColor colorWithWhite:1 alpha:0.90];
     product.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
     [card addSubview:product];
 
-    UILabel *credits = [[UILabel alloc] initWithFrame:CGRectMake(111, 88, CGRectGetWidth(card.bounds) - 128, 22)];
+    UILabel *credits = [[UILabel alloc] initWithFrame:CGRectMake(111, 88, CGRectGetWidth(card.bounds)-128, 22)];
     credits.text = @"Credits: zeshan0727";
     credits.textColor = [UIColor colorWithWhite:1 alpha:0.80];
     credits.font = [UIFont systemFontOfSize:12 weight:UIFontWeightMedium];
     [card addSubview:credits];
-
     self.table.tableHeaderView = header;
 }
 
 - (id)readPreferenceValue:(PSSpecifier *)specifier {
     NSString *key = [specifier propertyForKey:@"key"];
     if (!key.length) return nil;
-
-    CFPropertyListRef value =
-        CFPreferencesCopyValue((__bridge CFStringRef)key,
-                               (__bridge CFStringRef)NMDomain,
-                               kCFPreferencesCurrentUser,
-                               kCFPreferencesAnyHost);
-    if (value) return CFBridgingRelease(value);
-
-    id diskValue = [self diskPreferences][key];
-    return diskValue ?: [specifier propertyForKey:@"default"];
+    NSDictionary *dictionary = [self diskPreferences];
+    id value = dictionary[key];
+    if (value) return value;
+    CFPropertyListRef shared = CFPreferencesCopyValue((__bridge CFStringRef)key,
+                                                      (__bridge CFStringRef)NMDomain,
+                                                      kCFPreferencesCurrentUser,
+                                                      kCFPreferencesAnyHost);
+    if (shared) return CFBridgingRelease(shared);
+    return [specifier propertyForKey:@"default"];
 }
 
 - (void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {
     NSString *key = [specifier propertyForKey:@"key"];
     if (!key.length) return;
-
     NSMutableDictionary *dictionary = [self diskPreferences];
     if (value) dictionary[key] = value;
     else [dictionary removeObjectForKey:key];
@@ -207,59 +176,45 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     CFPreferencesSynchronize((__bridge CFStringRef)NMDomain,
                              kCFPreferencesCurrentUser,
                              kCFPreferencesAnyHost);
-
     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(),
                                          (__bridge CFStringRef)NMNotification,
                                          NULL, NULL, true);
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(restartMessagesApp) object:nil];
+    [self performSelector:@selector(restartMessagesApp) withObject:nil afterDelay:0.30];
 }
 
 - (void)openSileoRepo {
     NSURL *sileoURL = [NSURL URLWithString:[NSString stringWithFormat:@"sileo://source/%@", NMRepoURL]];
     NSURL *webURL = [NSURL URLWithString:NMRepoURL];
     [[UIApplication sharedApplication] openURL:sileoURL options:@{} completionHandler:^(BOOL success) {
-        if (!success && webURL) {
-            [[UIApplication sharedApplication] openURL:webURL options:@{} completionHandler:nil];
-        }
+        if (!success && webURL) [[UIApplication sharedApplication] openURL:webURL options:@{} completionHandler:nil];
     }];
 }
 
 - (void)resetPreferences {
-    NSArray *keys = @[
-        @"enabled", @"conversationCards", @"glassBackground",
-        @"cardOpacity", @"cornerRadius", @"detailsSwipe",
-        @"showMessageCount", @"showFirstDate", @"deleteFromCard",
-        @"haptics", @"animations"
-    ];
-
-    NSMutableDictionary *dictionary = [self diskPreferences];
-    for (NSString *key in keys) {
-        [dictionary removeObjectForKey:key];
+    NSDictionary *defaults = @{@"enabled": @YES, @"floatingInfoButton": @YES, @"haptics": @YES};
+    [self writeDiskPreferences:defaults];
+    for (NSString *key in defaults) {
         CFPreferencesSetValue((__bridge CFStringRef)key,
-                              NULL,
+                              (__bridge CFPropertyListRef)defaults[key],
                               (__bridge CFStringRef)NMDomain,
                               kCFPreferencesCurrentUser,
                               kCFPreferencesAnyHost);
     }
-    [self writeDiskPreferences:dictionary];
     CFPreferencesSynchronize((__bridge CFStringRef)NMDomain,
                              kCFPreferencesCurrentUser,
                              kCFPreferencesAnyHost);
     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(),
                                          (__bridge CFStringRef)NMNotification,
                                          NULL, NULL, true);
-
     _specifiers = nil;
     [self reloadSpecifiers];
+    [self restartMessagesApp];
 }
 
 - (void)restartMessagesApp {
-    const char *paths[] = {
-        "/usr/bin/killall",
-        "/var/jb/usr/bin/killall",
-        "/bootstrap/usr/bin/killall"
-    };
-
-    for (NSUInteger index = 0; index < sizeof(paths) / sizeof(paths[0]); index++) {
+    const char *paths[] = {"/usr/bin/killall", "/var/jb/usr/bin/killall", "/bootstrap/usr/bin/killall"};
+    for (NSUInteger index = 0; index < sizeof(paths)/sizeof(paths[0]); index++) {
         if (access(paths[index], X_OK) == 0) {
             pid_t pid = 0;
             const char *arguments[] = {paths[index], "-9", "MobileSMS", NULL};
@@ -267,7 +222,6 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
             return;
         }
     }
-
     pid_t pid = 0;
     const char *arguments[] = {"killall", "-9", "MobileSMS", NULL};
     posix_spawnp(&pid, "killall", NULL, NULL, (char * const *)arguments, environ);
