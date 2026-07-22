@@ -1,7 +1,9 @@
 #import <UIKit/UIKit.h>
 
-extern "C" void NMStartSwiftRuntime(void);
-extern "C" void NMRefreshSwiftController(void *controllerPointer);
+extern "C" void NMStartSwiftRuntimeV16(void);
+extern "C" void NMRefreshSwiftControllerV16(void *controllerPointer);
+extern "C" void NMRegisterSwiftTableView(void *tablePointer);
+extern "C" void NMRefreshSwiftConversationTables(void);
 
 static BOOL NMIsMessagesProcess(void) {
     return [[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.MobileSMS"];
@@ -12,14 +14,34 @@ static BOOL NMIsMessagesProcess(void) {
 - (void)viewDidAppear:(BOOL)animated {
     %orig;
     if (NMIsMessagesProcess()) {
-        NMRefreshSwiftController((__bridge void *)self);
+        NMRefreshSwiftControllerV16((__bridge void *)self);
     }
 }
 
 - (void)viewDidLayoutSubviews {
     %orig;
     if (NMIsMessagesProcess()) {
-        NMRefreshSwiftController((__bridge void *)self);
+        NMRefreshSwiftControllerV16((__bridge void *)self);
+    }
+}
+
+%end
+
+%hook UITableView
+
+- (void)didMoveToWindow {
+    %orig;
+    if (NMIsMessagesProcess() && self.window) {
+        NMRegisterSwiftTableView((__bridge void *)self);
+    }
+}
+
+- (void)reloadData {
+    %orig;
+    if (NMIsMessagesProcess() && self.window) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NMRegisterSwiftTableView((__bridge void *)self);
+        });
     }
 }
 
@@ -30,14 +52,16 @@ static BOOL NMIsMessagesProcess(void) {
 - (void)makeKeyAndVisible {
     %orig;
     if (NMIsMessagesProcess() && self.rootViewController) {
-        NMRefreshSwiftController((__bridge void *)self.rootViewController);
+        NMRefreshSwiftControllerV16((__bridge void *)self.rootViewController);
+        NMRefreshSwiftConversationTables();
     }
 }
 
 - (void)didBecomeKeyWindow {
     %orig;
     if (NMIsMessagesProcess() && self.rootViewController) {
-        NMRefreshSwiftController((__bridge void *)self.rootViewController);
+        NMRefreshSwiftControllerV16((__bridge void *)self.rootViewController);
+        NMRefreshSwiftConversationTables();
     }
 }
 
@@ -45,6 +69,6 @@ static BOOL NMIsMessagesProcess(void) {
 
 %ctor {
     if (NMIsMessagesProcess()) {
-        NMStartSwiftRuntime();
+        NMStartSwiftRuntimeV16();
     }
 }
