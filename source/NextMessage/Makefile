@@ -8,7 +8,7 @@ TWEAK_NAME = NextMessage
 NextMessage_FILES = Tweak.xm NMRuntimeV13.m
 NextMessage_FRAMEWORKS = UIKit QuartzCore
 NextMessage_LIBRARIES = sqlite3
-NextMessage_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unguarded-availability-new
+NextMessage_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unguarded-availability-new -Wno-unused-function
 NextMessage_LDFLAGS = -Wl,-segalign,4000
 
 include $(THEOS_MAKE_PATH)/tweak.mk
