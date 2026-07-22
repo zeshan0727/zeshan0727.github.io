@@ -107,6 +107,44 @@ Description: Native RootHide SpringBoard tweak that automatically imports matchi
 Author: NextSolution
 Name: Daily Ledger SMS Import
 
+Package: com.nextsolution.nextmessage
+Version: 1.1.0
+Architecture: iphoneos-arm64
+Maintainer: Next Solution
+Installed-Size: 424
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/NextMessage_1.1.0_Rootless_iOS16.deb
+Size: 47254
+MD5sum: 4c3f7e41e2581be203c03301489d353c
+SHA1: 0aa17520b2145c571f41c4e64b3f431e2f2cf3ee
+SHA256: b371c2cecc2c1955e6f8d7d3cddc7e573b3c31574ef907bebac6dc1ad595dae2
+Section: Tweaks
+Homepage: https://zeshan0727.github.io/
+Description: A free PhoneAura-inspired redesign for the iOS 16 Messages app with elegant conversation cards, dark glass styling, swipe-to-view conversation details, message count, first-message date, safe conversation deletion, haptics, animations and a branded Settings pane. Built for rootless jailbreaks.
+Author: Next Solution - zeshan0727
+Depiction: https://zeshan0727.github.io/depictions/nextmessage.html
+Icon: https://zeshan0727.github.io/CydiaIcon.png
+Name: Next Message
+
+Package: com.nextsolution.nextmessage
+Version: 1.1.0
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 424
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/NextMessage_1.1.0_RootHide_iOS16.deb
+Size: 47158
+MD5sum: df278ca66df86b7c84b8888f5bed4efb
+SHA1: 671f048fbec9b121db96f9cbfaab30b466dbb5f6
+SHA256: 3a5d181776dbb892510f0cd18e02c3dc9aa53baa3403d290b3633ed248d49140
+Section: Tweaks
+Homepage: https://zeshan0727.github.io/
+Description: A free PhoneAura-inspired redesign for the iOS 16 Messages app with elegant conversation cards, dark glass styling, swipe-to-view conversation details, message count, first-message date, safe conversation deletion, haptics, animations and a branded Settings pane. Built for RootHide.
+Author: Next Solution - zeshan0727
+Depiction: https://zeshan0727.github.io/depictions/nextmessage.html
+Icon: https://zeshan0727.github.io/CydiaIcon.png
+Name: Next Message
+
 Package: com.nextsolution.shaketorun
 Version: 1.1.0
 Architecture: iphoneos-arm64e
