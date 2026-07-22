@@ -46,9 +46,9 @@ jobs:
           python3 - <<'PY'
           import base64, hashlib, pathlib
           project = pathlib.Path('source/WoolControlCenter')
-          parts = sorted((project / 'override-parts').glob('part-*'))
+          parts = sorted((project / 'override2-parts').glob('part-*'))
           if not parts:
-              raise SystemExit('Missing Wool Control Center 1.2 override parts')
+              raise SystemExit('Missing Control Center Backgrounds 1.2 override parts')
           encoded = ''.join(part.read_text().strip() for part in parts)
           payload = base64.b64decode(encoded, validate=True)
           digest = hashlib.sha256(payload).hexdigest()
