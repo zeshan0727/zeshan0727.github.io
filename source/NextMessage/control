@@ -1,8 +1,8 @@
 Package: com.nextsolution.nextmessage
 Name: Next Message
-Version: 1.1.0
+Version: 1.4.0
 Architecture: iphoneos-arm64e
-Description: A free PhoneAura-inspired redesign for the iOS 16 Messages app with elegant conversation cards, dark glass styling, swipe-to-view conversation details, message count, first-message date, safe conversation deletion, haptics, animations and a branded Settings pane.
+Description: Swift-powered functional test rebuild for iOS 16 Messages with real Info and Delete swipe actions, message count, first-message date, reversible settings and safe PhoneAura styling that preserves message content.
 Maintainer: Next Solution
 Author: Next Solution - zeshan0727
 Section: Tweaks
