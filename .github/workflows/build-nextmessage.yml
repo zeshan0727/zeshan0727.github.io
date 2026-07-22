@@ -40,6 +40,16 @@ jobs:
           export THEOS="$HOME/theos"
           cd source/NextMessage
           cp control.roothide control
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('NMRuntimeV13.m')
+          s=p.read_text()
+          s=s.replace('bar.standardAppearance = nil;\n        bar.scrollEdgeAppearance = nil;\n        bar.compactAppearance = nil;', 'UINavigationBarAppearance *stock = [[UINavigationBarAppearance alloc] init];\n        [stock configureWithDefaultBackground];\n        bar.standardAppearance = stock;\n        bar.scrollEdgeAppearance = stock;\n        bar.compactAppearance = stock;')
+          s=s.replace('CGFloat y=44; ', '')
+          s=s.replace('y+=70;', '')
+          s=s.replace('Class *classes=calloc(count,sizeof(Class));', 'Class *classes=(Class *)calloc(count,sizeof(Class));')
+          p.write_text(s)
+          PY
           set +e
           make clean > build-roothide.log 2>&1
           make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide >> build-roothide.log 2>&1
@@ -84,6 +94,16 @@ jobs:
           export THEOS="$HOME/theos"
           cd source/NextMessage
           cp control.rootless control
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('NMRuntimeV13.m')
+          s=p.read_text()
+          s=s.replace('bar.standardAppearance = nil;\n        bar.scrollEdgeAppearance = nil;\n        bar.compactAppearance = nil;', 'UINavigationBarAppearance *stock = [[UINavigationBarAppearance alloc] init];\n        [stock configureWithDefaultBackground];\n        bar.standardAppearance = stock;\n        bar.scrollEdgeAppearance = stock;\n        bar.compactAppearance = stock;')
+          s=s.replace('CGFloat y=44; ', '')
+          s=s.replace('y+=70;', '')
+          s=s.replace('Class *classes=calloc(count,sizeof(Class));', 'Class *classes=(Class *)calloc(count,sizeof(Class));')
+          p.write_text(s)
+          PY
           set +e
           make clean > build-rootless.log 2>&1
           make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless >> build-rootless.log 2>&1
