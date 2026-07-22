@@ -1,8 +1,8 @@
 Package: com.nextsolution.nextmessage
 Name: Next Message
-Version: 1.2.0
+Version: 1.3.0
 Architecture: iphoneos-arm64e
-Description: PhoneAura-style test rebuild for the iOS 16 Messages app with a full dark glass interface, branded Next Message header, refined conversation cards, styled chat backgrounds and bubbles, conversation details, message count, first-message date, safe deletion, and a repaired Settings preference pane. Built for RootHide.
+Description: Advanced runtime-driven test rebuild for iOS 16 Messages. Uses live ChatKit detection, reversible PhoneAura-style theming, custom Details and Delete swipe actions, message count, first-message date, reliable shared preferences, haptics and animations. Built for RootHide.
 Maintainer: Next Solution
 Author: Next Solution - zeshan0727
 Section: Tweaks
