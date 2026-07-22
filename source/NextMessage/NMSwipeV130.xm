@@ -21,38 +21,27 @@ static void NMCollectLabels(UIView *view, NSMutableArray<UILabel *> *labels) {
     for (UIView *subview in view.subviews) NMCollectLabels(subview, labels);
 }
 
-static id NMConversationModelForCell(UITableViewCell *cell) {
+static id NMConversationModel(UITableViewCell *cell) {
     for (NSString *key in @[@"conversation", @"_conversation", @"chat", @"_chat",
                             @"conversationListItem", @"_conversationListItem",
                             @"model", @"_model"]) {
-        id model = NMSafeValue(cell, key);
-        if (model) return model;
+        id value = NMSafeValue(cell, key);
+        if (value) return value;
     }
     return nil;
 }
 
-static NSArray<NSString *> *NMCandidatesForCell(UITableViewCell *cell) {
+static NSArray<NSString *> *NMCandidates(UITableViewCell *cell) {
     NSMutableOrderedSet<NSString *> *values = [NSMutableOrderedSet orderedSet];
-
-    id model = NMConversationModelForCell(cell);
-    for (NSString *modelKey in @[@"chatIdentifier", @"displayName", @"name",
-                                 @"guid", @"identifier", @"recipientAddress",
-                                 @"address", @"serviceName"]) {
-        id value = NMSafeValue(model, modelKey);
-        if ([value isKindOfClass:NSString.class] && [value length]) {
-            [values addObject:value];
-        }
+    id model = NMConversationModel(cell);
+    for (NSString *key in @[@"chatIdentifier", @"displayName", @"name", @"guid",
+                            @"identifier", @"recipientAddress", @"address"]) {
+        id value = NMSafeValue(model, key);
+        if ([value isKindOfClass:NSString.class] && [value length]) [values addObject:value];
     }
 
     NSMutableArray<UILabel *> *labels = [NSMutableArray array];
     NMCollectLabels(cell.contentView, labels);
-    [labels sortUsingComparator:^NSComparisonResult(UILabel *a, UILabel *b) {
-        CGFloat ay = CGRectGetMinY(a.frame);
-        CGFloat by = CGRectGetMinY(b.frame);
-        if (ay < by) return NSOrderedAscending;
-        if (ay > by) return NSOrderedDescending;
-        return NSOrderedSame;
-    }];
     for (UILabel *label in labels) {
         NSString *text =
             [label.text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
@@ -61,26 +50,25 @@ static NSArray<NSString *> *NMCandidatesForCell(UITableViewCell *cell) {
     return values.array;
 }
 
-static NSDate *NMDateFromNumericValue(NSNumber *number) {
-    if (![number isKindOfClass:NSNumber.class]) return nil;
-    double raw = number.doubleValue;
+static NSDate *NMDateFromDatabaseValue(sqlite3_int64 value) {
+    double raw = (double)value;
     if (raw <= 0) return nil;
     if (raw > 1000000000000.0) raw /= 1000000000.0;
     if (raw > 1300000000.0) return [NSDate dateWithTimeIntervalSince1970:raw];
     return [NSDate dateWithTimeIntervalSince1970:(raw + 978307200.0)];
 }
 
-static BOOL NMQueryDatabaseStats(NSArray<NSString *> *candidates,
-                                 NSInteger *messageCount,
-                                 NSDate **firstDate,
-                                 NSString **resolvedIdentifier) {
+static BOOL NMDatabaseStats(NSArray<NSString *> *candidates,
+                            NSInteger *count,
+                            NSDate **firstDate,
+                            NSString **identifier) {
     sqlite3 *database = NULL;
     const char *paths[] = {
         "/private/var/mobile/Library/SMS/sms.db",
         "/var/mobile/Library/SMS/sms.db"
     };
-    for (NSUInteger index = 0; index < 2 && !database; index++) {
-        if (sqlite3_open_v2(paths[index], &database, SQLITE_OPEN_READONLY, NULL) != SQLITE_OK) {
+    for (NSUInteger i = 0; i < 2 && !database; i++) {
+        if (sqlite3_open_v2(paths[i], &database, SQLITE_OPEN_READONLY, NULL) != SQLITE_OK) {
             if (database) sqlite3_close(database);
             database = NULL;
         }
@@ -89,12 +77,11 @@ static BOOL NMQueryDatabaseStats(NSArray<NSString *> *candidates,
 
     const char *sql =
         "SELECT COUNT(cmj.message_id), MIN(m.date), "
-        "COALESCE(c.chat_identifier, c.guid, c.display_name) "
+        "COALESCE(c.chat_identifier,c.guid,c.display_name) "
         "FROM chat c "
-        "LEFT JOIN chat_message_join cmj ON cmj.chat_id = c.ROWID "
-        "LEFT JOIN message m ON m.ROWID = cmj.message_id "
-        "WHERE lower(c.chat_identifier)=lower(?) "
-        "OR lower(c.guid)=lower(?) "
+        "LEFT JOIN chat_message_join cmj ON cmj.chat_id=c.ROWID "
+        "LEFT JOIN message m ON m.ROWID=cmj.message_id "
+        "WHERE lower(c.chat_identifier)=lower(?) OR lower(c.guid)=lower(?) "
         "OR lower(c.display_name)=lower(?) "
         "GROUP BY c.ROWID ORDER BY MAX(m.date) DESC LIMIT 1";
 
@@ -103,19 +90,18 @@ static BOOL NMQueryDatabaseStats(NSArray<NSString *> *candidates,
         if (candidate.length < 2) continue;
         sqlite3_stmt *statement = NULL;
         if (sqlite3_prepare_v2(database, sql, -1, &statement, NULL) != SQLITE_OK) continue;
-        const char *utf8 = candidate.UTF8String;
-        sqlite3_bind_text(statement, 1, utf8, -1, SQLITE_TRANSIENT);
-        sqlite3_bind_text(statement, 2, utf8, -1, SQLITE_TRANSIENT);
-        sqlite3_bind_text(statement, 3, utf8, -1, SQLITE_TRANSIENT);
-
+        const char *text = candidate.UTF8String;
+        for (int index = 1; index <= 3; index++) {
+            sqlite3_bind_text(statement, index, text, -1, SQLITE_TRANSIENT);
+        }
         if (sqlite3_step(statement) == SQLITE_ROW) {
-            if (messageCount) *messageCount = sqlite3_column_int64(statement, 0);
+            if (count) *count = sqlite3_column_int64(statement, 0);
             if (firstDate && sqlite3_column_type(statement, 1) != SQLITE_NULL) {
-                *firstDate = NMDateFromNumericValue(@(sqlite3_column_int64(statement, 1)));
+                *firstDate = NMDateFromDatabaseValue(sqlite3_column_int64(statement, 1));
             }
-            if (resolvedIdentifier && sqlite3_column_type(statement, 2) != SQLITE_NULL) {
-                const unsigned char *text = sqlite3_column_text(statement, 2);
-                if (text) *resolvedIdentifier = [NSString stringWithUTF8String:(const char *)text];
+            if (identifier && sqlite3_column_type(statement, 2) != SQLITE_NULL) {
+                const unsigned char *result = sqlite3_column_text(statement, 2);
+                if (result) *identifier = [NSString stringWithUTF8String:(const char *)result];
             }
             found = YES;
         }
@@ -124,31 +110,6 @@ static BOOL NMQueryDatabaseStats(NSArray<NSString *> *candidates,
     }
     sqlite3_close(database);
     return found;
-}
-
-static NSInteger NMFallbackMessageCount(id model) {
-    for (NSString *key in @[@"messageCount", @"messagesCount", @"numberOfMessages", @"unreadCount"]) {
-        id value = NMSafeValue(model, key);
-        if ([value respondsToSelector:@selector(integerValue)]) {
-            NSInteger count = [value integerValue];
-            if (count >= 0) return count;
-        }
-    }
-    for (NSString *key in @[@"messages", @"allMessages", @"transcriptItems", @"items"]) {
-        id value = NMSafeValue(model, key);
-        if ([value respondsToSelector:@selector(count)]) return [value count];
-    }
-    return NSNotFound;
-}
-
-static NSDate *NMFallbackFirstDate(id model) {
-    for (NSString *key in @[@"firstMessageDate", @"dateOfFirstMessage",
-                            @"creationDate", @"startDate", @"date"]) {
-        id value = NMSafeValue(model, key);
-        if ([value isKindOfClass:NSDate.class]) return value;
-        if ([value isKindOfClass:NSNumber.class]) return NMDateFromNumericValue(value);
-    }
-    return nil;
 }
 
 static NSString *NMReadableDate(NSDate *date) {
@@ -164,84 +125,68 @@ static NSString *NMReadableDate(NSDate *date) {
 }
 
 @interface NMConversationDetailsController : UIViewController
-@property(nonatomic,copy) NSString *conversationTitle;
+@property(nonatomic,copy) NSString *titleText;
 @property(nonatomic,copy) NSString *identifierText;
-@property(nonatomic,copy) NSString *messageCountText;
-@property(nonatomic,copy) NSString *firstDateText;
+@property(nonatomic,copy) NSString *countText;
+@property(nonatomic,copy) NSString *dateText;
 @property(nonatomic,copy) dispatch_block_t deleteHandler;
 @property(nonatomic) BOOL allowDelete;
 @property(nonatomic,strong) UIView *card;
-@property(nonatomic,strong) UILabel *titleLabel;
-@property(nonatomic,strong) UILabel *identifierLabel;
-@property(nonatomic,strong) UILabel *countValue;
-@property(nonatomic,strong) UILabel *dateValue;
-@property(nonatomic,strong) UIButton *deleteButton;
-@property(nonatomic,strong) UIButton *closeButton;
 @end
 
 @implementation NMConversationDetailsController
 
-- (UILabel *)labelWithFont:(UIFont *)font color:(UIColor *)color {
+- (UILabel *)label:(NSString *)text font:(UIFont *)font color:(UIColor *)color {
     UILabel *label = [[UILabel alloc] init];
+    label.text = text;
     label.font = font;
     label.textColor = color;
     label.numberOfLines = 0;
     return label;
 }
 
-- (UIView *)statCardWithIcon:(NSString *)icon
-                       title:(NSString *)title
-                       value:(NSString *)value
-                      accent:(UIColor *)accent
-                  valueLabel:(UILabel **)valueLabel {
-    UIView *view = [[UIView alloc] init];
-    view.backgroundColor = NMColor(0x17233E, 0.96);
-    view.layer.cornerRadius = 20;
-    view.layer.cornerCurve = kCACornerCurveContinuous;
-    view.layer.borderWidth = 0.8;
-    view.layer.borderColor = [accent colorWithAlphaComponent:0.35].CGColor;
+- (UIView *)statCard:(NSString *)caption value:(NSString *)value accent:(UIColor *)accent {
+    UIView *card = [[UIView alloc] init];
+    card.backgroundColor = NMColor(0x17233E,0.96);
+    card.layer.cornerRadius = 20;
+    card.layer.cornerCurve = kCACornerCurveContinuous;
+    card.layer.borderWidth = 0.8;
+    card.layer.borderColor = [accent colorWithAlphaComponent:0.35].CGColor;
 
-    UIImageView *image = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:icon]];
-    image.tintColor = accent;
-    image.contentMode = UIViewContentModeScaleAspectFit;
-    image.frame = CGRectMake(16, 18, 28, 28);
-    [view addSubview:image];
+    UILabel *title = [self label:caption.uppercaseString
+                           font:[UIFont systemFontOfSize:12 weight:UIFontWeightBold]
+                          color:NMColor(0xAEBBD5,1)];
+    title.frame = CGRectMake(18,13,280,18);
+    [card addSubview:title];
 
-    UILabel *caption = [self labelWithFont:[UIFont systemFontOfSize:12 weight:UIFontWeightBold]
-                                    color:NMColor(0xAEBBD5, 1)];
-    caption.text = title.uppercaseString;
-    caption.frame = CGRectMake(56, 13, 220, 20);
-    [view addSubview:caption];
-
-    UILabel *valueView = [self labelWithFont:[UIFont systemFontOfSize:18 weight:UIFontWeightSemibold]
-                                      color:UIColor.whiteColor];
-    valueView.text = value;
-    valueView.frame = CGRectMake(56, 34, 245, 48);
-    [view addSubview:valueView];
-    if (valueLabel) *valueLabel = valueView;
-    return view;
+    UILabel *valueLabel = [self label:value
+                                 font:[UIFont systemFontOfSize:18 weight:UIFontWeightSemibold]
+                                color:UIColor.whiteColor];
+    valueLabel.frame = CGRectMake(18,34,300,45);
+    [card addSubview:valueLabel];
+    return card;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:0.72];
 
-    UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark];
-    UIVisualEffectView *blur = [[UIVisualEffectView alloc] initWithEffect:effect];
+    UIVisualEffectView *blur = [[UIVisualEffectView alloc]
+        initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
     blur.frame = self.view.bounds;
     blur.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:blur];
 
     self.card = [[UIView alloc] init];
-    self.card.backgroundColor = NMColor(0x0B1327, 0.99);
+    self.card.backgroundColor = NMColor(0x0B1327,0.99);
     self.card.layer.cornerRadius = 30;
     self.card.layer.cornerCurve = kCACornerCurveContinuous;
     self.card.layer.borderWidth = 1;
-    self.card.layer.borderColor = NMColor(0x7182AA, 0.32).CGColor;
+    self.card.layer.borderColor = NMColor(0x7182AA,0.32).CGColor;
     self.card.layer.shadowColor = UIColor.blackColor.CGColor;
     self.card.layer.shadowOpacity = 0.5;
     self.card.layer.shadowRadius = 30;
-    self.card.layer.shadowOffset = CGSizeMake(0, 14);
+    self.card.layer.shadowOffset = CGSizeMake(0,14);
     [self.view addSubview:self.card];
 
     CAGradientLayer *strip = [CAGradientLayer layer];
@@ -254,108 +199,101 @@ static NSString *NMReadableDate(NSDate *date) {
     strip.cornerRadius = 3;
     [self.card.layer addSublayer:strip];
 
-    UILabel *eyebrow = [self labelWithFont:[UIFont systemFontOfSize:12 weight:UIFontWeightBold]
-                                    color:NMColor(0x64DCCB,1)];
-    eyebrow.text = @"CONVERSATION DETAILS";
-    eyebrow.frame = CGRectMake(24, 38, 260, 18);
+    UILabel *eyebrow = [self label:@"CONVERSATION DETAILS"
+                              font:[UIFont systemFontOfSize:12 weight:UIFontWeightBold]
+                             color:NMColor(0x64DCCB,1)];
+    eyebrow.tag = 1;
     [self.card addSubview:eyebrow];
 
-    self.titleLabel = [self labelWithFont:[UIFont systemFontOfSize:27 weight:UIFontWeightBold]
-                                   color:UIColor.whiteColor];
-    self.titleLabel.text = self.conversationTitle.length ? self.conversationTitle : @"Conversation";
-    [self.card addSubview:self.titleLabel];
+    UILabel *title = [self label:self.titleText.length ? self.titleText : @"Conversation"
+                            font:[UIFont systemFontOfSize:27 weight:UIFontWeightBold]
+                           color:UIColor.whiteColor];
+    title.tag = 2;
+    [self.card addSubview:title];
 
-    self.identifierLabel = [self labelWithFont:[UIFont systemFontOfSize:14 weight:UIFontWeightMedium]
-                                        color:NMColor(0xAEBBD5,1)];
-    self.identifierLabel.text = self.identifierText.length ? self.identifierText : @"Messages conversation";
-    [self.card addSubview:self.identifierLabel];
+    UILabel *identifier = [self label:self.identifierText.length ? self.identifierText : @"Messages conversation"
+                                 font:[UIFont systemFontOfSize:14 weight:UIFontWeightMedium]
+                                color:NMColor(0xAEBBD5,1)];
+    identifier.tag = 3;
+    [self.card addSubview:identifier];
 
-    UIView *countCard = [self statCardWithIcon:@"number.circle.fill"
-                                         title:@"Messages"
-                                         value:self.messageCountText ?: @"Not available"
-                                        accent:NMColor(0x6F63FF,1)
-                                    valueLabel:&_countValue];
-    countCard.tag = 730001;
+    UIView *countCard = [self statCard:@"Messages" value:self.countText ?: @"Not available"
+                                accent:NMColor(0x6F63FF,1)];
+    countCard.tag = 4;
     [self.card addSubview:countCard];
 
-    UIView *dateCard = [self statCardWithIcon:@"calendar.badge.clock"
-                                        title:@"First message"
-                                        value:self.firstDateText ?: @"Not available"
-                                       accent:NMColor(0x18C8B7,1)
-                                   valueLabel:&_dateValue];
-    dateCard.tag = 730002;
+    UIView *dateCard = [self statCard:@"First message" value:self.dateText ?: @"Not available"
+                               accent:NMColor(0x18C8B7,1)];
+    dateCard.tag = 5;
     [self.card addSubview:dateCard];
 
-    self.deleteButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.deleteButton setTitle:@"Delete Conversation" forState:UIControlStateNormal];
-    [self.deleteButton setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
-    self.deleteButton.titleLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightBold];
-    self.deleteButton.backgroundColor = NMColor(0xE93856,1);
-    self.deleteButton.layer.cornerRadius = 18;
-    self.deleteButton.layer.cornerCurve = kCACornerCurveContinuous;
-    [self.deleteButton addTarget:self action:@selector(deleteTapped)
-                forControlEvents:UIControlEventTouchUpInside];
-    self.deleteButton.hidden = !self.allowDelete;
-    [self.card addSubview:self.deleteButton];
+    UIButton *deleteButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    deleteButton.tag = 6;
+    [deleteButton setTitle:@"Delete Conversation" forState:UIControlStateNormal];
+    [deleteButton setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
+    deleteButton.titleLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightBold];
+    deleteButton.backgroundColor = NMColor(0xE93856,1);
+    deleteButton.layer.cornerRadius = 18;
+    deleteButton.hidden = !self.allowDelete;
+    [deleteButton addTarget:self action:@selector(deleteTapped)
+           forControlEvents:UIControlEventTouchUpInside];
+    [self.card addSubview:deleteButton];
 
-    self.closeButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.closeButton setTitle:@"Close" forState:UIControlStateNormal];
-    [self.closeButton setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
-    self.closeButton.titleLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
-    self.closeButton.backgroundColor = NMColor(0x273450,1);
-    self.closeButton.layer.cornerRadius = 18;
-    self.closeButton.layer.cornerCurve = kCACornerCurveContinuous;
-    [self.closeButton addTarget:self action:@selector(closeTapped)
-               forControlEvents:UIControlEventTouchUpInside];
-    [self.card addSubview:self.closeButton];
+    UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    closeButton.tag = 7;
+    [closeButton setTitle:@"Close" forState:UIControlStateNormal];
+    [closeButton setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
+    closeButton.titleLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
+    closeButton.backgroundColor = NMColor(0x273450,1);
+    closeButton.layer.cornerRadius = 18;
+    [closeButton addTarget:self action:@selector(closeTapped)
+          forControlEvents:UIControlEventTouchUpInside];
+    [self.card addSubview:closeButton];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if (NMPreferenceBool(@"animations", YES)) {
-        self.card.transform = CGAffineTransformMakeScale(0.86, 0.86);
-        self.card.alpha = 0;
-        [UIView animateWithDuration:0.34
-                             delay:0
-            usingSpringWithDamping:0.78
-             initialSpringVelocity:0
-                           options:UIViewAnimationOptionBeginFromCurrentState
-                        animations:^{
-            self.card.transform = CGAffineTransformIdentity;
-            self.card.alpha = 1;
-        } completion:nil];
-    }
+    if (!NMPreferenceBool(@"animations",YES)) return;
+    self.card.transform = CGAffineTransformMakeScale(0.86,0.86);
+    self.card.alpha = 0;
+    [UIView animateWithDuration:0.34 delay:0
+         usingSpringWithDamping:0.78 initialSpringVelocity:0
+                       options:UIViewAnimationOptionBeginFromCurrentState
+                    animations:^{
+        self.card.transform = CGAffineTransformIdentity;
+        self.card.alpha = 1;
+    } completion:nil];
 }
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    CGFloat width = MIN(CGRectGetWidth(self.view.bounds) - 28, 410);
+    CGFloat width = MIN(CGRectGetWidth(self.view.bounds)-28,410);
     CGFloat height = 500;
     self.card.frame = CGRectMake((CGRectGetWidth(self.view.bounds)-width)/2,
                                  (CGRectGetHeight(self.view.bounds)-height)/2,
-                                 width, height);
+                                 width,height);
     for (CALayer *layer in self.card.layer.sublayers) {
         if ([layer.name isEqualToString:@"NMDetailsStrip"]) {
-            layer.frame = CGRectMake(24, 20, width-48, 6);
+            layer.frame = CGRectMake(24,20,width-48,6);
         }
     }
-    self.titleLabel.frame = CGRectMake(24, 64, width-48, 66);
-    self.identifierLabel.frame = CGRectMake(24, 124, width-48, 38);
-    [self.card viewWithTag:730001].frame = CGRectMake(24, 176, width-48, 92);
-    [self.card viewWithTag:730002].frame = CGRectMake(24, 280, width-48, 92);
-    self.deleteButton.frame = CGRectMake(24, 390, width-48, 54);
-    self.closeButton.frame = CGRectMake(24, 452, width-48, 38);
+    [self.card viewWithTag:1].frame = CGRectMake(24,38,width-48,18);
+    [self.card viewWithTag:2].frame = CGRectMake(24,64,width-48,62);
+    [self.card viewWithTag:3].frame = CGRectMake(24,125,width-48,35);
+    [self.card viewWithTag:4].frame = CGRectMake(24,176,width-48,92);
+    [self.card viewWithTag:5].frame = CGRectMake(24,280,width-48,92);
+    [self.card viewWithTag:6].frame = CGRectMake(24,390,width-48,54);
+    [self.card viewWithTag:7].frame = CGRectMake(24,452,width-48,38);
 }
 
 - (void)deleteTapped {
     NMHaptic(YES);
     UIAlertController *alert =
         [UIAlertController alertControllerWithTitle:@"Delete Conversation?"
-                                            message:@"This permanently removes the complete conversation from Messages."
+                                            message:@"This permanently removes the complete conversation."
                                      preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"Cancel"
-                                             style:UIAlertActionStyleCancel
-                                           handler:nil]];
+                                             style:UIAlertActionStyleCancel handler:nil]];
     __weak typeof(self) weakSelf = self;
     [alert addAction:[UIAlertAction actionWithTitle:@"Delete"
                                              style:UIAlertActionStyleDestructive
@@ -370,40 +308,26 @@ static NSString *NMReadableDate(NSDate *date) {
     NMHaptic(NO);
     [self dismissViewControllerAnimated:YES completion:nil];
 }
-
 @end
 
-static void NMInvokeNativeDelete(UIContextualAction *action,
-                                 id delegate,
-                                 UITableView *tableView,
-                                 NSIndexPath *indexPath) {
-    if (action) {
-        id handlerObject = NMSafeValue(action, @"handler") ?: NMSafeValue(action, @"_handler");
-        if (handlerObject) {
-            void (^handler)(UIContextualAction *, UIView *, void (^)(BOOL)) = handlerObject;
-            handler(action, nil, ^(__unused BOOL success) {});
+static void NMInvokeDelete(UIContextualAction *nativeAction,
+                           id delegate,
+                           UITableView *tableView,
+                           NSIndexPath *indexPath) {
+    if (nativeAction) {
+        id handlerValue = NMSafeValue(nativeAction, @"handler") ?: NMSafeValue(nativeAction, @"_handler");
+        if (handlerValue) {
+            void (^handler)(UIContextualAction *, UIView *, void (^)(BOOL)) = handlerValue;
+            handler(nativeAction,nil,^(__unused BOOL success){});
             return;
         }
     }
 
-    SEL selector = @selector(tableView:commitEditingStyle:forRowAtIndexPath:);
-    if ([delegate respondsToSelector:selector]) {
-        typedef void (*CommitFunction)(id, SEL, UITableView *, UITableViewCellEditingStyle, NSIndexPath *);
-        ((CommitFunction)objc_msgSend)(delegate, selector, tableView,
-                                      UITableViewCellEditingStyleDelete, indexPath);
-        return;
-    }
-
-    UIViewController *controller = NMControllerForView(tableView);
-    for (NSString *name in @[@"_deleteConversationAtIndexPath:",
-                             @"deleteConversationAtIndexPath:",
-                             @"removeConversationAtIndexPath:"]) {
-        SEL privateSelector = NSSelectorFromString(name);
-        if ([controller respondsToSelector:privateSelector]) {
-            typedef void (*IndexFunction)(id, SEL, NSIndexPath *);
-            ((IndexFunction)objc_msgSend)(controller, privateSelector, indexPath);
-            return;
-        }
+    SEL commitSelector = @selector(tableView:commitEditingStyle:forRowAtIndexPath:);
+    if ([delegate respondsToSelector:commitSelector]) {
+        typedef void (*CommitIMP)(id,SEL,UITableView *,UITableViewCellEditingStyle,NSIndexPath *);
+        ((CommitIMP)objc_msgSend)(delegate,commitSelector,tableView,
+                                 UITableViewCellEditingStyleDelete,indexPath);
     }
 }
 
@@ -414,41 +338,35 @@ static void NMPresentDetails(UITableView *tableView,
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
     if (!cell) return;
 
-    NSArray<NSString *> *candidates = NMCandidatesForCell(cell);
-    id model = NMConversationModelForCell(cell);
-
-    NSString *title = candidates.firstObject ?: @"Conversation";
-    NSString *identifier = candidates.count > 1 ? candidates[1] : nil;
+    NSArray<NSString *> *candidates = NMCandidates(cell);
     NSInteger count = NSNotFound;
     NSDate *firstDate = nil;
-    NSString *databaseIdentifier = nil;
-    NMQueryDatabaseStats(candidates, &count, &firstDate, &databaseIdentifier);
-    if (count == NSNotFound) count = NMFallbackMessageCount(model);
-    if (!firstDate) firstDate = NMFallbackFirstDate(model);
-    if (databaseIdentifier.length) identifier = databaseIdentifier;
+    NSString *identifier = nil;
+    NMDatabaseStats(candidates,&count,&firstDate,&identifier);
+
+    if (count == NSNotFound) {
+        id value = NMSafeValue(NMConversationModel(cell),@"messageCount");
+        if ([value respondsToSelector:@selector(integerValue)]) count = [value integerValue];
+    }
 
     NMConversationDetailsController *details = [[NMConversationDetailsController alloc] init];
     details.modalPresentationStyle = UIModalPresentationOverFullScreen;
     details.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-    details.conversationTitle = title;
-    details.identifierText = identifier;
-    details.messageCountText =
-        NMPreferenceBool(@"showMessageCount", YES)
-        ? (count == NSNotFound ? @"Not available" : [NSString stringWithFormat:@"%ld", (long)count])
+    details.titleText = candidates.firstObject ?: @"Conversation";
+    details.identifierText = identifier ?: (candidates.count > 1 ? candidates[1] : nil);
+    details.countText = NMPreferenceBool(@"showMessageCount",YES)
+        ? (count == NSNotFound ? @"Not available" : [NSString stringWithFormat:@"%ld",(long)count])
         : @"Hidden";
-    details.firstDateText =
-        NMPreferenceBool(@"showFirstDate", YES) ? NMReadableDate(firstDate) : @"Hidden";
-    details.allowDelete = NMPreferenceBool(@"deleteFromCard", YES);
+    details.dateText = NMPreferenceBool(@"showFirstDate",YES) ? NMReadableDate(firstDate) : @"Hidden";
+    details.allowDelete = NMPreferenceBool(@"deleteFromCard",YES);
 
     __weak UITableView *weakTable = tableView;
-    NSIndexPath *capturedPath = [indexPath copy];
     __weak id weakDelegate = delegate;
+    NSIndexPath *capturedPath = [indexPath copy];
     details.deleteHandler = ^{
-        NMInvokeNativeDelete(nativeDelete, weakDelegate, weakTable, capturedPath);
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.35*NSEC_PER_SEC)),
-                       dispatch_get_main_queue(), ^{
-            [weakTable reloadData];
-        });
+        NMInvokeDelete(nativeDelete,weakDelegate,weakTable,capturedPath);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(0.35*NSEC_PER_SEC)),
+                       dispatch_get_main_queue(),^{ [weakTable reloadData]; });
     };
 
     UIViewController *presenter = NMControllerForView(tableView);
@@ -458,23 +376,21 @@ static void NMPresentDetails(UITableView *tableView,
     [presenter presentViewController:details animated:YES completion:nil];
 }
 
-typedef UISwipeActionsConfiguration *(*NMSwipeIMP)(id, SEL, UITableView *, NSIndexPath *);
+typedef UISwipeActionsConfiguration *(*NMSwipeIMP)(id,SEL,UITableView *,NSIndexPath *);
 
-static UISwipeActionsConfiguration *NMCustomTrailingSwipe(id delegate,
-                                                           SEL selector,
-                                                           UITableView *tableView,
-                                                           NSIndexPath *indexPath) {
+static UISwipeActionsConfiguration *NMCustomSwipe(id delegate,
+                                                   SEL selector,
+                                                   UITableView *tableView,
+                                                   NSIndexPath *indexPath) {
     NMSwipeIMP originalIMP = NULL;
-    @synchronized(NMOriginalSwipeIMPs) {
-        originalIMP = [NMOriginalSwipeIMPs[NSStringFromClass([delegate class])] pointerValue];
-    }
+    NSValue *stored = NMOriginalSwipeIMPs[NSStringFromClass([delegate class])];
+    if (stored) [stored getValue:&originalIMP];
 
     UISwipeActionsConfiguration *original =
-        originalIMP ? originalIMP(delegate, selector, tableView, indexPath) : nil;
+        originalIMP ? originalIMP(delegate,selector,tableView,indexPath) : nil;
 
-    if (!NMEnabled() ||
-        !NMPreferenceBool(@"detailsSwipe", YES) ||
-        ![objc_getAssociatedObject(tableView, &NMConversationTableKey) boolValue]) {
+    if (!NMEnabled() || !NMPreferenceBool(@"detailsSwipe",YES) ||
+        ![objc_getAssociatedObject(tableView,&NMConversationTableKey) boolValue]) {
         return original;
     }
 
@@ -488,27 +404,27 @@ static UISwipeActionsConfiguration *NMCustomTrailingSwipe(id delegate,
     }
 
     __weak UITableView *weakTable = tableView;
-    NSIndexPath *capturedPath = [indexPath copy];
     __weak id weakDelegate = delegate;
+    NSIndexPath *capturedPath = [indexPath copy];
 
-    UIContextualAction *info =
+    UIContextualAction *infoAction =
         [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal
                                                 title:@"Info"
                                               handler:^(__unused UIContextualAction *action,
-                                                        __unused UIView *sourceView,
-                                                        void (^completionHandler)(BOOL)) {
-        NMPresentDetails(weakTable, capturedPath, nativeDelete, weakDelegate);
-        completionHandler(YES);
+                                                        __unused UIView *source,
+                                                        void (^completion)(BOOL)) {
+        NMPresentDetails(weakTable,capturedPath,nativeDelete,weakDelegate);
+        completion(YES);
     }];
-    info.backgroundColor = NMColor(0x6F63FF,1);
-    info.image = [UIImage systemImageNamed:@"info.circle.fill"];
+    infoAction.backgroundColor = NMColor(0x6F63FF,1);
+    infoAction.image = [UIImage systemImageNamed:@"info.circle.fill"];
 
-    UIContextualAction *delete =
+    UIContextualAction *deleteAction =
         [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
                                                 title:@"Delete"
                                               handler:^(__unused UIContextualAction *action,
-                                                        __unused UIView *sourceView,
-                                                        void (^completionHandler)(BOOL)) {
+                                                        __unused UIView *source,
+                                                        void (^completion)(BOOL)) {
         UIViewController *presenter = NMControllerForView(weakTable);
         UIAlertController *alert =
             [UIAlertController alertControllerWithTitle:@"Delete Conversation?"
@@ -517,49 +433,46 @@ static UISwipeActionsConfiguration *NMCustomTrailingSwipe(id delegate,
         [alert addAction:[UIAlertAction actionWithTitle:@"Cancel"
                                                  style:UIAlertActionStyleCancel
                                                handler:^(__unused UIAlertAction *cancel) {
-            completionHandler(NO);
+            completion(NO);
         }]];
         [alert addAction:[UIAlertAction actionWithTitle:@"Delete"
                                                  style:UIAlertActionStyleDestructive
                                                handler:^(__unused UIAlertAction *confirm) {
             NMHaptic(YES);
-            NMInvokeNativeDelete(nativeDelete, weakDelegate, weakTable, capturedPath);
-            completionHandler(YES);
+            NMInvokeDelete(nativeDelete,weakDelegate,weakTable,capturedPath);
+            completion(YES);
         }]];
         [presenter presentViewController:alert animated:YES completion:nil];
     }];
-    delete.backgroundColor = NMColor(0xE93856,1);
-    delete.image = [UIImage systemImageNamed:@"trash.fill"];
+    deleteAction.backgroundColor = NMColor(0xE93856,1);
+    deleteAction.image = [UIImage systemImageNamed:@"trash.fill"];
 
     UISwipeActionsConfiguration *configuration =
-        [UISwipeActionsConfiguration configurationWithActions:@[delete, info]];
+        [UISwipeActionsConfiguration configurationWithActions:@[deleteAction,infoAction]];
     configuration.performsFirstActionWithFullSwipe = NO;
     return configuration;
 }
 
 void NMInstallSwipeForConversationTable(UITableView *tableView) {
     if (!tableView || !tableView.delegate) return;
-    objc_setAssociatedObject(tableView, &NMConversationTableKey, @YES,
+    objc_setAssociatedObject(tableView,&NMConversationTableKey,@YES,
                              OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
     id delegate = tableView.delegate;
     Class cls = [delegate class];
     NSString *className = NSStringFromClass(cls);
+    if (!NMOriginalSwipeIMPs) NMOriginalSwipeIMPs = [NSMutableDictionary dictionary];
+    if (NMOriginalSwipeIMPs[className]) return;
+
     SEL selector = @selector(tableView:trailingSwipeActionsConfigurationForRowAtIndexPath:);
+    Method method = class_getInstanceMethod(cls,selector);
+    IMP original = method ? method_getImplementation(method) : NULL;
+    NMOriginalSwipeIMPs[className] = [NSValue valueWithBytes:&original objCType:@encode(IMP)];
 
-    @synchronized([NSProcessInfo processInfo]) {
-        if (!NMOriginalSwipeIMPs) NMOriginalSwipeIMPs = [NSMutableDictionary dictionary];
-        if (NMOriginalSwipeIMPs[className]) return;
-
-        Method method = class_getInstanceMethod(cls, selector);
-        IMP original = method ? method_getImplementation(method) : NULL;
-        NMOriginalSwipeIMPs[className] = [NSValue valueWithPointer:original];
-
-        const char *types = method ? method_getTypeEncoding(method) : "@@:@@";
-        if (!class_addMethod(cls, selector, (IMP)NMCustomTrailingSwipe, types)) {
-            Method ownMethod = class_getInstanceMethod(cls, selector);
-            method_setImplementation(ownMethod, (IMP)NMCustomTrailingSwipe);
-        }
+    const char *types = method ? method_getTypeEncoding(method) : "@@:@@";
+    if (!class_addMethod(cls,selector,(IMP)NMCustomSwipe,types)) {
+        Method ownMethod = class_getInstanceMethod(cls,selector);
+        method_setImplementation(ownMethod,(IMP)NMCustomSwipe);
     }
 }
 
@@ -569,21 +482,15 @@ static void NMPreferencesChanged(__unused CFNotificationCenterRef center,
                                  __unused const void *object,
                                  __unused CFDictionaryRef userInfo) {
     NMReloadPreferences();
-    if (NMIsMessagesProcess()) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.18*NSEC_PER_SEC)),
-                       dispatch_get_main_queue(), ^{
-            kill(getpid(), SIGTERM);
-        });
-    }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(0.18*NSEC_PER_SEC)),
+                   dispatch_get_main_queue(),^{ kill(getpid(),SIGTERM); });
 }
 
 %ctor {
     if (!NMIsMessagesProcess()) return;
     NMReloadPreferences();
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
-                                    NULL,
-                                    NMPreferencesChanged,
+                                    NULL,NMPreferencesChanged,
                                     (__bridge CFStringRef)NMPreferencesChangedNotification,
-                                    NULL,
-                                    CFNotificationSuspensionBehaviorDeliverImmediately);
+                                    NULL,CFNotificationSuspensionBehaviorDeliverImmediately);
 }
