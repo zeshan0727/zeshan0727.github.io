@@ -5,14 +5,13 @@ THEOS_PACKAGE_SCHEME ?= roothide
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = NextMessage
-NextMessage_FILES = NMCore.m NMSwipeV130.xm NMThemeV130.xm NMRuntimeV13.xm
-NextMessage_FRAMEWORKS = UIKit QuartzCore
+NextMessage_FILES = Tweak.xm NextMessageRuntime.swift
+NextMessage_FRAMEWORKS = UIKit QuartzCore Foundation
 NextMessage_LIBRARIES = sqlite3
-NextMessage_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unguarded-availability-new -Wno-unused-function -Wno-nonnull
+NextMessage_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unguarded-availability-new
+NextMessage_SWIFTFLAGS = -O -parse-as-library
 NextMessage_LDFLAGS = -Wl,-segalign,4000
-
-before-all::
-	$(ECHO_NOTHING)python3 -c 'from pathlib import Path; p=Path("NMThemeV130.xm"); s=p.read_text(); s=s.replace("original = [NMOriginalLayoutIMPs[NSStringFromClass([object class])] pointerValue];", "NSValue *storedIMP = NMOriginalLayoutIMPs[NSStringFromClass([object class])];" + chr(10) + "        if (storedIMP) [storedIMP getValue:&original];"); s=s.replace("NMOriginalLayoutIMPs[className] = [NSValue valueWithPointer:original];", "NMOriginalLayoutIMPs[className] = [NSValue valueWithBytes:&original objCType:@encode(IMP)];"); p.write_text(s)'$(ECHO_END)
+NextMessage_USE_MODULES = 1
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
