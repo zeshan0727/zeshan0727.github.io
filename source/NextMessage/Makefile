@@ -8,7 +8,7 @@ TWEAK_NAME = NextMessage
 NextMessage_FILES = NMCore.m NMSwipeV130.xm NMThemeV130.xm NMRuntimeV13.xm
 NextMessage_FRAMEWORKS = UIKit QuartzCore
 NextMessage_LIBRARIES = sqlite3
-NextMessage_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unguarded-availability-new -Wno-unused-function
+NextMessage_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unguarded-availability-new -Wno-unused-function -Wno-nonnull
 NextMessage_LDFLAGS = -Wl,-segalign,4000
 
 before-all::
