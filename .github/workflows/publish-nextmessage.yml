@@ -1,5 +1,5 @@
-# Release trigger for Next Message v0.2.1 diagnostic
-name: Publish Next Message v0.2.1
+# Publishes the uploaded NextMessageTweak source as Next Message 1.0.0.
+name: Publish Next Message 1.0.0
 
 on:
   workflow_dispatch:
@@ -14,8 +14,8 @@ permissions:
 
 env:
   SOURCE_REPOSITORY: zeshan0727/NextSolution
-  SOURCE_SHA: 7f8411c287570d74bbbf4ac364fa0d52b108d899
-  VERSION: 0.2.1
+  SOURCE_SHA: cc680f1c8cf48200ec6c147e676d50cb59204d6d
+  VERSION: 1.0.0
 
 jobs:
   build:
@@ -36,17 +36,52 @@ jobs:
         with:
           packages: ldid dpkg
 
-      - name: Fetch pinned Next Message source
+      - name: Restore the uploaded source
         run: |
           set -euxo pipefail
           git clone --filter=blob:none --no-checkout "https://github.com/${SOURCE_REPOSITORY}.git" source-checkout
           git -C source-checkout fetch --depth 1 origin "${SOURCE_SHA}"
           git -C source-checkout checkout "${SOURCE_SHA}"
-          cp -R source-checkout/NextMessage "$GITHUB_WORKSPACE/NextMessage"
-          if ! grep -q '^Depiction:' "$GITHUB_WORKSPACE/NextMessage/control"; then
-            printf '\nDepiction: https://zeshan0727.github.io/depictions/nextmessage.html\n' >> "$GITHUB_WORKSPACE/NextMessage/control"
-          fi
-          chmod 0755 "$GITHUB_WORKSPACE/NextMessage/layout/DEBIAN/postinst" "$GITHUB_WORKSPACE/NextMessage/layout/DEBIAN/postrm"
+
+          mkdir -p build-work
+          cat source-checkout/builds/next-message/source.part* > build-work/NextMessageTweak-source.zip.b64
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+          source = Path('build-work/NextMessageTweak-source.zip.b64')
+          target = Path('build-work/NextMessageTweak-source.zip')
+          target.write_bytes(base64.b64decode(source.read_text()))
+          print(f'Restored {target} ({target.stat().st_size} bytes)')
+          PY
+          unzip -q build-work/NextMessageTweak-source.zip -d build-work
+          test -f build-work/NextMessageTweak/Makefile
+
+          python3 source-checkout/builds/next-message/prepare_source.py
+          cp -R build-work/NextMessageTweak "$GITHUB_WORKSPACE/NextMessageTweak"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path('NextMessageTweak')
+          makefile = root / 'Makefile'
+          text = makefile.read_text()
+          text = text.replace('export TARGET = iphone:clang:latest:16.0', 'export TARGET = iphone:clang:16.5:16.0')
+          makefile.write_text(text)
+
+          control = root / 'control'
+          control.write_text('''Package: com.nextsolution.nextmessage
+Name: Next Message
+Version: 1.0.0
+Architecture: iphoneos-arm64
+Description: Concept A test build for Apple Messages with aurora glass styling, conversation cards, gradient bubbles, smart replies, filters, floating compose button, bottom dock, swipe actions and theme switching.
+Maintainer: Next Solution - Zeshan 0727
+Author: Next Solution - Zeshan 0727
+Section: Tweaks
+Depends: mobilesubstrate (>= 0.9.5000), firmware (>= 16.0)
+Homepage: https://zeshan0727.github.io/
+Depiction: https://zeshan0727.github.io/depictions/nextmessage.html
+Icon: https://zeshan0727.github.io/CydiaIcon.png
+''')
+          PY
 
       - name: Install RootHide Theos and iOS 16.5 SDK
         run: |
@@ -61,7 +96,7 @@ jobs:
           tar -xJf /tmp/iPhoneOS16.5.sdk.tar.xz -C "$THEOS/sdks"
 
       - name: Build package
-        working-directory: NextMessage
+        working-directory: NextMessageTweak
         run: |
           set -euxo pipefail
           export THEOS="$GITHUB_WORKSPACE/theos"
@@ -76,10 +111,10 @@ jobs:
           test "$BUILT_VERSION" = "$VERSION"
           if [ "${{ matrix.scheme }}" = "roothide" ]; then
             test "$ARCH" = "iphoneos-arm64e"
-            OUTPUT_NAME="NextMessage_${VERSION}_RootHide_Diagnostic_iOS15.deb"
+            OUTPUT_NAME="NextMessage_${VERSION}_RootHide_ConceptA_iOS16.deb"
           else
             test "$ARCH" = "iphoneos-arm64"
-            OUTPUT_NAME="NextMessage_${VERSION}_Rootless_Diagnostic_iOS15.deb"
+            OUTPUT_NAME="NextMessage_${VERSION}_Rootless_ConceptA_iOS16.deb"
           fi
           mkdir -p "$GITHUB_WORKSPACE/output"
           cp "$DEB" "$GITHUB_WORKSPACE/output/$OUTPUT_NAME"
@@ -121,8 +156,8 @@ jobs:
       - name: Publish Next Message packages
         run: |
           set -euxo pipefail
-          test -f "release/NextMessage_${VERSION}_RootHide_Diagnostic_iOS15.deb"
-          test -f "release/NextMessage_${VERSION}_Rootless_Diagnostic_iOS15.deb"
+          test -f "release/NextMessage_${VERSION}_RootHide_ConceptA_iOS16.deb"
+          test -f "release/NextMessage_${VERSION}_Rootless_ConceptA_iOS16.deb"
 
           rm -f debfiles/NextMessage_*.deb debfiles/com.nextsolution.nextmessage_*.deb
           cp release/NextMessage_*.deb debfiles/
@@ -140,5 +175,5 @@ jobs:
             echo "Next Message is already published."
             exit 0
           fi
-          git commit -m "Publish Next Message ${VERSION} diagnostics"
+          git commit -m "Publish Next Message ${VERSION} Concept A test"
           git push origin HEAD:main
