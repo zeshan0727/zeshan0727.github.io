@@ -1,5 +1,28 @@
-#import "NMRuntimeV13.h"
+#import <UIKit/UIKit.h>
+
+extern "C" void NMStartSwiftRuntime(void);
+extern "C" void NMRefreshSwiftController(void *controllerPointer);
+
+%hook UIViewController
+
+- (void)viewDidAppear:(BOOL)animated {
+    %orig;
+    if ([[NSBundle mainBundle].bundleIdentifier isEqualToString:@"com.apple.MobileSMS"]) {
+        NMRefreshSwiftController((__bridge void *)self);
+    }
+}
+
+- (void)viewDidLayoutSubviews {
+    %orig;
+    if ([[NSBundle mainBundle].bundleIdentifier isEqualToString:@"com.apple.MobileSMS"]) {
+        NMRefreshSwiftController((__bridge void *)self);
+    }
+}
+
+%end
 
 %ctor {
-    NMInstallRuntimeV13();
+    if ([[NSBundle mainBundle].bundleIdentifier isEqualToString:@"com.apple.MobileSMS"]) {
+        NMStartSwiftRuntime();
+    }
 }
