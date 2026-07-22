@@ -11,6 +11,9 @@ NextMessage_LIBRARIES = sqlite3
 NextMessage_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unguarded-availability-new -Wno-unused-function
 NextMessage_LDFLAGS = -Wl,-segalign,4000
 
+before-all::
+	$(ECHO_NOTHING)python3 -c 'from pathlib import Path; p=Path("NMThemeV130.xm"); s=p.read_text(); s=s.replace("original = [NMOriginalLayoutIMPs[NSStringFromClass([object class])] pointerValue];", "NSValue *storedIMP = NMOriginalLayoutIMPs[NSStringFromClass([object class])];\\n        if (storedIMP) [storedIMP getValue:&original];"); s=s.replace("NMOriginalLayoutIMPs[className] = [NSValue valueWithPointer:original];", "NMOriginalLayoutIMPs[className] = [NSValue valueWithBytes:&original objCType:@encode(IMP)];"); p.write_text(s)'$(ECHO_END)
+
 include $(THEOS_MAKE_PATH)/tweak.mk
 
 SUBPROJECTS += nextmessageprefs
