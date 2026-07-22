@@ -1,8 +1,8 @@
 Package: com.nextsolution.nextmessage
 Name: Next Message
-Version: 1.5.0
+Version: 1.6.0
 Architecture: iphoneos-arm64e
-Description: Swift test build for iOS 16 Messages with a floating information button and full-app message statistics card. Built for RootHide.
+Description: Swift test build for iOS 16 Messages with corrected app-wide statistics and a custom conversation swipe information card showing total linked messages, first-message date and latest-message date. Built for RootHide.
 Maintainer: Next Solution
 Author: Next Solution - zeshan0727
 Section: Tweaks
