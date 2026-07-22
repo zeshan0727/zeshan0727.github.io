@@ -42,9 +42,27 @@ jobs:
           pathlib.Path('/tmp/WoolControlCenter-source.tar.gz').write_bytes(payload)
           PY
           tar -xzf /tmp/WoolControlCenter-source.tar.gz -C source/WoolControlCenter
+
+          python3 - <<'PY'
+          import base64, hashlib, pathlib
+          project = pathlib.Path('source/WoolControlCenter')
+          parts = sorted((project / 'override-parts').glob('part-*'))
+          if not parts:
+              raise SystemExit('Missing Wool Control Center 1.2 override parts')
+          encoded = ''.join(part.read_text().strip() for part in parts)
+          payload = base64.b64decode(encoded, validate=True)
+          digest = hashlib.sha256(payload).hexdigest()
+          expected = 'd5a43e37e6bbcd959a297d8cd41055e025c78f51a8611c616d2521708ef35ba7'
+          if digest != expected:
+              raise SystemExit(f'Unexpected override archive SHA256: {digest}')
+          pathlib.Path('/tmp/WoolControlCenter-overrides.tar.gz').write_bytes(payload)
+          PY
+          tar -xzf /tmp/WoolControlCenter-overrides.tar.gz -C source/WoolControlCenter
+
           test -f source/WoolControlCenter/Tweak.x
           test -f source/WoolControlCenter/Preferences/Makefile
           test -f source/WoolControlCenter/control
+          grep -q '^Version: 1.2.0$' source/WoolControlCenter/control
 
       - name: Install build dependencies
         run: |
