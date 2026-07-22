@@ -179,21 +179,23 @@ Description: Stability release that loads all thermal and sweat hooks only in Sp
 Author: Next Solution
 Name: Sweat My Phone (RootHide)
 
-Package: com.nextsolution.woolcontrolcenter
-Version: 1.1.0
+Package: com.zeshan.phoneaura
+Version: 0.4.8
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 280
+Installed-Size: 1020
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/WoolControlCenter_1.1.0_RootHide_iOS16.deb
-Size: 24316
-MD5sum: 0663bdcfef6cbb646b45cb1ea12db0d5
-SHA1: 971caba813c4076e39f25d9ca0d5150d26c3ea37
-SHA256: 142b76f33f9da4dd1aa7ac81b226259263f2aca3ff58867dbbb3c8f1100775bd
+Filename: ./debfiles/PhoneAura_0.4.8_RootHide_iOS16.deb
+Size: 138936
+MD5sum: 73b61653e4504449275d4dd72f027dfc
+SHA1: 9355a5d76a30c96ef1971166ff901e63a4f951d6
+SHA256: c95dd6fba59abc0cb2d11c5d3729ecdde324a907afba549e5d2acda9820446cb
 Section: Tweaks
-Description: Applies realistic 3D wool and felt directly to each real iOS 16 Control Center module background while preserving icons, sliders, live content, animations, and touch handling. Includes a repaired Settings preference pane with global and per-module styles, photos, opacity, texture density, depth, and corner radius controls.
+Homepage: https://zeshan0727.github.io/
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Enjoy elegant custom Favorites, smart Recents filters, detailed call information, redesigned Contacts and Keypad, swipe-to-delete controls, custom favorite contacts, haptic feedback, fluid animations, and clean Next Solution settings. Built for RootHide.
 Author: Next Solution
-Name: Wool Control Center
+Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
+Name: PhoneAura
 
 Package: com.zeshan.phoneaura
 Version: 0.4.8
@@ -209,24 +211,6 @@ SHA256: 97e34629906c7b02574ec327263fa58ff8949ba14324865e001b7b0035109356
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
 Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Enjoy elegant custom Favorites, smart Recents filters, detailed call information, redesigned Contacts and Keypad, swipe-to-delete controls, custom favorite contacts, haptic feedback, fluid animations, and clean Next Solution settings. Built for rootless jailbreaks.
-Author: Next Solution
-Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
-Name: PhoneAura
-
-Package: com.zeshan.phoneaura
-Version: 0.4.8
-Architecture: iphoneos-arm64e
-Maintainer: Next Solution
-Installed-Size: 1020
-Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.8_RootHide_iOS16.deb
-Size: 138936
-MD5sum: 73b61653e4504449275d4dd72f027dfc
-SHA1: 9355a5d76a30c96ef1971166ff901e63a4f951d6
-SHA256: c95dd6fba59abc0cb2d11c5d3729ecdde324a907afba549e5d2acda9820446cb
-Section: Tweaks
-Homepage: https://zeshan0727.github.io/
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Enjoy elegant custom Favorites, smart Recents filters, detailed call information, redesigned Contacts and Keypad, swipe-to-delete controls, custom favorite contacts, haptic feedback, fluid animations, and clean Next Solution settings. Built for RootHide.
 Author: Next Solution
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
