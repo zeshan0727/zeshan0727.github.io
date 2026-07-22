@@ -1,0 +1,38 @@
+name: Remove Wool Control Center from Sileo
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/remove-wool-control-center.yml"
+      - "source/WoolControlCenter/REMOVE_FROM_REPO"
+
+permissions:
+  contents: write
+
+jobs:
+  remove:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove package and rebuild repository indexes
+        run: |
+          brew install dpkg >/dev/null
+          rm -f debfiles/WoolControlCenter_*.deb debfiles/com.nextsolution.woolcontrolcenter_*.deb
+          dpkg-scanpackages -m ./debfiles > Packages
+          bzip2 -c9 Packages > Packages.bz2
+          gzip -c9 Packages > Packages.gz
+
+      - name: Publish removal
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A debfiles Packages Packages.bz2 Packages.gz
+          if git diff --cached --quiet; then
+            echo "Wool Control Center is already absent from the Sileo repository."
+            exit 0
+          fi
+          git commit -m "Temporarily remove Wool Control Center from Sileo"
+          git push origin HEAD:main
