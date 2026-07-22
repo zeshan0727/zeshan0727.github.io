@@ -5,7 +5,7 @@ THEOS_PACKAGE_SCHEME ?= roothide
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = NextMessage
-NextMessage_FILES = NMCore.m NMSwipeV130.xm NMThemeV130.xm
+NextMessage_FILES = Tweak.xm NMRuntimeV13.m
 NextMessage_FRAMEWORKS = UIKit QuartzCore
 NextMessage_LIBRARIES = sqlite3
 NextMessage_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unguarded-availability-new
