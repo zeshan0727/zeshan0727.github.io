@@ -64,13 +64,13 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     [items addObject:[self groupNamed:@"NEXT MESSAGE"]];
     [items addObject:[self switchNamed:@"Enable Next Message" key:@"enabled" defaultValue:YES]];
 
-    [items addObject:[self groupNamed:@"PHONEAURA-STYLE DESIGN"]];
+    [items addObject:[self groupNamed:@"FULL PHONEAURA-STYLE DESIGN"]];
     [items addObject:[self switchNamed:@"Conversation Cards" key:@"conversationCards" defaultValue:YES]];
     [items addObject:[self switchNamed:@"Dark Glass Background" key:@"glassBackground" defaultValue:YES]];
     [items addObject:[self switchNamed:@"Styled Message Bubbles" key:@"bubbleStyling" defaultValue:YES]];
     [items addObject:[self switchNamed:@"Glass Message Input" key:@"inputStyling" defaultValue:YES]];
-    [items addObject:[self sliderNamed:@"Card Opacity" key:@"cardOpacity" defaultValue:0.96 min:0.68 max:1.0]];
-    [items addObject:[self sliderNamed:@"Corner Radius" key:@"cornerRadius" defaultValue:18.0 min:12.0 max:28.0]];
+    [items addObject:[self sliderNamed:@"Card Opacity" key:@"cardOpacity" defaultValue:0.96 min:0.70 max:1.0]];
+    [items addObject:[self sliderNamed:@"Corner Radius" key:@"cornerRadius" defaultValue:20.0 min:14.0 max:30.0]];
 
     [items addObject:[self groupNamed:@"CONVERSATION ACTIONS"]];
     [items addObject:[self switchNamed:@"Details Swipe Action" key:@"detailsSwipe" defaultValue:YES]];
@@ -104,8 +104,8 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeNever;
 
     CGFloat screenWidth = UIScreen.mainScreen.bounds.size.width;
-    UIView *header = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 178)];
-    UIView *card = [[UIView alloc] initWithFrame:CGRectMake(16, 16, screenWidth - 48, 142)];
+    UIView *header = [[UIView alloc] initWithFrame:CGRectMake(0,0,0,178)];
+    UIView *card = [[UIView alloc] initWithFrame:CGRectMake(16,16,screenWidth-48,142)];
     card.layer.cornerRadius = 26;
     card.layer.cornerCurve = kCACornerCurveContinuous;
     card.layer.masksToBounds = YES;
@@ -115,12 +115,12 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     gradient.colors = @[(id)[UIColor colorWithRed:1.0 green:0.35 blue:0.37 alpha:1].CGColor,
                         (id)[UIColor colorWithRed:0.42 green:0.38 blue:1.0 alpha:1].CGColor,
                         (id)[UIColor colorWithRed:0.05 green:0.78 blue:0.72 alpha:1].CGColor];
-    gradient.startPoint = CGPointMake(0, 0.25);
-    gradient.endPoint = CGPointMake(1, 0.8);
+    gradient.startPoint = CGPointMake(0,0.25);
+    gradient.endPoint = CGPointMake(1,0.8);
     gradient.frame = card.bounds;
     [card.layer insertSublayer:gradient atIndex:0];
 
-    UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake(20, 24, 74, 74)];
+    UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake(20,24,74,74)];
     logo.image = [self nextSolutionLogo];
     logo.contentMode = UIViewContentModeScaleAspectFill;
     logo.clipsToBounds = YES;
@@ -130,7 +130,7 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     logo.tintColor = UIColor.whiteColor;
     [card addSubview:logo];
 
-    UILabel *brand = [[UILabel alloc] initWithFrame:CGRectMake(110, 24, CGRectGetWidth(card.bounds)-128, 36)];
+    UILabel *brand = [[UILabel alloc] initWithFrame:CGRectMake(110,24,CGRectGetWidth(card.bounds)-128,36)];
     brand.text = @"Next Solution";
     brand.textColor = UIColor.whiteColor;
     brand.font = [UIFont systemFontOfSize:26 weight:UIFontWeightBold];
@@ -138,13 +138,13 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     brand.minimumScaleFactor = 0.72;
     [card addSubview:brand];
 
-    UILabel *product = [[UILabel alloc] initWithFrame:CGRectMake(111, 61, CGRectGetWidth(card.bounds)-128, 24)];
-    product.text = @"Next Message 1.1.0";
+    UILabel *product = [[UILabel alloc] initWithFrame:CGRectMake(111,61,CGRectGetWidth(card.bounds)-128,24)];
+    product.text = @"Next Message 1.2.0 TEST";
     product.textColor = [UIColor colorWithWhite:1 alpha:0.88];
     product.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
     [card addSubview:product];
 
-    UILabel *credits = [[UILabel alloc] initWithFrame:CGRectMake(111, 88, CGRectGetWidth(card.bounds)-128, 22)];
+    UILabel *credits = [[UILabel alloc] initWithFrame:CGRectMake(111,88,CGRectGetWidth(card.bounds)-128,22)];
     credits.text = @"Credits: zeshan0727";
     credits.textColor = [UIColor colorWithWhite:1 alpha:0.78];
     credits.font = [UIFont systemFontOfSize:12 weight:UIFontWeightMedium];
@@ -171,13 +171,11 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     CFPreferencesAppSynchronize((__bridge CFStringRef)NMDomain);
     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(),
                                          (__bridge CFStringRef)NMNotification,
-                                         NULL,
-                                         NULL,
-                                         true);
+                                         NULL,NULL,true);
 }
 
 - (void)openSileoRepo {
-    NSURL *sileoURL = [NSURL URLWithString:[NSString stringWithFormat:@"sileo://source/%@", NMRepoURL]];
+    NSURL *sileoURL = [NSURL URLWithString:[NSString stringWithFormat:@"sileo://source/%@",NMRepoURL]];
     NSURL *webURL = [NSURL URLWithString:NMRepoURL];
     [[UIApplication sharedApplication] openURL:sileoURL options:@{} completionHandler:^(BOOL success) {
         if (!success && webURL) [[UIApplication sharedApplication] openURL:webURL options:@{} completionHandler:nil];
@@ -185,24 +183,24 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
 }
 
 - (void)resetPreferences {
-    NSArray *keys = @[@"enabled", @"conversationCards", @"glassBackground", @"bubbleStyling",
-                      @"inputStyling", @"cardOpacity", @"cornerRadius", @"detailsSwipe",
-                      @"showMessageCount", @"showFirstDate", @"deleteFromCard", @"haptics", @"animations"];
+    NSArray *keys = @[@"enabled",@"conversationCards",@"glassBackground",@"bubbleStyling",
+                      @"inputStyling",@"cardOpacity",@"cornerRadius",@"detailsSwipe",
+                      @"showMessageCount",@"showFirstDate",@"deleteFromCard",@"haptics",@"animations"];
     for (NSString *key in keys) {
-        CFPreferencesSetAppValue((__bridge CFStringRef)key, NULL, (__bridge CFStringRef)NMDomain);
+        CFPreferencesSetAppValue((__bridge CFStringRef)key,NULL,(__bridge CFStringRef)NMDomain);
     }
     CFPreferencesAppSynchronize((__bridge CFStringRef)NMDomain);
     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(),
                                          (__bridge CFStringRef)NMNotification,
-                                         NULL, NULL, true);
+                                         NULL,NULL,true);
     _specifiers = nil;
     [self reloadSpecifiers];
 }
 
 - (void)restartMessagesApp {
     pid_t pid = 0;
-    const char *arguments[] = {"killall", "-9", "MobileSMS", NULL};
-    posix_spawnp(&pid, "killall", NULL, NULL, (char * const *)arguments, environ);
+    const char *arguments[] = {"killall","-9","MobileSMS",NULL};
+    posix_spawnp(&pid,"killall",NULL,NULL,(char * const *)arguments,environ);
 }
 
 @end
