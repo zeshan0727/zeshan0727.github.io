@@ -21,7 +21,7 @@ permissions:
   contents: write
 
 env:
-  VERSION: 1.1.0
+  VERSION: 1.2.0
 
 jobs:
   build-roothide:
@@ -53,6 +53,7 @@ jobs:
           test "$(dpkg-deb -f "$DEB" Package)" = "com.nextsolution.nextmessage"
           test "$(dpkg-deb -f "$DEB" Architecture)" = "iphoneos-arm64e"
           test "$(dpkg-deb -f "$DEB" Version)" = "$VERSION"
+          dpkg-deb -c "$DEB" | grep -q 'Library/PreferenceLoader/Preferences/NextMessagePrefs.plist'
           mkdir -p "$GITHUB_WORKSPACE/output"
           cp "$DEB" "$GITHUB_WORKSPACE/output/NextMessage_${VERSION}_RootHide_iOS16.deb"
 
@@ -100,6 +101,7 @@ jobs:
           test "$(dpkg-deb -f "$DEB" Package)" = "com.nextsolution.nextmessage"
           test "$(dpkg-deb -f "$DEB" Architecture)" = "iphoneos-arm64"
           test "$(dpkg-deb -f "$DEB" Version)" = "$VERSION"
+          dpkg-deb -c "$DEB" | grep -q 'Library/PreferenceLoader/Preferences/NextMessagePrefs.plist'
           mkdir -p "$GITHUB_WORKSPACE/output"
           cp "$DEB" "$GITHUB_WORKSPACE/output/NextMessage_${VERSION}_Rootless_iOS16.deb"
 
