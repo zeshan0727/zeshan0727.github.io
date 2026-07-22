@@ -69,8 +69,9 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     [items addObject:[self groupNamed:@"NEXT MESSAGE"]];
     [items addObject:[self switchNamed:@"Enable Next Message" key:@"enabled" defaultValue:YES]];
 
-    [items addObject:[self groupNamed:@"FLOATING APP INFORMATION"]];
-    [items addObject:[self switchNamed:@"Show Floating Information Button" key:@"floatingInfoButton" defaultValue:YES]];
+    [items addObject:[self groupNamed:@"MESSAGES INFORMATION"]];
+    [items addObject:[self switchNamed:@"Show Floating App Information" key:@"floatingInfoButton" defaultValue:YES]];
+    [items addObject:[self switchNamed:@"Conversation Swipe Information" key:@"conversationSwipeInfo" defaultValue:YES]];
     [items addObject:[self switchNamed:@"Haptic Feedback" key:@"haptics" defaultValue:YES]];
 
     [items addObject:[self groupNamed:@"ACTIONS"]];
@@ -133,7 +134,7 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     [card addSubview:brand];
 
     UILabel *product = [[UILabel alloc] initWithFrame:CGRectMake(111, 61, CGRectGetWidth(card.bounds)-128, 24)];
-    product.text = @"Next Message 1.5.0 TEST";
+    product.text = @"Next Message 1.6.0 TEST";
     product.textColor = [UIColor colorWithWhite:1 alpha:0.90];
     product.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
     [card addSubview:product];
@@ -179,8 +180,6 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(),
                                          (__bridge CFStringRef)NMNotification,
                                          NULL, NULL, true);
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(restartMessagesApp) object:nil];
-    [self performSelector:@selector(restartMessagesApp) withObject:nil afterDelay:0.30];
 }
 
 - (void)openSileoRepo {
@@ -192,7 +191,12 @@ static NSString * const NMRepoURL = @"https://zeshan0727.github.io/";
 }
 
 - (void)resetPreferences {
-    NSDictionary *defaults = @{@"enabled": @YES, @"floatingInfoButton": @YES, @"haptics": @YES};
+    NSDictionary *defaults = @{
+        @"enabled": @YES,
+        @"floatingInfoButton": @YES,
+        @"conversationSwipeInfo": @YES,
+        @"haptics": @YES
+    };
     [self writeDiskPreferences:defaults];
     for (NSString *key in defaults) {
         CFPreferencesSetValue((__bridge CFStringRef)key,
