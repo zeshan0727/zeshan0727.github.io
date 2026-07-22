@@ -7,6 +7,12 @@ on:
     paths:
       - ".github/workflows/wcc-export-source.yml"
       - "source/WoolControlCenter/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/wcc-export-source.yml"
+      - "source/WoolControlCenter/**"
   workflow_dispatch:
 
 permissions:
