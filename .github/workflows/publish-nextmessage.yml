@@ -8,6 +8,11 @@ on:
       - main
     paths:
       - ".github/workflows/publish-nextmessage.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/publish-nextmessage.yml"
 
 permissions:
   contents: write
@@ -67,20 +72,22 @@ jobs:
           text = text.replace('export TARGET = iphone:clang:latest:16.0', 'export TARGET = iphone:clang:16.5:16.0')
           makefile.write_text(text)
 
-          control = root / 'control'
-          control.write_text('''Package: com.nextsolution.nextmessage
-Name: Next Message
-Version: 1.0.0
-Architecture: iphoneos-arm64
-Description: Concept A test build for Apple Messages with aurora glass styling, conversation cards, gradient bubbles, smart replies, filters, floating compose button, bottom dock, swipe actions and theme switching.
-Maintainer: Next Solution - Zeshan 0727
-Author: Next Solution - Zeshan 0727
-Section: Tweaks
-Depends: mobilesubstrate (>= 0.9.5000), firmware (>= 16.0)
-Homepage: https://zeshan0727.github.io/
-Depiction: https://zeshan0727.github.io/depictions/nextmessage.html
-Icon: https://zeshan0727.github.io/CydiaIcon.png
-''')
+          control_lines = [
+              'Package: com.nextsolution.nextmessage',
+              'Name: Next Message',
+              'Version: 1.0.0',
+              'Architecture: iphoneos-arm64',
+              'Description: Concept A test build for Apple Messages with aurora glass styling, conversation cards, gradient bubbles, smart replies, filters, floating compose button, bottom dock, swipe actions and theme switching.',
+              'Maintainer: Next Solution - Zeshan 0727',
+              'Author: Next Solution - Zeshan 0727',
+              'Section: Tweaks',
+              'Depends: mobilesubstrate (>= 0.9.5000), firmware (>= 16.0)',
+              'Homepage: https://zeshan0727.github.io/',
+              'Depiction: https://zeshan0727.github.io/depictions/nextmessage.html',
+              'Icon: https://zeshan0727.github.io/CydiaIcon.png',
+              '',
+          ]
+          (root / 'control').write_text('\n'.join(control_lines))
           PY
 
       - name: Install RootHide Theos and iOS 16.5 SDK
