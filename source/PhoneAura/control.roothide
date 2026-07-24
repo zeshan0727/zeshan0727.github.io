@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.8
+Version: 0.4.9
 Architecture: iphoneos-arm64e
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Enjoy elegant custom Favorites, smart Recents filters, detailed call information, redesigned Contacts and Keypad, swipe-to-delete controls, custom favorite contacts, haptic feedback, fluid animations, and clean Next Solution settings. Built for RootHide.
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.9 adds live saved-contact suggestions while dialing and a one-tap clipboard Paste button to the redesigned keypad, alongside custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for RootHide.
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Homepage: https://zeshan0727.github.io/
 Maintainer: Next Solution
