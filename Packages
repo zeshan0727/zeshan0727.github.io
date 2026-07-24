@@ -180,37 +180,37 @@ Author: Next Solution
 Name: Sweat My Phone (RootHide)
 
 Package: com.zeshan.phoneaura
-Version: 0.4.9
+Version: 0.4.10
 Architecture: iphoneos-arm64
 Maintainer: Next Solution
-Installed-Size: 1036
+Installed-Size: 1056
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.9_Rootless_iOS16.deb
-Size: 144436
-MD5sum: 1cb3e196823945c4f77df5dec318a4db
-SHA1: c65feee2884e6d8caaec77887171b7c7c2a2fd87
-SHA256: f2e649b6d8f5e1eba97184e794f47b27b5376d82271498e65ede6b5cf447c832
+Filename: ./debfiles/PhoneAura_0.4.10_Rootless_iOS16.deb
+Size: 149318
+MD5sum: 24c0e38cb9fe022e0c260a03f4eeeaec
+SHA1: a7d403841462e8d0227a391eaa915af09a82be8e
+SHA256: 271c69718e149df6ca80d3fd62ebff4806ba2acb4edb91fb91063fa54c01e92b
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.9 adds live saved-contact suggestions while dialing and a one-tap clipboard Paste button to the redesigned keypad, alongside custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for rootless jailbreaks.
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.10 fixes Add Number with a native three-dot keypad menu for creating a new contact or adding the dialed number to an existing contact. It also includes live saved-contact suggestions, clipboard Paste, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for rootless jailbreaks.
 Author: Next Solution
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
 
 Package: com.zeshan.phoneaura
-Version: 0.4.9
+Version: 0.4.10
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 1036
+Installed-Size: 1056
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.9_RootHide_iOS16.deb
-Size: 142434
-MD5sum: d497cfb6730056de94521f715bec4ebe
-SHA1: 961f1771538eac4b89230de90411d5c6fe984cf4
-SHA256: c744d4d3de0c3978f0b7639b373374641e2891d23951591db0444dcf657f1fb0
+Filename: ./debfiles/PhoneAura_0.4.10_RootHide_iOS16.deb
+Size: 149904
+MD5sum: 649f359d7b6129f6028d48d65a73212b
+SHA1: 6df75e596128baae1fe43a7fbc13fcbbc8e810a0
+SHA256: 32764ce245e0f49ea6feda34834429e1a656ef0828686cc3d2ce5d28d98c3b44
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.9 adds live saved-contact suggestions while dialing and a one-tap clipboard Paste button to the redesigned keypad, alongside custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for RootHide.
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.10 fixes Add Number with a native three-dot keypad menu for creating a new contact or adding the dialed number to an existing contact. It also includes live saved-contact suggestions, clipboard Paste, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for RootHide.
 Author: Next Solution
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
