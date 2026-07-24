@@ -109,25 +109,6 @@ Name: Daily Ledger SMS Import
 
 Package: com.nextsolution.nextmessage
 Version: 1.1.0
-Architecture: iphoneos-arm64
-Maintainer: Next Solution
-Installed-Size: 424
-Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/NextMessage_1.1.0_Rootless_iOS16.deb
-Size: 47254
-MD5sum: 4c3f7e41e2581be203c03301489d353c
-SHA1: 0aa17520b2145c571f41c4e64b3f431e2f2cf3ee
-SHA256: b371c2cecc2c1955e6f8d7d3cddc7e573b3c31574ef907bebac6dc1ad595dae2
-Section: Tweaks
-Homepage: https://zeshan0727.github.io/
-Description: A free PhoneAura-inspired redesign for the iOS 16 Messages app with elegant conversation cards, dark glass styling, swipe-to-view conversation details, message count, first-message date, safe conversation deletion, haptics, animations and a branded Settings pane. Built for rootless jailbreaks.
-Author: Next Solution - zeshan0727
-Depiction: https://zeshan0727.github.io/depictions/nextmessage.html
-Icon: https://zeshan0727.github.io/CydiaIcon.png
-Name: Next Message
-
-Package: com.nextsolution.nextmessage
-Version: 1.1.0
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
 Installed-Size: 424
@@ -140,6 +121,25 @@ SHA256: 3a5d181776dbb892510f0cd18e02c3dc9aa53baa3403d290b3633ed248d49140
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
 Description: A free PhoneAura-inspired redesign for the iOS 16 Messages app with elegant conversation cards, dark glass styling, swipe-to-view conversation details, message count, first-message date, safe conversation deletion, haptics, animations and a branded Settings pane. Built for RootHide.
+Author: Next Solution - zeshan0727
+Depiction: https://zeshan0727.github.io/depictions/nextmessage.html
+Icon: https://zeshan0727.github.io/CydiaIcon.png
+Name: Next Message
+
+Package: com.nextsolution.nextmessage
+Version: 1.1.0
+Architecture: iphoneos-arm64
+Maintainer: Next Solution
+Installed-Size: 424
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/NextMessage_1.1.0_Rootless_iOS16.deb
+Size: 47254
+MD5sum: 4c3f7e41e2581be203c03301489d353c
+SHA1: 0aa17520b2145c571f41c4e64b3f431e2f2cf3ee
+SHA256: b371c2cecc2c1955e6f8d7d3cddc7e573b3c31574ef907bebac6dc1ad595dae2
+Section: Tweaks
+Homepage: https://zeshan0727.github.io/
+Description: A free PhoneAura-inspired redesign for the iOS 16 Messages app with elegant conversation cards, dark glass styling, swipe-to-view conversation details, message count, first-message date, safe conversation deletion, haptics, animations and a branded Settings pane. Built for rootless jailbreaks.
 Author: Next Solution - zeshan0727
 Depiction: https://zeshan0727.github.io/depictions/nextmessage.html
 Icon: https://zeshan0727.github.io/CydiaIcon.png
@@ -180,37 +180,37 @@ Author: Next Solution
 Name: Sweat My Phone (RootHide)
 
 Package: com.zeshan.phoneaura
-Version: 0.4.8
+Version: 0.4.9
 Architecture: iphoneos-arm64
 Maintainer: Next Solution
-Installed-Size: 1020
+Installed-Size: 1036
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.8_Rootless_iOS16.deb
-Size: 139872
-MD5sum: a563c02e4c630b8eb6113b8388a70c36
-SHA1: 7ff5223dc2b896eecc0ec024504f5e53ad3c8516
-SHA256: 97e34629906c7b02574ec327263fa58ff8949ba14324865e001b7b0035109356
+Filename: ./debfiles/PhoneAura_0.4.9_Rootless_iOS16.deb
+Size: 144436
+MD5sum: 1cb3e196823945c4f77df5dec318a4db
+SHA1: c65feee2884e6d8caaec77887171b7c7c2a2fd87
+SHA256: f2e649b6d8f5e1eba97184e794f47b27b5376d82271498e65ede6b5cf447c832
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Enjoy elegant custom Favorites, smart Recents filters, detailed call information, redesigned Contacts and Keypad, swipe-to-delete controls, custom favorite contacts, haptic feedback, fluid animations, and clean Next Solution settings. Built for rootless jailbreaks.
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.9 adds live saved-contact suggestions while dialing and a one-tap clipboard Paste button to the redesigned keypad, alongside custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for rootless jailbreaks.
 Author: Next Solution
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
 
 Package: com.zeshan.phoneaura
-Version: 0.4.8
+Version: 0.4.9
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 1020
+Installed-Size: 1036
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.8_RootHide_iOS16.deb
-Size: 138936
-MD5sum: 73b61653e4504449275d4dd72f027dfc
-SHA1: 9355a5d76a30c96ef1971166ff901e63a4f951d6
-SHA256: c95dd6fba59abc0cb2d11c5d3729ecdde324a907afba549e5d2acda9820446cb
+Filename: ./debfiles/PhoneAura_0.4.9_RootHide_iOS16.deb
+Size: 142434
+MD5sum: d497cfb6730056de94521f715bec4ebe
+SHA1: 961f1771538eac4b89230de90411d5c6fe984cf4
+SHA256: c744d4d3de0c3978f0b7639b373374641e2891d23951591db0444dcf657f1fb0
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Enjoy elegant custom Favorites, smart Recents filters, detailed call information, redesigned Contacts and Keypad, swipe-to-delete controls, custom favorite contacts, haptic feedback, fluid animations, and clean Next Solution settings. Built for RootHide.
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.9 adds live saved-contact suggestions while dialing and a one-tap clipboard Paste button to the redesigned keypad, alongside custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for RootHide.
 Author: Next Solution
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
