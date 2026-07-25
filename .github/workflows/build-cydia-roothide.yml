@@ -10,7 +10,7 @@ on:
       - .github/workflows/build-cydia-roothide.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -91,6 +91,20 @@ jobs:
           file "$CYDIA" "$CYDO" "$COMPAT"
           dpkg-deb -I "$OUTPUT_DEB"
           shasum -a 256 "$OUTPUT_DEB" | tee "$RUNNER_TEMP/CydiaInstaller_RootHide_0.3.sha256"
+
+      - name: Publish fixed package to test branch
+        run: |
+          set -euxo pipefail
+          DEST="debfiles/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb"
+          cp "$OUTPUT_DEB" "$DEST"
+          cp "$RUNNER_TEMP/CydiaInstaller_RootHide_0.3.sha256" "debfiles/CydiaInstaller_RootHide_0.3.sha256"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$DEST" debfiles/CydiaInstaller_RootHide_0.3.sha256
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish Cydia RootHide 0.3 arm64 crash fix [skip ci]"
+            git push origin HEAD:cydia-roothide-ios16
+          fi
 
       - name: Upload fixed package
         uses: actions/upload-artifact@v4
