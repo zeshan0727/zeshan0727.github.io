@@ -3,7 +3,7 @@
 To restore the stashed changes to /opt/homebrew/Library/Taps/homebrew/homebrew-core, run:
   cd /opt/homebrew/Library/Taps/homebrew/homebrew-core && git stash pop
 [34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/core/portable-ruby/blobs/sha256:83a3ff85d83acf0e3dd8105de0fdb01da96b7c0eaf2dfaae2ba6500ec2ae4a64[0m
-#=#=#                                                                          ################################                                          45.3%######################################################################## 100.0%
+#=#=#                                                                          #######################################################                   76.5%######################################################################## 100.0%
 [34m==>[0m [1mPouring portable-ruby-4.0.6.arm64_big_sur.bottle.tar.gz[0m
 [34m==>[0m [1mHomebrew's analytics have entirely moved to our InfluxDB instance in the EU.[0m
 We gather less data than before and have destroyed all Google Analytics data:
@@ -201,23 +201,35 @@ microsoft-edge
 You have [1m33[0m outdated formulae and [1m2[0m outdated casks installed.
 You can upgrade them with [1mbrew upgrade[0m
 or list them with [1mbrew outdated[0m.
-+ brew install dpkg
++ brew install dpkg libplist openssl@3 pkg-config
+openssl@3 3.6.2 is already installed but outdated (so it will be upgraded).
+pkgconf 2.5.1 is already installed but outdated (so it will be upgraded).
 ::warning::The following taps are not trusted:%0A  aws/tap%0A%0AHomebrew is currently ignoring formulae, casks and commands from these taps because tap trust is required.%0AUntap them with:%0A  brew untap aws/tap%0ATrust specific formulae, casks and commands with:%0A  brew trust --formula <user>/<tap>/<formula>%0A  brew trust --cask <user>/<tap>/<cask>%0A  brew trust --command <user>/<tap>/<command>%0AWhole-tap trust is broader and includes all current and future formulae,%0Acasks and commands from the listed taps. Trust whole taps with:%0A  brew trust aws/tap%0ATo disable trust checks:%0A  export HOMEBREW_NO_REQUIRE_TAP_TRUST=1%0AThis is not recommended and will be removed in a later release.%0AFor more information, see:%0A  https://docs.brew.sh/Tap-Trust%0A
-[34m==>[0m [1mWould install 1 formula:[0m
-dpkg
+[34m==>[0m [1mWould install 4 formulae:[0m
+dpkg libplist openssl@3 pkgconf
 [34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/core/dpkg/manifests/1.23.7[0m
 [34m==>[0m [1mWould install 3 dependencies for dpkg:[0m
 json-c
 gpatch
 libmd
-[32m==>[0m [1mFetching downloads for: [32mdpkg[39m[0m
+[34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/core/libplist/manifests/2.7.0[0m
+[34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/core/openssl/3/manifests/3.6.3-1[0m
+[34m==>[0m [1mWould upgrade 1 dependency for openssl@3:[0m
+ca-certificates
+[34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/core/pkgconf/manifests/3.0.4[0m
+[32m==>[0m [1mFetching downloads for: [32mdpkg[39m, [32mlibplist[39m, [32mopenssl@3[39m and [32mpkgconf[39m[0m
 ✔︎ Bottle Manifest json-c (0.19)
 ✔︎ Bottle Manifest gpatch (2.8)
 ✔︎ Bottle Manifest libmd (1.2.0)
-✔︎ Bottle json-c (0.19)
 ✔︎ Bottle gpatch (2.8)
+✔︎ Bottle json-c (0.19)
+✔︎ Bottle Manifest ca-certificates (2026-07-16)
 ✔︎ Bottle libmd (1.2.0)
+✔︎ Bottle libplist (2.7.0)
+✔︎ Bottle ca-certificates (2026-07-16)
+✔︎ Bottle pkgconf (3.0.4)
 ✔︎ Bottle dpkg (1.23.7)
+✔︎ Bottle openssl@3 (3.6.3)
 [32m==>[0m [1mInstalling dependencies for dpkg:[0m [32mjson-c[39m, [32mgpatch[39m and [32mlibmd[39m[0m
 [32m==>[0m [1mInstalling dpkg dependency: [32mjson-c[39m[0m
 [34m==>[0m [1mPouring json-c--0.19.arm64_sonoma.bottle.tar.gz[0m
@@ -235,10 +247,61 @@ This installation of dpkg is not configured to install software, so
 commands such as `dpkg -i`, `dpkg --configure` will fail.
 [34m==>[0m [1mSummary[0m
 🍺  /opt/homebrew/Cellar/dpkg/1.23.7: 740 files, 18.3MB
+[34m==>[0m [1mPouring libplist--2.7.0.arm64_sonoma.bottle.tar.gz[0m
+🍺  /opt/homebrew/Cellar/libplist/2.7.0: 32 files, 606.6KB
+[32m==>[0m [1mUpgrading [32mopenssl@3[39m[0m
+  3.6.2 -> 3.6.3 
+[34m==>[0m [1mPouring openssl@3--3.6.3.arm64_sonoma.bottle.1.tar.gz[0m
+::warning::These files were overwritten during the `brew link` step:
+/opt/homebrew/bin/openssl
+
+They have been backed up to: /Users/runner/Library/Caches/Homebrew/Backup
+[34m==>[0m [1mCaveats[0m
+To add additional certificates, place .pem files in
+  /opt/homebrew/etc/openssl@3/certs
+
+and run
+  /opt/homebrew/opt/openssl@3/bin/c_rehash
+
+OpenSSL 3.6 is only supported until 2026-11-01 so the `openssl@3`
+formula will be downgraded to OpenSSL 3.5 (LTS) in a future update.
+[34m==>[0m [1mSummary[0m
+🍺  /opt/homebrew/Cellar/openssl@3/3.6.3: 7,633 files, 37.5MB
+[32m==>[0m [1mUpgrading [32mpkg-config[39m[0m
+  2.5.1 -> 3.0.4 
+[34m==>[0m [1mPouring pkgconf--3.0.4.arm64_sonoma.bottle.tar.gz[0m
+🍺  /opt/homebrew/Cellar/pkgconf/3.0.4: 35 files, 740.8KB
 [32m==>[0m [1mCaveats[0m
 [34m==>[0m [1mdpkg[0m
 This installation of dpkg is not configured to install software, so
 commands such as `dpkg -i`, `dpkg --configure` will fail.
+[34m==>[0m [1mopenssl@3[0m
+To add additional certificates, place .pem files in
+  /opt/homebrew/etc/openssl@3/certs
+
+and run
+  /opt/homebrew/opt/openssl@3/bin/c_rehash
+
+OpenSSL 3.6 is only supported until 2026-11-01 so the `openssl@3`
+formula will be downgraded to OpenSSL 3.5 (LTS) in a future update.
+++ brew --prefix openssl@3
+++ brew --prefix libplist
++ export PKG_CONFIG_PATH=/opt/homebrew/opt/openssl@3/lib/pkgconfig:/opt/homebrew/opt/libplist/lib/pkgconfig
++ PKG_CONFIG_PATH=/opt/homebrew/opt/openssl@3/lib/pkgconfig:/opt/homebrew/opt/libplist/lib/pkgconfig
++ git clone --depth=1 https://github.com/ProcursusTeam/ldid.git /Users/runner/work/_temp/ldid
+Cloning into '/Users/runner/work/_temp/ldid'...
+++ sysctl -n hw.ncpu
++ make -C /Users/runner/work/_temp/ldid VERSION=2.1.5-procursus7 -j3
+c++ -c -std=c++11 -O2 -pipe -I/opt/homebrew/Cellar/openssl@3/3.6.3/include -I/opt/homebrew/Cellar/libplist/2.7.0/include  -I. -DLDID_VERSION=\"2.1.5-procursus7\" ldid.cpp -o ldid.cpp.o
+c++ -o ldid ldid.cpp.o  -L/opt/homebrew/Cellar/openssl@3/3.6.3/lib -lcrypto -L/opt/homebrew/Cellar/libplist/2.7.0/lib -lplist-2.0 
++ sudo install -m 0755 /Users/runner/work/_temp/ldid/ldid /usr/local/bin/ldid
++ ldid
++ head -5
+Link Identity Editor 2.1.5-procursus7
+
+Usage: ldid [-Acputype:subtype] [-a] [-C[adhoc | enforcement | expires | hard |
+            host | kill | library-validation | restrict | runtime | linker-signed]] [-D] [-d]
+            [-Enum:file] [-e] [-H[sha1 | sha256]] [-h] [-Iname]
 + git clone --recursive --depth=1 https://github.com/roothide/theos.git /Users/runner/work/_temp/theos
 Cloning into '/Users/runner/work/_temp/theos'...
 Submodule 'vendor/dm.pl' (https://github.com/theos/dm.pl.git) registered for path 'vendor/dm.pl'
@@ -284,8 +347,81 @@ ld: warning: -multiply_defined is obsolete
 [0;34m==> [1;39mGenerating debug symbols for CydiaRootHideCompat…[m
 [0;34m==> [1;39mStripping CydiaRootHideCompat (arm64)…[m
 [0;34m==> [1;39mSigning CydiaRootHideCompat…[m
-bash: ldid: command not found
-make[2]: *** [/Users/runner/work/zeshan0727.github.io/zeshan0727.github.io/projects/CydiaRootHideCompat/.theos/obj/CydiaRootHideCompat.dylib] Error 127
-rm /Users/runner/work/zeshan0727.github.io/zeshan0727.github.io/projects/CydiaRootHideCompat/.theos/obj/CydiaRootHideCompat.dylib.0264e694.unsigned
-make[1]: *** [internal-library-all_] Error 2
-make: *** [CydiaRootHideCompat.all.tweak.variables] Error 2
+[1;31m> [1;3;39mMaking stage for tweak CydiaRootHideCompat…[m
+dm.pl: building package `com.nextsolution.cydia.roothide.compat:iphoneos-arm64e' in `./packages/com.nextsolution.cydia.roothide.compat_0.1.0_iphoneos-arm64e.deb'
+++ find packages -type f -name '*.deb'
+++ head -1
++ COMPAT_DEB=packages/com.nextsolution.cydia.roothide.compat_0.1.0_iphoneos-arm64e.deb
++ test -n packages/com.nextsolution.cydia.roothide.compat_0.1.0_iphoneos-arm64e.deb
++ COMPAT_DEB=/Users/runner/work/zeshan0727.github.io/zeshan0727.github.io/projects/CydiaRootHideCompat/packages/com.nextsolution.cydia.roothide.compat_0.1.0_iphoneos-arm64e.deb
++ popd
+~/work/zeshan0727.github.io/zeshan0727.github.io
++ BASE_DEB=debfiles/CydiaInstaller_RootHide_1.1.38-0.2_iOS16.deb
++ test -f debfiles/CydiaInstaller_RootHide_1.1.38-0.2_iOS16.deb
++ STAGE=/Users/runner/work/_temp/cydia-stage
++ COMPAT_STAGE=/Users/runner/work/_temp/compat-stage
++ rm -rf /Users/runner/work/_temp/cydia-stage /Users/runner/work/_temp/compat-stage
++ dpkg-deb -R debfiles/CydiaInstaller_RootHide_1.1.38-0.2_iOS16.deb /Users/runner/work/_temp/cydia-stage
++ dpkg-deb -R /Users/runner/work/zeshan0727.github.io/zeshan0727.github.io/projects/CydiaRootHideCompat/packages/com.nextsolution.cydia.roothide.compat_0.1.0_iphoneos-arm64e.deb /Users/runner/work/_temp/compat-stage
+++ find /Users/runner/work/_temp/compat-stage -type f -name CydiaRootHideCompat.dylib
+++ head -1
++ DYLIB=/Users/runner/work/_temp/compat-stage/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib
+++ find /Users/runner/work/_temp/compat-stage -type f -name CydiaRootHideCompat.plist
+++ head -1
++ PLIST=/Users/runner/work/_temp/compat-stage/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist
++ test -n /Users/runner/work/_temp/compat-stage/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib
++ test -n /Users/runner/work/_temp/compat-stage/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist
++ cp /Users/runner/work/_temp/compat-stage/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib /Users/runner/work/_temp/cydia-stage/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib
++ cp /Users/runner/work/_temp/compat-stage/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist /Users/runner/work/_temp/cydia-stage/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist
++ python3 - /Users/runner/work/_temp/cydia-stage/DEBIAN/control
++ OUTPUT=/Users/runner/work/_temp/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb
++ dpkg-deb -Zzstd -b /Users/runner/work/_temp/cydia-stage /Users/runner/work/_temp/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb
+dpkg-deb: warning: root directory /Users/runner/work/_temp/cydia-stage has unusual owner or group 501:20
+dpkg-deb: hint: you might need to pass --root-owner-group, see <https://wiki.debian.org/Teams/Dpkg/RootlessBuilds> for further details
+dpkg-deb: warning: ignoring 1 warning about the control file(s)
+dpkg-deb: building package 'com.nextsolution.cydia.roothide' in '/Users/runner/work/_temp/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb'.
++ V=/Users/runner/work/_temp/validate
++ rm -rf /Users/runner/work/_temp/validate
++ dpkg-deb -x /Users/runner/work/_temp/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb /Users/runner/work/_temp/validate
++ CYDIA=/Users/runner/work/_temp/validate/Applications/Cydia.app/Cydia
++ CYDO=/Users/runner/work/_temp/validate/usr/libexec/cydia/cydo
++ COMPAT=/Users/runner/work/_temp/validate/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib
+++ lipo -archs /Users/runner/work/_temp/validate/Applications/Cydia.app/Cydia
++ test arm64 = arm64
+++ lipo -archs /Users/runner/work/_temp/validate/usr/libexec/cydia/cydo
++ test arm64 = arm64
+++ lipo -archs /Users/runner/work/_temp/validate/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib
++ test arm64 = arm64
++ test '!' -e /Users/runner/work/_temp/validate/etc/apt/preferences.d/cydia
++ test '!' -e /Users/runner/work/_temp/validate/Library/LaunchDaemons
++ test -d /Users/runner/work/_temp/validate/Applications/Cydia.app/en.lproj
++ file /Users/runner/work/_temp/validate/Applications/Cydia.app/Cydia /Users/runner/work/_temp/validate/usr/libexec/cydia/cydo /Users/runner/work/_temp/validate/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib
+/Users/runner/work/_temp/validate/Applications/Cydia.app/Cydia:                                       Mach-O 64-bit executable arm64
+/Users/runner/work/_temp/validate/usr/libexec/cydia/cydo:                                             setuid, setgid Mach-O 64-bit executable arm64
+/Users/runner/work/_temp/validate/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib: Mach-O 64-bit dynamically linked shared library arm64
++ dpkg-deb -I /Users/runner/work/_temp/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb
+ new Debian package, version 2.0.
+ size 1574642 bytes: control archive=1034 bytes.
+     830 bytes,    14 lines      control
+     160 bytes,     5 lines   *  postinst             #!/bin/sh
+     365 bytes,    18 lines   *  preinst              #!/bin/bash
+      72 bytes,     3 lines   *  prerm                #!/bin/sh
+      64 bytes,     2 lines   *  triggers
+ Package: com.nextsolution.cydia.roothide
+ Version: 1.1.38+roothide0.3
+ Architecture: iphoneos-arm64e
+ Maintainer: Next Solution
+ Author: Jay Freeman (saurik), Sam Bingner, RootHide and Next Solution
+ Section: Packaging
+ Priority: optional
+ Depends: firmware (>= 16.0), apt, dpkg, bash, sed, coreutils, findutils, shell-cmds, system-cmds, uikittools, mobilesubstrate
+ Conflicts: cydia
+ Provides: cydia-roothide
+ Homepage: https://zeshan0727.github.io/
+ Icon: https://zeshan0727.github.io/CydiaIcon.png
+ Description: Experimental Cydia 1.1.38 compatibility build for RootHide on iOS 16. Version 0.3 fixes the immediate launch crash by rebuilding the injected compatibility library for arm64, matching Cydia and cydo. Keeps Sileo installed and preserves the hardened RootHide paths and safeguards from 0.2.
+ Name: Cydia Installer (RootHide Test)
++ shasum -a 256 /Users/runner/work/_temp/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb
++ tee /Users/runner/work/_temp/CydiaInstaller_RootHide_0.3.sha256
+cfa8f7d2980af05eea4b0052dad6c0e6105f431f97602413d0d073dbefc1bcd6  /Users/runner/work/_temp/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb
++ echo OUTPUT_DEB=/Users/runner/work/_temp/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb
