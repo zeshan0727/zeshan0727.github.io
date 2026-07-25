@@ -198,20 +198,19 @@ Author: Next Solution
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
 
-
 Package: com.nextsolution.unlockvibrate
-Version: 3.2.0
+Version: 4.0.0
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 1240
+Installed-Size: 1572
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/SweatMyPhone_RootHide_3.2.0_Organized100Features_CCSecondPage_iOS16.deb
-Size: 86464
-MD5sum: 171446778ed8b68032885cb8b0325b44
-SHA1: ad0c74b624d5af348674cebbe22e59853c90fddd
-SHA256: 6092d1995cb7bca8ff702f21bdfe7c56bff8572e1cf44355b8e4ccf57b4d4c42
+Filename: ./debfiles/SweatMyPhone_RootHide_4.0.0_100MoreSafeFeatures_iOS16.deb
+Size: 113134
+MD5sum: 0d111428b9f320e095b47c54c15d967f
+SHA1: 637de4bfb9d1b960a256a3f228c958a98ccc291a
+SHA256: 54edb75f51441e4c97d4aae37e2fd621dec6480ee977c56422dcdfc7c6acdd34
 Section: Tweaks
 Priority: optional
-Description: Organizes approximately 100 controls into clear Settings groups with a short explanation beneath every function. Adds a swipeable second Control Center page, adjustable grid columns and rows, quick-launch tiles, live battery, temperature and memory information, plus 18 related layout controls. SpringBoard-only RootHide build for iOS 16.
+Description: Adds 100 opt-in Safety Lab appearance controls to the organized suite, for approximately 200 controls total. The new module and every new feature are disabled by default. Includes a 25-second automatic crash guard, reset and recovery controls, exact SpringBoard-only injection, and no daemon or system-file patches. RootHide iOS 16 build.
 Author: Next Solution
 Name: Sweat My Phone (RootHide)
