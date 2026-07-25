@@ -1,0 +1,13 @@
+name: Cydia RootHide Branch Notice
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notice:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Cydia RootHide is built and validated by .github/workflows/cydia-roothide-validation.yml on main."
