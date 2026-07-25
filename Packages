@@ -214,3 +214,20 @@ Priority: optional
 Description: Adds 100 opt-in Safety Lab appearance controls to the organized suite, for approximately 200 controls total. The new module and every new feature are disabled by default. Includes a 25-second automatic crash guard, reset and recovery controls, exact SpringBoard-only injection, and no daemon or system-file patches. RootHide iOS 16 build.
 Author: Next Solution
 Name: Sweat My Phone (RootHide)
+
+Package: com.nextsolution.unlockvibrate
+Version: 4.1.0
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 1820
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/SweatMyPhone_RootHide_4.1.0_UnifiedControls_CCBackgrounds_iOS16.deb
+Size: 134878
+MD5sum: 8df335ee4fc2ab0cc1e37db3055c05f1
+SHA1: 112f9e3c1774434ad7b7466a114904ddc4fb8bc4
+SHA256: 2a0d35e387714e5c5be5e15bf2e17875b466fb3f4ebf9f2364cf01d667f2e55c
+Section: Tweaks
+Priority: optional
+Description: Unified RootHide iOS 16 suite with reliable choice controls, icon-labeled Settings categories, a selectable second Control Center page, and separate local background images for Control Center modules. Advanced visual controls activate when changed and reset automatically after an incomplete SpringBoard startup. Every dylib remains SpringBoard-only.
+Author: Next Solution
+Name: Sweat My Phone (RootHide)
