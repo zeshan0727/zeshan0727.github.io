@@ -1,0 +1,27 @@
+name: Actions Marker
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/actions-marker.yml
+
+permissions:
+  contents: write
+
+jobs:
+  marker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cydia-roothide-ios16
+          fetch-depth: 0
+      - run: |
+          date -u +'%Y-%m-%dT%H:%M:%SZ' > projects/CydiaRootHideCompat/ACTIONS_MARKER
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add projects/CydiaRootHideCompat/ACTIONS_MARKER
+          git commit -m 'Record GitHub Actions marker [skip ci]'
+          git push origin HEAD:cydia-roothide-ios16
