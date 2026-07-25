@@ -1,0 +1,112 @@
+name: Publish Cydia RootHide Test Package
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/cydia-roothide-publish-test.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out test branch
+        uses: actions/checkout@v4
+        with:
+          ref: cydia-roothide-ios16
+          fetch-depth: 0
+
+      - name: Install packaging tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev bzip2 unzip
+
+      - name: Download validated build artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: '8623861057'
+          EXPECTED_SHA256: d5414becd62808c1d78add0fceb9ce31839ce61675d46b598b266a33e5614bd3
+        run: |
+          set -euo pipefail
+          curl --fail --location \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            --output /tmp/cydia-artifact.zip
+          unzip -o /tmp/cydia-artifact.zip -d /tmp/cydia-artifact
+          DEB=/tmp/cydia-artifact/CydiaInstaller_RootHide_1.1.38-0.2_iOS16.deb
+          test -f "$DEB"
+          echo "${EXPECTED_SHA256}  ${DEB}" | sha256sum -c -
+          cp "$DEB" debfiles/CydiaInstaller_RootHide_1.1.38-0.2_iOS16.deb
+
+      - name: Add package to test repository metadata
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib
+          import pathlib
+          import subprocess
+
+          deb = pathlib.Path('debfiles/CydiaInstaller_RootHide_1.1.38-0.2_iOS16.deb')
+          package_id = 'com.nextsolution.cydia.roothide'
+          packages = pathlib.Path('Packages')
+          existing = packages.read_text(encoding='utf-8') if packages.exists() else ''
+          blocks = [block.strip() for block in existing.split('\n\n') if block.strip()]
+          blocks = [block for block in blocks if f'Package: {package_id}' not in block.splitlines()]
+
+          def field(name: str) -> str:
+              return subprocess.check_output(['dpkg-deb', '-f', str(deb), name], text=True).strip()
+
+          data = deb.read_bytes()
+          values = {
+              'Package': field('Package'),
+              'Version': field('Version'),
+              'Architecture': field('Architecture'),
+              'Maintainer': field('Maintainer'),
+              'Depends': field('Depends'),
+              'Conflicts': field('Conflicts'),
+              'Provides': field('Provides'),
+              'Filename': './' + str(deb),
+              'Size': str(len(data)),
+              'MD5sum': hashlib.md5(data).hexdigest(),
+              'SHA1': hashlib.sha1(data).hexdigest(),
+              'SHA256': hashlib.sha256(data).hexdigest(),
+              'Section': field('Section'),
+              'Priority': field('Priority'),
+              'Homepage': field('Homepage'),
+              'Description': field('Description'),
+              'Author': field('Author'),
+              'Icon': field('Icon'),
+              'Name': field('Name'),
+          }
+          order = [
+              'Package', 'Version', 'Architecture', 'Maintainer', 'Depends',
+              'Conflicts', 'Provides', 'Filename', 'Size', 'MD5sum', 'SHA1',
+              'SHA256', 'Section', 'Priority', 'Homepage', 'Description',
+              'Author', 'Icon', 'Name'
+          ]
+          blocks.append('\n'.join(f'{key}: {values[key]}' for key in order if values.get(key)))
+          packages.write_text('\n\n'.join(blocks) + '\n', encoding='utf-8')
+          PY
+          gzip -9 -c Packages > Packages.gz
+          bzip2 -9 -c Packages > Packages.bz2
+
+      - name: Publish only to Cydia test branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add debfiles/CydiaInstaller_RootHide_1.1.38-0.2_iOS16.deb Packages Packages.gz Packages.bz2
+          if git diff --cached --quiet; then
+            echo 'Validated test package is already published.'
+          else
+            git commit -m 'Publish validated Cydia RootHide 0.2 test package [skip ci]'
+            git push origin HEAD:cydia-roothide-ios16
+          fi
