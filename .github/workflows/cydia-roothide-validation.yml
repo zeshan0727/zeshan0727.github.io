@@ -44,7 +44,7 @@ jobs:
             set -euxo pipefail
 
             git clone --depth=1 https://github.com/ProcursusTeam/ldid.git "$RUNNER_TEMP/ldid"
-            make -C "$RUNNER_TEMP/ldid" -j"$(sysctl -n hw.ncpu)"
+            make -C "$RUNNER_TEMP/ldid" VERSION=2.1.5-procursus7 -j"$(sysctl -n hw.ncpu)"
             sudo install -m 0755 "$RUNNER_TEMP/ldid/ldid" /usr/local/bin/ldid
 
             git clone --recursive --depth=1 https://github.com/roothide/theos.git "$RUNNER_TEMP/theos"
