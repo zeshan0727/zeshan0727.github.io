@@ -7,15 +7,9 @@ on:
       - main
     paths:
       - .github/workflows/cydia-roothide-arm64-hotfix.yml
-  pull_request:
-    branches:
-      - main
-    paths:
-      - projects/CydiaRootHideCompat/**
-      - .github/workflows/cydia-roothide-arm64-hotfix.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -113,6 +107,20 @@ jobs:
           dpkg-deb -I "$OUTPUT_DEB"
           file "$CYDIA" "$CYDO" "$COMPAT"
           shasum -a 256 "$OUTPUT_DEB" | tee "$RUNNER_TEMP/CydiaInstaller_RootHide_0.3.sha256"
+
+      - name: Publish hotfix to Cydia test branch
+        run: |
+          set -euxo pipefail
+          DEST="debfiles/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb"
+          cp "$OUTPUT_DEB" "$DEST"
+          cp "$RUNNER_TEMP/CydiaInstaller_RootHide_0.3.sha256" "debfiles/CydiaInstaller_RootHide_0.3.sha256"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$DEST" debfiles/CydiaInstaller_RootHide_0.3.sha256
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish Cydia RootHide 0.3 arm64 crash fix [skip ci]"
+            git push origin HEAD:cydia-roothide-ios16
+          fi
 
       - name: Upload fixed DEB
         uses: actions/upload-artifact@v4
