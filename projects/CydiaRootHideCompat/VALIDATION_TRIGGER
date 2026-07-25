@@ -3,3 +3,4 @@ Artifact upload enabled.
 Compiler log upload enabled.
 Procursus ldid version fixed.
 RootHide helper scripts hardened, legacy APT pin removed, localisation added.
+Version 0.3 arm64 launch-crash hotfix validation requested.
