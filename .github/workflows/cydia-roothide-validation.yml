@@ -12,7 +12,7 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   validate:
@@ -135,87 +135,15 @@ jobs:
             echo "OUTPUT_DEB=$OUTPUT" >> "$GITHUB_ENV"
           } 2>&1 | tee "$RUNNER_TEMP/cydia-build.log"
 
-      - name: Upload compiled DEB and build log
-        if: steps.build.outcome == 'success'
+      - name: Upload DEB or failure log
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: CydiaInstaller-RootHide-iOS16
+          name: CydiaRootHide-build-output
           path: |
             ${{ env.OUTPUT_DEB }}
             ${{ runner.temp }}/cydia-build.log
           if-no-files-found: error
-
-      - name: Record result and publish successful DEB
-        if: always() && github.event_name != 'pull_request'
-        env:
-          BUILD_OUTCOME: ${{ steps.build.outcome }}
-        run: |
-          set -euo pipefail
-          mkdir -p build-status
-          cp "$RUNNER_TEMP/cydia-build.log" build-status/CydiaRootHide-latest.log 2>/dev/null || true
-          {
-            echo "Outcome: $BUILD_OUTCOME"
-            echo "Run ID: $GITHUB_RUN_ID"
-            echo "Commit tested: $(git rev-parse HEAD)"
-            echo "UTC: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          } > build-status/CydiaRootHide-latest.txt
-
-          if [ "$BUILD_OUTCOME" = "success" ]; then
-            DESTINATION="debfiles/CydiaInstaller_RootHide_1.1.38-0.1_iOS16.deb"
-            cp "$OUTPUT_DEB" "$DESTINATION"
-            python3 - "$DESTINATION" <<'PY'
-          import hashlib
-          import pathlib
-          import subprocess
-          import sys
-
-          deb = pathlib.Path(sys.argv[1])
-          package_id = "com.nextsolution.cydia.roothide"
-          packages_file = pathlib.Path("Packages")
-          existing = packages_file.read_text(encoding="utf-8") if packages_file.exists() else ""
-          blocks = [block.strip() for block in existing.split("\n\n") if block.strip()]
-          blocks = [block for block in blocks if f"Package: {package_id}" not in block.splitlines()]
-
-          def field(name):
-              return subprocess.check_output(["dpkg-deb", "-f", str(deb), name], text=True).strip()
-
-          data = deb.read_bytes()
-          values = {
-              "Package": field("Package"),
-              "Version": field("Version"),
-              "Architecture": field("Architecture"),
-              "Maintainer": field("Maintainer"),
-              "Depends": field("Depends"),
-              "Conflicts": field("Conflicts"),
-              "Provides": field("Provides"),
-              "Filename": "./" + str(deb),
-              "Size": str(len(data)),
-              "MD5sum": hashlib.md5(data).hexdigest(),
-              "SHA1": hashlib.sha1(data).hexdigest(),
-              "SHA256": hashlib.sha256(data).hexdigest(),
-              "Section": field("Section"),
-              "Priority": field("Priority"),
-              "Homepage": field("Homepage"),
-              "Description": field("Description"),
-              "Author": field("Author"),
-              "Icon": field("Icon"),
-              "Name": field("Name"),
-          }
-          order = ["Package", "Version", "Architecture", "Maintainer", "Depends", "Conflicts", "Provides", "Filename", "Size", "MD5sum", "SHA1", "SHA256", "Section", "Priority", "Homepage", "Description", "Author", "Icon", "Name"]
-          blocks.append("\n".join(f"{key}: {values[key]}" for key in order if values.get(key)))
-          packages_file.write_text("\n\n".join(blocks) + "\n", encoding="utf-8")
-          PY
-            gzip -9 -c Packages > Packages.gz
-            bzip2 -9 -c Packages > Packages.bz2
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add build-status Packages Packages.gz Packages.bz2 debfiles/CydiaInstaller_RootHide_1.1.38-0.1_iOS16.deb 2>/dev/null || true
-          if ! git diff --cached --quiet; then
-            git commit -m "Cydia RootHide validation: $BUILD_OUTCOME [skip ci]"
-            git push origin HEAD:cydia-roothide-ios16
-          fi
 
       - name: Enforce build result
         if: always()
