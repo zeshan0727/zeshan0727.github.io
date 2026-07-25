@@ -23,110 +23,95 @@ jobs:
           ref: cydia-roothide-ios16
           fetch-depth: 0
 
-      - name: Install build tools
+      - name: Build and validate Cydia 0.3
+        id: hotfix
+        continue-on-error: true
         run: |
-          brew update
-          brew install dpkg
+          set -o pipefail
+          {
+            set -euxo pipefail
+            brew update
+            brew install dpkg
 
-      - name: Build arm64 compatibility dylib
-        run: |
-          set -euxo pipefail
-          git clone --recursive --depth=1 https://github.com/roothide/theos.git "$RUNNER_TEMP/theos"
-          export THEOS="$RUNNER_TEMP/theos"
+            git clone --recursive --depth=1 https://github.com/roothide/theos.git "$RUNNER_TEMP/theos"
+            export THEOS="$RUNNER_TEMP/theos"
 
-          pushd projects/CydiaRootHideCompat
-          make clean
-          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
-          COMPAT_DEB="$(find packages -type f -name '*.deb' | head -1)"
-          test -n "$COMPAT_DEB"
-          echo "COMPAT_DEB=$PWD/$COMPAT_DEB" >> "$GITHUB_ENV"
-          popd
+            pushd projects/CydiaRootHideCompat
+            make clean
+            make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
+            COMPAT_DEB="$(find packages -type f -name '*.deb' | head -1)"
+            test -n "$COMPAT_DEB"
+            COMPAT_DEB="$PWD/$COMPAT_DEB"
+            popd
 
-      - name: Assemble Cydia 0.3 hotfix
-        run: |
-          set -euxo pipefail
-          BASE_DEB="debfiles/CydiaInstaller_RootHide_1.1.38-0.2_iOS16.deb"
-          test -f "$BASE_DEB"
+            BASE_DEB="debfiles/CydiaInstaller_RootHide_1.1.38-0.2_iOS16.deb"
+            test -f "$BASE_DEB"
 
-          STAGE="$RUNNER_TEMP/cydia-stage"
-          COMPAT_STAGE="$RUNNER_TEMP/compat-stage"
-          rm -rf "$STAGE" "$COMPAT_STAGE"
-          dpkg-deb -R "$BASE_DEB" "$STAGE"
-          dpkg-deb -R "$COMPAT_DEB" "$COMPAT_STAGE"
+            STAGE="$RUNNER_TEMP/cydia-stage"
+            COMPAT_STAGE="$RUNNER_TEMP/compat-stage"
+            rm -rf "$STAGE" "$COMPAT_STAGE"
+            dpkg-deb -R "$BASE_DEB" "$STAGE"
+            dpkg-deb -R "$COMPAT_DEB" "$COMPAT_STAGE"
 
-          COMPAT_DYLIB="$(find "$COMPAT_STAGE" -type f -name 'CydiaRootHideCompat.dylib' | head -1)"
-          COMPAT_PLIST="$(find "$COMPAT_STAGE" -type f -name 'CydiaRootHideCompat.plist' | head -1)"
-          test -n "$COMPAT_DYLIB"
-          test -n "$COMPAT_PLIST"
+            DYLIB="$(find "$COMPAT_STAGE" -type f -name 'CydiaRootHideCompat.dylib' | head -1)"
+            PLIST="$(find "$COMPAT_STAGE" -type f -name 'CydiaRootHideCompat.plist' | head -1)"
+            test -n "$DYLIB"
+            test -n "$PLIST"
+            cp "$DYLIB" "$STAGE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib"
+            cp "$PLIST" "$STAGE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist"
 
-          cp "$COMPAT_DYLIB" "$STAGE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib"
-          cp "$COMPAT_PLIST" "$STAGE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist"
-
-          python3 - "$STAGE/DEBIAN/control" <<'PY'
-          import pathlib
-          import re
-          import sys
-
+            python3 - "$STAGE/DEBIAN/control" <<'PY'
+          import pathlib, re, sys
           path = pathlib.Path(sys.argv[1])
           text = path.read_text(encoding="utf-8")
           text = re.sub(r"^Version:.*$", "Version: 1.1.38+roothide0.3", text, flags=re.M)
-          text = re.sub(
-              r"^Description:.*$",
-              "Description: Experimental Cydia 1.1.38 compatibility build for RootHide on iOS 16. Version 0.3 fixes the immediate launch crash by matching the arm64 architecture of Cydia and cydo. Includes RootHide path translation, localisation resources and hardened helper scripts. Keeps Sileo installed and does not replace existing APT sources.",
-              text,
-              flags=re.M,
-          )
+          text = re.sub(r"^Description:.*$", "Description: Experimental Cydia 1.1.38 compatibility build for RootHide on iOS 16. Version 0.3 fixes the immediate launch crash by rebuilding the injected compatibility library for arm64, matching Cydia and cydo. Keeps Sileo installed and preserves the hardened RootHide paths and safeguards from 0.2.", text, flags=re.M)
           path.write_text(text, encoding="utf-8")
           PY
 
-          OUTPUT="$RUNNER_TEMP/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb"
-          dpkg-deb -Zzstd -b "$STAGE" "$OUTPUT"
-          echo "OUTPUT_DEB=$OUTPUT" >> "$GITHUB_ENV"
+            OUTPUT="$RUNNER_TEMP/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb"
+            dpkg-deb -Zzstd -b "$STAGE" "$OUTPUT"
 
-      - name: Validate launch architectures and package safety
+            V="$RUNNER_TEMP/validate"
+            rm -rf "$V"
+            dpkg-deb -x "$OUTPUT" "$V"
+            CYDIA="$V/Applications/Cydia.app/Cydia"
+            CYDO="$V/usr/libexec/cydia/cydo"
+            COMPAT="$V/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib"
+
+            test "$(lipo -archs "$CYDIA")" = arm64
+            test "$(lipo -archs "$CYDO")" = arm64
+            test "$(lipo -archs "$COMPAT")" = arm64
+            test ! -e "$V/etc/apt/preferences.d/cydia"
+            test ! -e "$V/Library/LaunchDaemons"
+            test -d "$V/Applications/Cydia.app/en.lproj"
+
+            file "$CYDIA" "$CYDO" "$COMPAT"
+            dpkg-deb -I "$OUTPUT"
+            shasum -a 256 "$OUTPUT" | tee "$RUNNER_TEMP/CydiaInstaller_RootHide_0.3.sha256"
+            echo "OUTPUT_DEB=$OUTPUT" >> "$GITHUB_ENV"
+          } 2>&1 | tee "$RUNNER_TEMP/CydiaRootHide-0.3-build.log"
+
+      - name: Publish build result to test branch
+        if: always()
         run: |
           set -euxo pipefail
-          VALIDATE="$RUNNER_TEMP/validate"
-          rm -rf "$VALIDATE"
-          dpkg-deb -x "$OUTPUT_DEB" "$VALIDATE"
-
-          CYDIA="$VALIDATE/Applications/Cydia.app/Cydia"
-          CYDO="$VALIDATE/usr/libexec/cydia/cydo"
-          COMPAT="$VALIDATE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib"
-
-          test -f "$CYDIA"
-          test -f "$CYDO"
-          test -f "$COMPAT"
-          test "$(lipo -archs "$CYDIA")" = "arm64"
-          test "$(lipo -archs "$CYDO")" = "arm64"
-          test "$(lipo -archs "$COMPAT")" = "arm64"
-          test ! -e "$VALIDATE/etc/apt/preferences.d/cydia"
-          test ! -e "$VALIDATE/Library/LaunchDaemons"
-          test -d "$VALIDATE/Applications/Cydia.app/en.lproj"
-
-          dpkg-deb -I "$OUTPUT_DEB"
-          file "$CYDIA" "$CYDO" "$COMPAT"
-          shasum -a 256 "$OUTPUT_DEB" | tee "$RUNNER_TEMP/CydiaInstaller_RootHide_0.3.sha256"
-
-      - name: Publish hotfix to Cydia test branch
-        run: |
-          set -euxo pipefail
-          DEST="debfiles/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb"
-          cp "$OUTPUT_DEB" "$DEST"
-          cp "$RUNNER_TEMP/CydiaInstaller_RootHide_0.3.sha256" "debfiles/CydiaInstaller_RootHide_0.3.sha256"
+          cp "$RUNNER_TEMP/CydiaRootHide-0.3-build.log" projects/CydiaRootHideCompat/CydiaRootHide-0.3-build.log
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$DEST" debfiles/CydiaInstaller_RootHide_0.3.sha256
+          git add projects/CydiaRootHideCompat/CydiaRootHide-0.3-build.log
+
+          if [ -n "${OUTPUT_DEB:-}" ] && [ -f "${OUTPUT_DEB:-}" ]; then
+            cp "$OUTPUT_DEB" debfiles/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb
+            cp "$RUNNER_TEMP/CydiaInstaller_RootHide_0.3.sha256" debfiles/CydiaInstaller_RootHide_0.3.sha256
+            git add debfiles/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb debfiles/CydiaInstaller_RootHide_0.3.sha256
+          fi
+
           if ! git diff --cached --quiet; then
-            git commit -m "Publish Cydia RootHide 0.3 arm64 crash fix [skip ci]"
+            git commit -m "Record Cydia RootHide 0.3 hotfix result [skip ci]"
             git push origin HEAD:cydia-roothide-ios16
           fi
 
-      - name: Upload fixed DEB
-        uses: actions/upload-artifact@v4
-        with:
-          name: CydiaInstaller-RootHide-0.3-arm64-hotfix
-          path: |
-            ${{ env.OUTPUT_DEB }}
-            ${{ runner.temp }}/CydiaInstaller_RootHide_0.3.sha256
-          if-no-files-found: error
+      - name: Enforce successful build
+        if: always()
+        run: test "${{ steps.hotfix.outcome }}" = "success"
