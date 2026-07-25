@@ -135,8 +135,18 @@ jobs:
             echo "OUTPUT_DEB=$OUTPUT" >> "$GITHUB_ENV"
           } 2>&1 | tee "$RUNNER_TEMP/cydia-build.log"
 
+      - name: Upload compiled DEB and build log
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: CydiaInstaller-RootHide-iOS16
+          path: |
+            ${{ env.OUTPUT_DEB }}
+            ${{ runner.temp }}/cydia-build.log
+          if-no-files-found: error
+
       - name: Record result and publish successful DEB
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         env:
           BUILD_OUTCOME: ${{ steps.build.outcome }}
         run: |
@@ -207,6 +217,6 @@ jobs:
             git push origin HEAD:cydia-roothide-ios16
           fi
 
-          if [ "$BUILD_OUTCOME" != "success" ]; then
-            exit 1
-          fi
+      - name: Enforce build result
+        if: always()
+        run: test "${{ steps.build.outcome }}" = "success"
