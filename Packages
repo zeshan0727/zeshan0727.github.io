@@ -200,18 +200,18 @@ Name: PhoneAura
 
 
 Package: com.nextsolution.unlockvibrate
-Version: 3.1.0
+Version: 3.2.0
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 1012
+Installed-Size: 1240
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/SweatMyPhone_RootHide_3.1.0_50MoreFeatures_iOS16.deb
-Size: 67374
-MD5sum: 8e6a98f24ed2a06dc19f386305d6d4e1
-SHA1: cbddff7d9a08067a9fcd965850d32d797fa28048
-SHA256: cd08678dd450fd441dcb2950736cab49d6992d9a28d9025a464c6eb0d096effb
+Filename: ./debfiles/SweatMyPhone_RootHide_3.2.0_Organized100Features_CCSecondPage_iOS16.deb
+Size: 86464
+MD5sum: 171446778ed8b68032885cb8b0325b44
+SHA1: ad0c74b624d5af348674cebbe22e59853c90fddd
+SHA256: 6092d1995cb7bca8ff702f21bdfe7c56bff8572e1cf44355b8e4ccf57b4d4c42
 Section: Tweaks
 Priority: optional
-Description: Adds 50 more opt-in Home Screen, Status Bar, Control Center, Lock Screen, Now Playing, and notification controls to the existing 20-feature suite. Preserves vibration, thermal battery, and sweat features with SpringBoard-only RootHide stability on iOS 16.
+Description: Organizes approximately 100 controls into clear Settings groups with a short explanation beneath every function. Adds a swipeable second Control Center page, adjustable grid columns and rows, quick-launch tiles, live battery, temperature and memory information, plus 18 related layout controls. SpringBoard-only RootHide build for iOS 16.
 Author: Next Solution
 Name: Sweat My Phone (RootHide)
