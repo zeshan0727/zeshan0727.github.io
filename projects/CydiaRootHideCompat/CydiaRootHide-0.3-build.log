@@ -1,0 +1,291 @@
++ brew update
+[34m==>[0m [1mUpdating Homebrew...[0m
+To restore the stashed changes to /opt/homebrew/Library/Taps/homebrew/homebrew-core, run:
+  cd /opt/homebrew/Library/Taps/homebrew/homebrew-core && git stash pop
+[34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/core/portable-ruby/blobs/sha256:83a3ff85d83acf0e3dd8105de0fdb01da96b7c0eaf2dfaae2ba6500ec2ae4a64[0m
+#=#=#                                                                          ################################                                          45.3%######################################################################## 100.0%
+[34m==>[0m [1mPouring portable-ruby-4.0.6.arm64_big_sur.bottle.tar.gz[0m
+[34m==>[0m [1mHomebrew's analytics have entirely moved to our InfluxDB instance in the EU.[0m
+We gather less data than before and have destroyed all Google Analytics data:
+  [4mhttps://docs.brew.sh/Analytics[24m[0m
+Please reconsider re-enabling analytics to help our volunteer maintainers with:
+  brew analytics on
+[34m==>[0m [1mHomebrew is run entirely by unpaid volunteers. Please consider donating:[0m
+  [4mhttps://github.com/Homebrew/brew#-donations[24m
+
+Updated 5 taps (hashicorp/tap, azure/bicep, aws/tap, homebrew/core and homebrew/cask).
+[34m==>[0m [1mNew Formulae[0m
+adrs: Architectural Decision Record tool in Rust
+advai-cli: CLI for managing skills and external CLIs
+ai-cli: Generate images, video, audio, and text from the terminal
+apm: Dependency manager for AI agent configuration
+asar: SNES assembler for applying patches to ROM images or building ROMs
+bbrew: TUI for managing Homebrew, Flatpak, and Mac App Store packages
+bismark: Bisulfite read mapper and methylation caller
+bittensor: SDK and command-line tool for the Bittensor network
+bomctl: Format-agnostic SBOM tooling for the stages between SBOM generation and analysis
+bracken: Bayesian estimation of species abundance from Kraken output
+checksec: Security feature auditing for ELF binaries and Linux kernels
+chopper: Filter and trim long-read sequencing data by quality and length
+cve-bin-tool: Scans binaries and SBOMs for known vulnerabilities and prepares reports
+cyclonedx-npm: Creates CycloneDX Software Bill of Materials (SBOM) from npm projects
+deepline: CLI for Deepline data enrichment and durable plays
+diskwatch: Cross-platform disk diagnostics TUI
+droast: Opinionated Dockerfile linter
+dskditto: Ultra-fast duplicate file finder TUI/GUI
+epics-base: Experimental Physics and Industrial Control System
+esbmc: Efficient SMT-based context-bounded model checker for C, C++, and Python
+esbonio: Language server for working with Sphinx projects
+faker: Python-based fake data generator
+fastani: Fast whole-genome similarity (ANI) estimation
+filtlong: Quality filtering of long noisy DNA sequencing reads
+flyline: Supercharged Bash plugin replacement for readline
+gcx: CLI for managing Grafana Cloud resources
+gita: Manage multiple git repos with sanity
+gof5: F5 BIG-IP VPN client
+goimapnotify: Execute scripts on IMAP mailbox changes using IDLE
+gss-ntlmssp: NTLM authentication plugin for GSSAPI
+humanbound: Adversarial security testing engine, SDK, and CLI for AI agents
+hunk: Review-first terminal diff viewer for agent-authored changesets
+kotofetch: Small, configurable CLI that displays Japanese quotes in the terminal
+kubectl-klock: Kubectl plugin to render watch output in a more readable fashion
+libjaylink: Provide interoperability with JLINK hardware
+librefang: Self-hostable operating system for autonomous AI agents
+libyojimbo: Secure client/server network protocol library for multiplayer games
+lunarr: Self-hosted media streaming server and Plex alternative for movies and TV
+mktxp: Prometheus Exporter for Mikrotik RouterOS devices
+mosdepth: Fast BAM/CRAM depth calculation for WGS, exome, or targeted sequencing
+msdf-atlas-gen: Generator of multi-channel signed distance field atlases from fonts
+msdfgen: Multi-channel signed distance field generator
+nanoq: Minimal but speedy quality control and summaries of nanopore reads
+near: Human-friendly console utility for interacting with NEAR Protocol
+netcode: Secure client/server protocol for multiplayer games built on top of UDP
+nullhub: Management console for the Null ecosystem
+octl: Modern CLI for Outscale
+opencv@4: Open source computer vision library
+ovh-ttyrec: Enhanced (but compatible) version of the classic ttyrec
+perlnavigator: Perl language server
+pixtuoid: Terminal pixel-art office for AI coding agents
+prrte: PMIx Reference RunTime Environment
+qobine-tui: Tui player for Qobuz
+qobine-web: Server and web based player for Qobuz
+rancher-machine: Machine management for a container-centric world
+rapid-mlx: Fast local AI engine for Apple Silicon with an OpenAI-compatible API
+rawtoaces: Utility for converting camera RAW image files to ACES
+reliable: Simple packet acknowledgement system for UDP-based protocols
+rocq-micromega-plugin: Micromega decision procedures plugin for the Rocq prover
+rumbledb: JSONiq and XQuery query engine on Apache Spark
+rust-wasm: Rust standard library and sysroot for WebAssembly targets
+salmon: Transcript-level quantification from RNA-seq reads
+sbom-utility: Tool to validate, analyze, query and edit Software Bills of Materials (SBOMs)
+scrutineer: Security through scrutiny
+sdl3_sound: Abstract soundfile decoder
+serialize: Single-header bitpacking serializer for C++ aimed at game networking
+smithery-cli: Install and list Model Context Protocol servers from Smithery
+soar: Fast, modern package manager for Static Binaries, Portable Formats and more
+tmux-fingers: Copy pasting in terminal with vimium/vimperator like hints
+trim-galore: Quality and adapter trimming for FastQ sequencing reads
+utiluti: macOS command-line tool to work with default apps
+virtiofsd: Vhost-user virtio-fs device backend written in Rust
+vsview: Next-generation VapourSynth previewer
+webfont: Generator of fonts from SVG icons, with TTF encoding and WOFF/WOFF2 decoding
+wgsl-analyzer: Language server implementation for WGSL and WESL
+wild: Very fast linker for Linux
+woxi: Interpreter for a subset of the Wolfram Language
+zero: Terminal coding agent you own
+zsh-patina: Blazingly fast Zsh syntax highlighter
+[34m==>[0m [1mNew Casks[0m
+adrafinil: Keep your computer awake while AI coding agents are working
+aphera: Raw photo editing software
+arcbox: Runtime for containers, Linux virtual machines, and AI agent sandboxes
+aside: Web browser with built-in AI assistant
+billy: Invoice manager
+block-buzz: Workspace for humans and AI agents
+caldigit-usb-hub-support-driver: Apple SuperDrive, Apple Keyboard, and Improved iPhone/iPad Charging
+cate: Infinite zoomable canvas with editor, terminal, and browser panels
+changes: Git GUI
+chatgpt-classic: OpenAI's previous ChatGPT desktop app
+clarc: Desktop client for Claude Code
+claude-status-bar: Menu bar status indicator for Claude Code
+cleanmymac-cli: Command-line interface for CleanMyMac
+codexia: GUI and toolkit for Codex CLI and Claude Code
+dnclient-server: Peer-to-peer VPN client daemon for managed nebula networks
+font-caacupe-one
+font-scoutie-sans
+gamehub: Compatibility layer for running Windows and Steam games
+gitcomet: Git GUI
+gnome: Menu bar GIF search and creation tool
+harper-desktop: Grammar checker for developers
+hermes-desktop: Open-source desktop AI agent
+itermcompanion: Pairs iTerm2 with the iTerm2 Companion iPhone app
+itsypad: Tiny, fast scratchpad and clipboard manager
+juicy: Menu bar battery monitor with custom charge alerts and health tracking
+keeperdb: Database management tool for Postgres, MySQL, SQLite, MSSQL, Oracle, Redshift
+koe: Zero-GUI voice input tool
+libation: Audible audiobook manager and liberator
+linguax: Menu-bar utility for third-party mice with smooth scrolling and mapping
+logseq-og: Privacy-first, open-source platform for knowledge sharing and management
+lumide: Agent-native code editor
+mac-sai: System cleaner, optimiser, and malware scanner
+markdown-preview: Markdown previewer with bundled Quick Look extension
+moonfin: Media streaming client for Jellyfin and Emby
+muesli: Local-first dictation and meeting transcription
+neodisk: Read-only disk space visualiser
+neon-vision-editor: Native code and text editor
+onexrayse: Cross-platform Xray-core client
+onit-sidekick: AI chat panel
+opendisplay: Second-display utility for iPhone and iPad over USB and Wi-Fi
+openwhispr: Privacy-first voice-to-text dictation with AI agents
+otty: Terminal emulator built for code agents
+pastebot@2: Workflow application to improve productivity
+perplexity: AI-powered answer engine with Personal Computer agent
+pique: Quick Look extension for syntax-highlighted file previews
+pocket-bard: TTRPG ambient audio and sound effects
+prisma-access-browser: Secure enterprise browser with built-in threat and data protection
+proxybridge: Proxy client with per-application traffic routing rules
+raycast-glaze: Create desktop apps by chatting with AI
+roslynpad: C# editor and runner based on Roslyn
+sessionwatcher: Menu bar monitor for AI coding assistant usage and limits
+siliconscope: System monitor for Apple Silicon with ANE, Media Engine and bandwidth tracking
+slashy: Email client for Gmail
+smallstepagent: Device identity and certificate management daemon
+snapzy: Native screenshots, recording, annotation, and editing from the menu bar
+sogouinput: Input method supporting full and double spelling
+sonarqube-cli: Code quality and security for terminal workflows, scripts, and AI agents
+subtitle-studio: Offline AI subtitle generator
+toolhive-studio: Desktop application to install, manage, and run MCP servers
+uniclipboard: Cross-device clipboard syncing tool
+valkey-admin: Administration tool for Valkey clusters and standalone instances
+vicinae: Application launcher and command palette
+vorssaint: Menu bar toolkit with keep-awake, system monitor and volume mixer
+willow-voice: AI-powered voice dictation and writing assistant
+zush: AI-powered file renamer and organiser
+[34m==>[0m [1mOutdated Formulae[0m
+aws-sam-cli
+azure-cli
+bicep
+c-ares
+ca-certificates
+certifi
+cffi
+cmake
+fontconfig
+geckodriver
+gh
+git
+gnupg
+gradle-completion
+isl
+jpeg-turbo
+kotlin
+libpsl
+libssh2
+libtiff
+openssl@3
+p11-kit
+pinentry
+pipx
+pkgconf
+python@3.13
+rpds-py
+ruby@3.3
+rustup
+selenium-server
+sqlite
+swiftformat
+xcodes
+[34m==>[0m [1mOutdated Casks[0m
+google-chrome
+microsoft-edge
+
+You have [1m33[0m outdated formulae and [1m2[0m outdated casks installed.
+You can upgrade them with [1mbrew upgrade[0m
+or list them with [1mbrew outdated[0m.
++ brew install dpkg
+::warning::The following taps are not trusted:%0A  aws/tap%0A%0AHomebrew is currently ignoring formulae, casks and commands from these taps because tap trust is required.%0AUntap them with:%0A  brew untap aws/tap%0ATrust specific formulae, casks and commands with:%0A  brew trust --formula <user>/<tap>/<formula>%0A  brew trust --cask <user>/<tap>/<cask>%0A  brew trust --command <user>/<tap>/<command>%0AWhole-tap trust is broader and includes all current and future formulae,%0Acasks and commands from the listed taps. Trust whole taps with:%0A  brew trust aws/tap%0ATo disable trust checks:%0A  export HOMEBREW_NO_REQUIRE_TAP_TRUST=1%0AThis is not recommended and will be removed in a later release.%0AFor more information, see:%0A  https://docs.brew.sh/Tap-Trust%0A
+[34m==>[0m [1mWould install 1 formula:[0m
+dpkg
+[34m==>[0m [1mDownloading https://ghcr.io/v2/homebrew/core/dpkg/manifests/1.23.7[0m
+[34m==>[0m [1mWould install 3 dependencies for dpkg:[0m
+json-c
+gpatch
+libmd
+[32m==>[0m [1mFetching downloads for: [32mdpkg[39m[0m
+✔︎ Bottle Manifest json-c (0.19)
+✔︎ Bottle Manifest gpatch (2.8)
+✔︎ Bottle Manifest libmd (1.2.0)
+✔︎ Bottle json-c (0.19)
+✔︎ Bottle gpatch (2.8)
+✔︎ Bottle libmd (1.2.0)
+✔︎ Bottle dpkg (1.23.7)
+[32m==>[0m [1mInstalling dependencies for dpkg:[0m [32mjson-c[39m, [32mgpatch[39m and [32mlibmd[39m[0m
+[32m==>[0m [1mInstalling dpkg dependency: [32mjson-c[39m[0m
+[34m==>[0m [1mPouring json-c--0.19.arm64_sonoma.bottle.tar.gz[0m
+🍺  /opt/homebrew/Cellar/json-c/0.19: 34 files, 361.4KB
+[32m==>[0m [1mInstalling dpkg dependency: [32mgpatch[39m[0m
+[34m==>[0m [1mPouring gpatch--2.8.arm64_sonoma.bottle.tar.gz[0m
+🍺  /opt/homebrew/Cellar/gpatch/2.8: 12 files, 412.4KB
+[32m==>[0m [1mInstalling dpkg dependency: [32mlibmd[39m[0m
+[34m==>[0m [1mPouring libmd--1.2.0.arm64_sonoma.bottle.tar.gz[0m
+🍺  /opt/homebrew/Cellar/libmd/1.2.0: 138 files, 1MB
+[32m==>[0m [1mInstalling [32mdpkg[39m[0m
+[34m==>[0m [1mPouring dpkg--1.23.7.arm64_sonoma.bottle.tar.gz[0m
+[34m==>[0m [1mCaveats[0m
+This installation of dpkg is not configured to install software, so
+commands such as `dpkg -i`, `dpkg --configure` will fail.
+[34m==>[0m [1mSummary[0m
+🍺  /opt/homebrew/Cellar/dpkg/1.23.7: 740 files, 18.3MB
+[32m==>[0m [1mCaveats[0m
+[34m==>[0m [1mdpkg[0m
+This installation of dpkg is not configured to install software, so
+commands such as `dpkg -i`, `dpkg --configure` will fail.
++ git clone --recursive --depth=1 https://github.com/roothide/theos.git /Users/runner/work/_temp/theos
+Cloning into '/Users/runner/work/_temp/theos'...
+Submodule 'vendor/dm.pl' (https://github.com/theos/dm.pl.git) registered for path 'vendor/dm.pl'
+Submodule 'vendor/include' (https://github.com/roothide/headers.git) registered for path 'vendor/include'
+Submodule 'vendor/lib' (https://github.com/roothide/lib.git) registered for path 'vendor/lib'
+Submodule 'vendor/logos' (https://github.com/theos/logos.git) registered for path 'vendor/logos'
+Submodule 'vendor/nic' (https://github.com/theos/nic.git) registered for path 'vendor/nic'
+Submodule 'vendor/orion' (https://github.com/theos/orion.git) registered for path 'vendor/orion'
+Submodule 'vendor/swift-support' (https://github.com/theos/swift-support.git) registered for path 'vendor/swift-support'
+Submodule 'vendor/templates' (https://github.com/theos/templates.git) registered for path 'vendor/templates'
+Cloning into '/Users/runner/work/_temp/theos/vendor/dm.pl'...
+Cloning into '/Users/runner/work/_temp/theos/vendor/include'...
+Cloning into '/Users/runner/work/_temp/theos/vendor/lib'...
+Cloning into '/Users/runner/work/_temp/theos/vendor/logos'...
+Cloning into '/Users/runner/work/_temp/theos/vendor/nic'...
+Cloning into '/Users/runner/work/_temp/theos/vendor/orion'...
+Cloning into '/Users/runner/work/_temp/theos/vendor/swift-support'...
+Cloning into '/Users/runner/work/_temp/theos/vendor/templates'...
+Submodule path 'vendor/dm.pl': checked out 'd9a3b72e274226dd2823c0a7c1d6d05099f4f51c'
+Submodule path 'vendor/include': checked out 'ac1c4fd21214548d6d308fcb835d30df1e43953d'
+Submodule path 'vendor/lib': checked out '85e9b5b8aff11bbefc59525c64c8f55149926e56'
+Submodule path 'vendor/logos': checked out 'a62370066a97e36d59b200a9fa10c5091f5e8972'
+Submodule path 'vendor/nic': checked out '4e7adcbeac2e4636b91e2f76341adfe4c4d0ceec'
+Submodule path 'vendor/orion': checked out 'c0ed879ecaae16f3c8d06a6c36302f6c78d1f7e4'
+Submodule 'fishhook' (https://github.com/facebook/fishhook.git) registered for path 'vendor/orion/fishhook'
+Cloning into '/Users/runner/work/_temp/theos/vendor/orion/fishhook'...
+Submodule path 'vendor/orion/fishhook': checked out 'aadc161ac3b80db07a9908851839a17ba63a9eb1'
+Submodule path 'vendor/swift-support': checked out '4cf59ff04cdb2ceb27ea2228753e0497297b6182'
+Submodule path 'vendor/templates': checked out '6c3944e281c4726f1383755d0fbb642840312d28'
++ export THEOS=/Users/runner/work/_temp/theos
++ THEOS=/Users/runner/work/_temp/theos
++ pushd projects/CydiaRootHideCompat
+~/work/zeshan0727.github.io/zeshan0727.github.io/projects/CydiaRootHideCompat ~/work/zeshan0727.github.io/zeshan0727.github.io
++ make clean
+[0;36m==> [1;39mCleaning…[m
++ make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
+[0;36m==> [1;36mNotice:[m Build may be slow as Theos isn’t using all available CPU cores on this computer. Consider upgrading GNU Make: https://theos.dev/docs/parallel-building
+[1;31m> [1;3;39mMaking all for tweak CydiaRootHideCompat…[m
+[0;31m==> [1;39mPreprocessing Tweak.xm…[m
+[0;32m==> [1;39mCompiling Tweak.xm (arm64)…[m
+[0;33m==> [1;39mLinking tweak CydiaRootHideCompat (arm64)…[m
+ld: warning: -multiply_defined is obsolete
+[0;34m==> [1;39mGenerating debug symbols for CydiaRootHideCompat…[m
+[0;34m==> [1;39mStripping CydiaRootHideCompat (arm64)…[m
+[0;34m==> [1;39mSigning CydiaRootHideCompat…[m
+bash: ldid: command not found
+make[2]: *** [/Users/runner/work/zeshan0727.github.io/zeshan0727.github.io/projects/CydiaRootHideCompat/.theos/obj/CydiaRootHideCompat.dylib] Error 127
+rm /Users/runner/work/zeshan0727.github.io/zeshan0727.github.io/projects/CydiaRootHideCompat/.theos/obj/CydiaRootHideCompat.dylib.0264e694.unsigned
+make[1]: *** [internal-library-all_] Error 2
+make: *** [CydiaRootHideCompat.all.tweak.variables] Error 2
