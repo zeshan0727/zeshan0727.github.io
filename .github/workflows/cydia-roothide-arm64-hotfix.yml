@@ -31,7 +31,13 @@ jobs:
           {
             set -euxo pipefail
             brew update
-            brew install dpkg
+            brew install dpkg libplist openssl@3 pkg-config
+            export PKG_CONFIG_PATH="$(brew --prefix openssl@3)/lib/pkgconfig:$(brew --prefix libplist)/lib/pkgconfig"
+
+            git clone --depth=1 https://github.com/ProcursusTeam/ldid.git "$RUNNER_TEMP/ldid"
+            make -C "$RUNNER_TEMP/ldid" VERSION=2.1.5-procursus7 -j"$(sysctl -n hw.ncpu)"
+            sudo install -m 0755 "$RUNNER_TEMP/ldid/ldid" /usr/local/bin/ldid
+            ldid 2>&1 | head -5 || true
 
             git clone --recursive --depth=1 https://github.com/roothide/theos.git "$RUNNER_TEMP/theos"
             export THEOS="$RUNNER_TEMP/theos"
