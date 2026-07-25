@@ -61,6 +61,10 @@ jobs:
             curl --fail --location --retry 3 \
               https://apt.bingner.com/debs/1443.00/cydia_1.1.38_iphoneos-arm.deb \
               --output "$RUNNER_TEMP/cydia-original.deb"
+            curl --fail --location --retry 3 \
+              'https://apt.bingner.com/debs/1443.00/cydia-lproj_1.1.32~b1_iphoneos-arm.deb' \
+              --output "$RUNNER_TEMP/cydia-lproj.deb"
+
             git clone --depth=1 https://github.com/roothide/RootHidePatcher.git "$RUNNER_TEMP/RootHidePatcher"
             sudo env PATH="$PATH" bash "$RUNNER_TEMP/RootHidePatcher/patch.sh" \
               "$RUNNER_TEMP/cydia-original.deb" "$RUNNER_TEMP/cydia-converted.deb"
@@ -68,9 +72,11 @@ jobs:
 
             STAGE="$RUNNER_TEMP/cydia-stage"
             COMPAT_STAGE="$RUNNER_TEMP/compat-stage"
-            rm -rf "$STAGE" "$COMPAT_STAGE"
+            LPROJ_STAGE="$RUNNER_TEMP/cydia-lproj-stage"
+            rm -rf "$STAGE" "$COMPAT_STAGE" "$LPROJ_STAGE"
             dpkg-deb -R "$RUNNER_TEMP/cydia-converted.deb" "$STAGE"
             dpkg-deb -R "$COMPAT_DEB" "$COMPAT_STAGE"
+            dpkg-deb -x "$RUNNER_TEMP/cydia-lproj.deb" "$LPROJ_STAGE"
 
             COMPAT_DYLIB="$(find "$COMPAT_STAGE" -type f -name 'CydiaRootHideCompat.dylib' | head -1)"
             COMPAT_PLIST="$(find "$COMPAT_STAGE" -type f -name 'CydiaRootHideCompat.plist' | head -1)"
@@ -80,14 +86,188 @@ jobs:
             cp "$COMPAT_DYLIB" "$STAGE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib"
             cp "$COMPAT_PLIST" "$STAGE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist"
 
+            # Restore Cydia's language resources without installing the obsolete cydia-lproj package.
+            find "$LPROJ_STAGE/Applications/Cydia.app" -maxdepth 1 -type d -name '*.lproj' \
+              -exec cp -a '{}' "$STAGE/Applications/Cydia.app/" ';'
+
+            # Remove legacy boot integration, bundled sources, signing keys and repository pinning.
             rm -rf "$STAGE/Library/LaunchDaemons"
             rm -f "$STAGE/etc/apt/sources.list.d/cydia.list"
+            rm -f "$STAGE/etc/apt/preferences.d/cydia"
             rm -f "$STAGE/etc/apt/trusted.gpg.d"/saurik* 2>/dev/null || true
+
+            # Replace legacy rootful helper scripts with iOS 16 / RootHide-safe versions.
+            cat > "$STAGE/usr/libexec/cydia/startup" <<'STARTUP'
+          #!/bin/bash
+          set -e
+          shopt -s nullglob
+
+          SELF_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+          JBROOT="$(cd "${SELF_DIR}/../../.." && pwd -P)"
+          export PATH="${JBROOT}/usr/sbin:${JBROOT}/usr/bin:${JBROOT}/sbin:${JBROOT}/bin:${PATH}"
+
+          if [[ ! -e "${JBROOT}/var/lib/cydia/firmware.ver" ]]; then
+              cache=
+          fi
+
+          "${JBROOT}/usr/libexec/cydia/firmware.sh"
+
+          auto_install=/var/mobile/Media/Cydia/AutoInstall
+          debs=("${auto_install}"/*.deb)
+          if [[ ${#debs[@]} -ne 0 && -f ${debs[0]} ]]; then
+              "${JBROOT}/usr/bin/dpkg" -i "${debs[@]}" 2>/tmp/dpkg.log 1>&2
+              rm -f "${debs[@]}"
+              cache=
+          fi
+
+          if [[ ${cache+@} ]]; then
+              uicache -a 2>/dev/null || true
+          fi
+          STARTUP
+
+            cat > "$STAGE/usr/libexec/cydia/firmware.sh" <<'FIRMWARE'
+          #!/bin/bash
+          set -e
+          shopt -s extglob nullglob
+
+          SELF_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+          JBROOT="$(cd "${SELF_DIR}/../../.." && pwd -P)"
+          export PATH="${JBROOT}/usr/sbin:${JBROOT}/usr/bin:${JBROOT}/sbin:${JBROOT}/bin:${PATH}"
+
+          version=$(sw_vers -productVersion)
+          cpu=$(uname -p)
+          data="${JBROOT}/var/lib/dpkg"
+          model=hw.machine
+          arch=$("${JBROOT}/usr/bin/dpkg" --print-architecture 2>/dev/null || true)
+          [[ -n ${arch} ]] || arch=iphoneos-arm64e
+          model=$(sysctl -n "${model}")
+          status=${data}/status
+
+          mkdir -p "${data}/info" "${JBROOT}/var/lib/cydia"
+          [[ -f "${status}" ]] || touch "${status}"
+
+          lower() {
+              sed -e 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/'
+          }
+
+          pseudo() {
+              local package=$1 version_value=$2 description=$3 name=${4:-}
+              echo "/." >"${data}/info/${package}.list"
+              cat <<EOF
+          Package: ${package}
+          Essential: yes
+          Status: install ok installed
+          Priority: required
+          Section: System
+          Installed-Size: 0
+          Architecture: ${arch}
+          Version: ${version_value}
+          Description: ${description}
+          Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+          Tag: role::cydia
+          EOF
+              [[ -n ${name} ]] && echo "Name: ${name}"
+              echo
+          }
+
+          output=$(mktemp "${data}/status-tmp.XXXXXX")
+          chmod 644 "${output}"
+          xxxxxx=${output##*/status-tmp.}
+          rm -f "${data}"/status-tmp.!("${xxxxxx}")
+
+          {
+              unset firmware blank
+              while IFS= read -r line; do
+                  if [[ ${line} == '' && "${blank+@}" ]]; then
+                      continue
+                  else
+                      unset blank
+                  fi
+                  if [[ ${line} == "Package: "@(firmware|gsc.*|cy+*) ]]; then
+                      firmware=
+                  elif [[ ${line} == '' ]]; then
+                      blank=
+                  fi
+                  if [[ "${firmware+@}" ]]; then
+                      if [[ "${blank+@}" ]]; then unset firmware; fi
+                      continue
+                  fi
+                  echo "${line}"
+              done <"${status}"
+              if ! [[ "${blank+@}" || "${firmware+@}" ]]; then echo; fi
+
+              pseudo firmware "${version}" "almost impressive Apple frameworks" "iOS Firmware"
+
+              if command -v gssc >/dev/null 2>&1; then
+                  gssc_output=
+                  for _ in 1 2 3 4 5; do
+                      gssc_output=$(gssc 2>&1 || true)
+                      [[ ${gssc_output} != *'(null)'* ]] && break
+                      sleep 1
+                  done
+                  echo "${gssc_output}" | sed -re '
+                      /^    [^ ]* = [0-9.]*;$/ ! d;
+                      s/^    ([^ ]*) = ([0-9.]*);$/\1 \2/;
+                      s/([A-Z])/-\L\1/g;
+                      s/^"([^ ]*)"/\1/;
+                      s/^-//;
+                      / 0$/ d;
+                  ' | while read -r name value; do
+                      case "${name}" in
+                          ipad) for item in ipad wildcat; do
+                              pseudo "gsc.${item}" "${value}" "this device has a very large screen" "iPad"
+                          done ;;
+                          *) pseudo "gsc.${name}" "${value}" "virtual GraphicsServices dependency" ;;
+                      esac
+                  done
+              fi
+
+              pseudo cy+os.ios "${version}" "virtual operating system dependency"
+              pseudo "cy+cpu.${cpu}" 0 "virtual CPU dependency"
+
+              model_name=${model%%*([0-9]),*([0-9])}
+              model_version=${model#${model_name}}
+              model_name=$(lower <<<"${model_name}")
+              model_version=${model_version/,/.}
+              pseudo "cy+model.${model_name}" "${model_version}" "virtual model dependency"
+              pseudo "cy+kernel.$(lower <<<"$(sysctl -n kern.ostype)")" "$(sysctl -n kern.osrelease)" "virtual kernel dependency"
+              pseudo cy+lib.corefoundation "$("${JBROOT}/usr/libexec/cydia/cfversion")" "virtual corefoundation dependency"
+          } >"${output}"
+
+          mv -f "${output}" "${status}"
+          echo 6 >"${JBROOT}/var/lib/cydia/firmware.ver"
+          FIRMWARE
+
+            cat > "$STAGE/usr/libexec/cydia/move.sh" <<'MOVE'
+          #!/bin/sh
+          # Filesystem stashing is obsolete and unsafe on modern RootHide bootstraps.
+          exit 0
+          MOVE
+
+            cat > "$STAGE/usr/libexec/cydia/free.sh" <<'FREE'
+          #!/bin/sh
+          # Legacy root filesystem stashing is intentionally disabled on iOS 16.
+          exit 0
+          FREE
+
+            chmod 0755 \
+              "$STAGE/usr/libexec/cydia/startup" \
+              "$STAGE/usr/libexec/cydia/firmware.sh" \
+              "$STAGE/usr/libexec/cydia/move.sh" \
+              "$STAGE/usr/libexec/cydia/free.sh"
+
+            mkdir -p "$STAGE/usr/share/doc/com.nextsolution.cydia.roothide"
+            cat > "$STAGE/usr/share/doc/com.nextsolution.cydia.roothide/copyright" <<'COPYRIGHT'
+          Cydia Installer is Copyright (C) Jay Freeman (saurik) and is licensed under GNU GPL version 3 or later.
+          Cydia source: https://github.com/sbingner/cydia
+          RootHide compatibility source: https://github.com/zeshan0727/zeshan0727.github.io/tree/cydia-roothide-ios16/projects/CydiaRootHideCompat
+          This experimental port is not endorsed by Saurik, Sam Bingner, RootHide, Theos or Procursus.
+          COPYRIGHT
 
             mkdir -p "$STAGE/DEBIAN"
             cat > "$STAGE/DEBIAN/control" <<'CONTROL'
           Package: com.nextsolution.cydia.roothide
-          Version: 1.1.38+roothide0.1
+          Version: 1.1.38+roothide0.2
           Architecture: iphoneos-arm64e
           Maintainer: Next Solution
           Author: Jay Freeman (saurik), Sam Bingner, RootHide and Next Solution
@@ -98,7 +278,7 @@ jobs:
           Provides: cydia-roothide
           Homepage: https://zeshan0727.github.io/
           Icon: https://zeshan0727.github.io/CydiaIcon.png
-          Description: Experimental Cydia 1.1.38 compatibility build for RootHide on iOS 16. It uses a Cydia-only path translation layer, keeps Sileo installed, removes legacy launch daemons and does not replace existing APT sources. Test package; uninstall it if Cydia cannot refresh or install packages correctly.
+          Description: Experimental Cydia 1.1.38 compatibility build for RootHide on iOS 16. Includes Cydia-only RootHide path translation, modern bootstrap dependencies, localisation resources and hardened helper scripts. Keeps Sileo installed and does not replace existing APT sources or repository preferences. Device testing is still required.
           Name: Cydia Installer (RootHide Test)
           CONTROL
 
@@ -121,7 +301,7 @@ jobs:
               chmod 6755 "$STAGE/usr/libexec/cydia/cydo"
             fi
 
-            OUTPUT="$RUNNER_TEMP/CydiaInstaller_RootHide_1.1.38-0.1_iOS16.deb"
+            OUTPUT="$RUNNER_TEMP/CydiaInstaller_RootHide_1.1.38-0.2_iOS16.deb"
             dpkg-deb -Zzstd -b "$STAGE" "$OUTPUT"
 
             VALIDATE="$RUNNER_TEMP/validate"
@@ -130,6 +310,11 @@ jobs:
             test -f "$VALIDATE/Applications/Cydia.app/Cydia"
             test -f "$VALIDATE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib"
             test -f "$VALIDATE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist"
+            test -d "$VALIDATE/Applications/Cydia.app/en.lproj"
+            test ! -e "$VALIDATE/etc/apt/preferences.d/cydia"
+            test ! -e "$VALIDATE/Library/LaunchDaemons"
+            grep -q 'JBROOT=' "$VALIDATE/usr/libexec/cydia/startup"
+            grep -q 'JBROOT=' "$VALIDATE/usr/libexec/cydia/firmware.sh"
             file "$VALIDATE/Applications/Cydia.app/Cydia"
             otool -L "$VALIDATE/Applications/Cydia.app/Cydia"
             echo "OUTPUT_DEB=$OUTPUT" >> "$GITHUB_ENV"
