@@ -1,4 +1,4 @@
-ARCHS = arm64e
+ARCHS = arm64
 TARGET = iphone:clang:latest:16.0
 THEOS_PACKAGE_SCHEME = roothide
 INSTALL_TARGET_PROCESSES = Cydia
