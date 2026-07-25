@@ -8,6 +8,12 @@ on:
     paths:
       - projects/CydiaRootHideCompat/**
       - .github/workflows/build-cydia-roothide.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - projects/CydiaRootHideCompat/**
+      - .github/workflows/build-cydia-roothide.yml
 
 permissions:
   contents: write
@@ -141,6 +147,7 @@ jobs:
             | sort -u | head -200 | tee "$RUNNER_TEMP/Cydia-root-paths.txt" || true
 
       - name: Publish test package to branch
+        if: github.event_name != 'pull_request'
         run: |
           set -euo pipefail
           FILE_NAME="CydiaInstaller_RootHide_1.1.38-0.1_iOS16.deb"
