@@ -7,6 +7,9 @@ on:
       - main
     paths:
       - .github/workflows/cydia-roothide-validation.yml
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -152,7 +155,6 @@ jobs:
             cp "$OUTPUT_DEB" "$DESTINATION"
             python3 - "$DESTINATION" <<'PY'
           import hashlib
-          import os
           import pathlib
           import subprocess
           import sys
