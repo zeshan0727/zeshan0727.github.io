@@ -1,0 +1,224 @@
+name: Build Cydia RootHide iOS 16
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cydia-roothide-ios16
+    paths:
+      - projects/CydiaRootHideCompat/**
+      - .github/workflows/build-cydia-roothide.yml
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: cydia-roothide-ios16
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          brew update
+          brew install dpkg gnu-sed findutils coreutils libplist openssl@3 pkg-config xz
+          echo "$(brew --prefix coreutils)/libexec/gnubin" >> "$GITHUB_PATH"
+          echo "$(brew --prefix findutils)/libexec/gnubin" >> "$GITHUB_PATH"
+          echo "$(brew --prefix openssl@3)/bin" >> "$GITHUB_PATH"
+
+      - name: Build Procursus ldid
+        run: |
+          git clone --depth=1 https://github.com/ProcursusTeam/ldid.git "$RUNNER_TEMP/ldid"
+          make -C "$RUNNER_TEMP/ldid" -j"$(sysctl -n hw.ncpu)"
+          sudo install -m 0755 "$RUNNER_TEMP/ldid/ldid" /usr/local/bin/ldid
+          ldid 2>&1 | head -5 || true
+
+      - name: Install RootHide Theos
+        run: |
+          git clone --recursive --depth=1 https://github.com/roothide/theos.git "$RUNNER_TEMP/theos"
+          echo "THEOS=$RUNNER_TEMP/theos" >> "$GITHUB_ENV"
+
+      - name: Build Cydia compatibility layer
+        working-directory: projects/CydiaRootHideCompat
+        run: |
+          make clean
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
+          COMPAT_DEB="$(find packages -type f -name '*.deb' | head -1)"
+          test -n "$COMPAT_DEB"
+          echo "COMPAT_DEB=$PWD/$COMPAT_DEB" >> "$GITHUB_ENV"
+          dpkg-deb -I "$COMPAT_DEB"
+
+      - name: Download and convert official Cydia 1.1.38
+        run: |
+          curl --fail --location --retry 3 \
+            https://apt.bingner.com/debs/1443.00/cydia_1.1.38_iphoneos-arm.deb \
+            --output "$RUNNER_TEMP/cydia-original.deb"
+          git clone --depth=1 https://github.com/roothide/RootHidePatcher.git "$RUNNER_TEMP/RootHidePatcher"
+          sudo env PATH="$PATH" bash "$RUNNER_TEMP/RootHidePatcher/patch.sh" \
+            "$RUNNER_TEMP/cydia-original.deb" "$RUNNER_TEMP/cydia-converted.deb"
+          sudo chown "$(id -u):$(id -g)" "$RUNNER_TEMP/cydia-converted.deb"
+          dpkg-deb -I "$RUNNER_TEMP/cydia-converted.deb"
+
+      - name: Assemble safe RootHide test package
+        run: |
+          set -euo pipefail
+          STAGE="$RUNNER_TEMP/cydia-stage"
+          COMPAT_STAGE="$RUNNER_TEMP/compat-stage"
+          rm -rf "$STAGE" "$COMPAT_STAGE"
+          dpkg-deb -R "$RUNNER_TEMP/cydia-converted.deb" "$STAGE"
+          dpkg-deb -R "$COMPAT_DEB" "$COMPAT_STAGE"
+
+          mkdir -p "$STAGE/Library/MobileSubstrate/DynamicLibraries"
+          cp -a "$COMPAT_STAGE/Library/MobileSubstrate/DynamicLibraries/." \
+            "$STAGE/Library/MobileSubstrate/DynamicLibraries/"
+
+          # Do not install Cydia's legacy boot daemon or overwrite RootHide/Sileo sources.
+          rm -rf "$STAGE/Library/LaunchDaemons"
+          rm -f "$STAGE/etc/apt/sources.list.d/cydia.list"
+          rm -f "$STAGE/etc/apt/trusted.gpg.d"/saurik* 2>/dev/null || true
+
+          mkdir -p "$STAGE/DEBIAN"
+          cat > "$STAGE/DEBIAN/control" <<'CONTROL'
+          Package: com.nextsolution.cydia.roothide
+          Version: 1.1.38+roothide0.1
+          Architecture: iphoneos-arm64e
+          Maintainer: Next Solution
+          Author: Jay Freeman (saurik), Sam Bingner, RootHide and Next Solution
+          Section: Packaging
+          Priority: optional
+          Depends: firmware (>= 16.0), apt, dpkg, bash, sed, coreutils, findutils, shell-cmds, system-cmds, uikittools, mobilesubstrate
+          Conflicts: cydia
+          Provides: cydia-roothide
+          Homepage: https://zeshan0727.github.io/
+          Icon: https://zeshan0727.github.io/CydiaIcon.png
+          Description: Experimental Cydia 1.1.38 compatibility build for RootHide on iOS 16. It uses a Cydia-only path translation layer, keeps Sileo installed, removes legacy launch daemons and does not replace existing APT sources. Test package; uninstall it if Cydia cannot refresh or install packages correctly.
+          Name: Cydia Installer (RootHide Test)
+          CONTROL
+
+          cat > "$STAGE/DEBIAN/postinst" <<'POSTINST'
+          #!/bin/sh
+          set -e
+          chmod 6755 /usr/libexec/cydia/cydo 2>/dev/null || true
+          uicache -p /Applications/Cydia.app 2>/dev/null || uicache -a 2>/dev/null || true
+          exit 0
+          POSTINST
+
+          cat > "$STAGE/DEBIAN/prerm" <<'PRERM'
+          #!/bin/sh
+          uicache -u /Applications/Cydia.app 2>/dev/null || true
+          exit 0
+          PRERM
+
+          chmod 0755 "$STAGE/DEBIAN/postinst" "$STAGE/DEBIAN/prerm"
+          if [ -f "$STAGE/usr/libexec/cydia/cydo" ]; then
+            chmod 6755 "$STAGE/usr/libexec/cydia/cydo"
+          fi
+          find "$STAGE" -name '.DS_Store' -delete
+
+          OUTPUT="$RUNNER_TEMP/CydiaInstaller_RootHide_1.1.38-0.1_iOS16.deb"
+          dpkg-deb -Zzstd -b "$STAGE" "$OUTPUT"
+          echo "OUTPUT_DEB=$OUTPUT" >> "$GITHUB_ENV"
+
+      - name: Validate package structure
+        run: |
+          set -e
+          dpkg-deb -I "$OUTPUT_DEB"
+          VALIDATE="$RUNNER_TEMP/validate"
+          rm -rf "$VALIDATE"
+          dpkg-deb -x "$OUTPUT_DEB" "$VALIDATE"
+          test -f "$VALIDATE/Applications/Cydia.app/Cydia"
+          test -f "$VALIDATE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib"
+          test -f "$VALIDATE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist"
+          file "$VALIDATE/Applications/Cydia.app/Cydia"
+          otool -L "$VALIDATE/Applications/Cydia.app/Cydia" | tee "$RUNNER_TEMP/Cydia-otool.txt"
+          strings "$VALIDATE/Applications/Cydia.app/Cydia" | grep -E '^/(etc/apt|var/lib/(apt|dpkg|cydia)|usr/(bin|libexec))' \
+            | sort -u | head -200 | tee "$RUNNER_TEMP/Cydia-root-paths.txt" || true
+
+      - name: Publish test package to branch
+        run: |
+          set -euo pipefail
+          FILE_NAME="CydiaInstaller_RootHide_1.1.38-0.1_iOS16.deb"
+          DESTINATION="debfiles/$FILE_NAME"
+          cp "$OUTPUT_DEB" "$DESTINATION"
+
+          python3 - "$DESTINATION" <<'PY'
+          import hashlib
+          import os
+          import pathlib
+          import subprocess
+          import sys
+
+          deb = pathlib.Path(sys.argv[1])
+          package_id = "com.nextsolution.cydia.roothide"
+          packages_file = pathlib.Path("Packages")
+          existing = packages_file.read_text(encoding="utf-8") if packages_file.exists() else ""
+          blocks = [block.strip() for block in existing.split("\n\n") if block.strip()]
+          blocks = [block for block in blocks if f"Package: {package_id}" not in block.splitlines()]
+
+          def field(name: str) -> str:
+              return subprocess.check_output(["dpkg-deb", "-f", str(deb), name], text=True).strip()
+
+          data = deb.read_bytes()
+          installed_size = subprocess.check_output(
+              ["du", "-sk", os.environ["RUNNER_TEMP"] + "/cydia-stage"], text=True
+          ).split()[0]
+          values = {
+              "Package": field("Package"),
+              "Version": field("Version"),
+              "Architecture": field("Architecture"),
+              "Maintainer": field("Maintainer"),
+              "Installed-Size": installed_size,
+              "Depends": field("Depends"),
+              "Conflicts": field("Conflicts"),
+              "Provides": field("Provides"),
+              "Filename": "./" + str(deb),
+              "Size": str(len(data)),
+              "MD5sum": hashlib.md5(data).hexdigest(),
+              "SHA1": hashlib.sha1(data).hexdigest(),
+              "SHA256": hashlib.sha256(data).hexdigest(),
+              "Section": field("Section"),
+              "Priority": field("Priority"),
+              "Homepage": field("Homepage"),
+              "Description": field("Description"),
+              "Author": field("Author"),
+              "Icon": field("Icon"),
+              "Name": field("Name"),
+          }
+          order = [
+              "Package", "Version", "Architecture", "Maintainer", "Installed-Size",
+              "Depends", "Conflicts", "Provides", "Filename", "Size", "MD5sum",
+              "SHA1", "SHA256", "Section", "Priority", "Homepage", "Description",
+              "Author", "Icon", "Name"
+          ]
+          blocks.append("\n".join(f"{key}: {values[key]}" for key in order if values.get(key)))
+          packages_file.write_text("\n\n".join(blocks) + "\n", encoding="utf-8")
+          PY
+
+          gzip -9 -c Packages > Packages.gz
+          bzip2 -9 -c Packages > Packages.bz2
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$DESTINATION" Packages Packages.gz Packages.bz2
+          if git diff --cached --quiet; then
+            echo "No repository changes to publish."
+          else
+            git commit -m "Build Cydia 1.1.38 RootHide iOS 16 test package [skip ci]"
+            git push origin HEAD:cydia-roothide-ios16
+          fi
+
+      - name: Upload build evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cydia-RootHide-iOS16-test
+          path: |
+            ${{ env.OUTPUT_DEB }}
+            ${{ runner.temp }}/Cydia-otool.txt
+            ${{ runner.temp }}/Cydia-root-paths.txt
+          if-no-files-found: error
