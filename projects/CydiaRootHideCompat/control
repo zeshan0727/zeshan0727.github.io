@@ -1,0 +1,10 @@
+Package: com.nextsolution.cydia.roothide.compat
+Name: Cydia RootHide Compatibility Layer
+Version: 0.1.0
+Architecture: iphoneos-arm64e
+Description: RootHide path translation and command compatibility layer for the Cydia Installer test build.
+Maintainer: Next Solution
+Author: Next Solution - zeshan0727
+Section: Tweaks
+Depends: firmware (>= 16.0), mobilesubstrate
+Priority: optional
