@@ -8,7 +8,7 @@ include $(THEOS)/makefiles/common.mk
 TWEAK_NAME = CydiaRootHideCompat
 CydiaRootHideCompat_FILES = Tweak.xm
 CydiaRootHideCompat_CFLAGS = -fobjc-arc
-CydiaRootHideCompat_CXXFLAGS = -std=c++11
+CydiaRootHideCompat_OBJCCFLAGS = -std=c++11
 CydiaRootHideCompat_FRAMEWORKS = Foundation
 CydiaRootHideCompat_LIBRARIES = roothide
 
