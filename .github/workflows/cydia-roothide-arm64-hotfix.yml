@@ -1,4 +1,4 @@
-name: Cydia RootHide 0.4 Safe Launch
+name: Cydia RootHide 0.5 No Injection
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ jobs:
           ref: cydia-roothide-ios16
           fetch-depth: 0
 
-      - name: Build launch-only diagnostic package
+      - name: Build no-injection diagnostic package
         id: package
         continue-on-error: true
         run: |
@@ -33,7 +33,7 @@ jobs:
             brew update
             brew install dpkg
 
-            BASE_DEB="debfiles/CydiaInstaller_RootHide_1.1.38-0.3_iOS16.deb"
+            BASE_DEB="debfiles/CydiaInstaller_RootHide_1.1.38-0.4_SafeLaunch_iOS16.deb"
             test -f "$BASE_DEB"
 
             STAGE="$RUNNER_TEMP/cydia-stage"
@@ -41,59 +41,117 @@ jobs:
             rm -rf "$STAGE" "$VALIDATE"
             dpkg-deb -R "$BASE_DEB" "$STAGE"
 
-            # Remove every custom injection. This build tests only the converted Cydia app.
+            # Ensure the package itself contains no compatibility injection files.
             rm -f "$STAGE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib"
             rm -f "$STAGE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist"
-            rm -f "$STAGE/usr/lib/DynamicPatches/CydiaRootHideCompat.dylib" 2>/dev/null || true
+            rm -f "$STAGE/usr/lib/TweakInject/CydiaRootHideCompat.dylib"
+            rm -f "$STAGE/usr/lib/TweakInject/CydiaRootHideCompat.plist"
+            rm -f "$STAGE/usr/lib/DynamicPatches/CydiaRootHideCompat.dylib"
 
-            python3 - "$STAGE/DEBIAN/control" <<'PY'
-          import pathlib, re, sys
-          path = pathlib.Path(sys.argv[1])
-          text = path.read_text(encoding="utf-8")
-          text = re.sub(r"^Version:.*$", "Version: 1.1.38+roothide0.4", text, flags=re.M)
+            # Ask RootHide to launch this specific app without any tweak loader.
+            python3 - "$STAGE/Applications/Cydia.app/Info.plist" "$STAGE/DEBIAN/control" <<'PY'
+          import pathlib, plistlib, re, sys
+
+          info_path = pathlib.Path(sys.argv[1])
+          control_path = pathlib.Path(sys.argv[2])
+
+          with info_path.open("rb") as handle:
+              info = plistlib.load(handle)
+          environment = dict(info.get("LSEnvironment", {}))
+          environment.update({
+              "DISABLE_TWEAKS": "1",
+              "_SafeMode": "1",
+              "_MSSafeMode": "1",
+          })
+          info["LSEnvironment"] = environment
+          with info_path.open("wb") as handle:
+              plistlib.dump(info, handle, fmt=plistlib.FMT_BINARY, sort_keys=False)
+
+          text = control_path.read_text(encoding="utf-8")
+          text = re.sub(r"^Version:.*$", "Version: 1.1.38+roothide0.5", text, flags=re.M)
           text = re.sub(
               r"^Description:.*$",
-              "Description: Launch-only diagnostic build of Cydia 1.1.38 for RootHide on iOS 16. Version 0.4 removes the custom compatibility dylib and all Next Solution injection filters to isolate the remaining launch crash. Sileo remains installed. Package installation inside Cydia is not yet supported by this diagnostic build.",
+              "Description: Cydia 1.1.38 no-injection diagnostic for RootHide on iOS 16. Version 0.5 removes stale CydiaRootHideCompat files from the real RootHide TweakInject directory and requests DISABLE_TWEAKS, _SafeMode and _MSSafeMode for Cydia. Sileo remains installed; do not use Cydia for package changes yet.",
               text,
               flags=re.M,
           )
-          path.write_text(text, encoding="utf-8")
+          control_path.write_text(text, encoding="utf-8")
           PY
 
-            OUTPUT="$RUNNER_TEMP/CydiaInstaller_RootHide_1.1.38-0.4_SafeLaunch_iOS16.deb"
+            # Explicitly clean files left behind by RootHide path conversion during older upgrades.
+            cat > "$STAGE/DEBIAN/postinst" <<'POSTINST'
+          #!/bin/sh
+          set -e
+
+          DPKG_PATH="$(command -v dpkg 2>/dev/null || true)"
+          if [ -n "$DPKG_PATH" ]; then
+              JBROOT="$(cd "$(dirname "$DPKG_PATH")/../.." && pwd -P)"
+          else
+              JBROOT=""
+          fi
+
+          for ROOT in "$JBROOT" ""; do
+              [ -n "$ROOT" ] || ROOT=""
+              rm -f "$ROOT/usr/lib/TweakInject/CydiaRootHideCompat.dylib" 2>/dev/null || true
+              rm -f "$ROOT/usr/lib/TweakInject/CydiaRootHideCompat.plist" 2>/dev/null || true
+              rm -f "$ROOT/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib" 2>/dev/null || true
+              rm -f "$ROOT/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist" 2>/dev/null || true
+              rm -f "$ROOT/usr/lib/DynamicPatches/CydiaRootHideCompat.dylib" 2>/dev/null || true
+          done
+
+          killall Cydia 2>/dev/null || true
+          chmod 6755 /usr/libexec/cydia/cydo 2>/dev/null || true
+          uicache -p /Applications/Cydia.app 2>/dev/null || uicache -a 2>/dev/null || true
+          exit 0
+          POSTINST
+            chmod 0755 "$STAGE/DEBIAN/postinst"
+
+            OUTPUT="$RUNNER_TEMP/CydiaInstaller_RootHide_1.1.38-0.5_NoInjection_iOS16.deb"
             dpkg-deb -Zzstd -b "$STAGE" "$OUTPUT"
 
             dpkg-deb -x "$OUTPUT" "$VALIDATE"
             test -f "$VALIDATE/Applications/Cydia.app/Cydia"
             test ! -e "$VALIDATE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.dylib"
-            test ! -e "$VALIDATE/Library/MobileSubstrate/DynamicLibraries/CydiaRootHideCompat.plist"
+            test ! -e "$VALIDATE/usr/lib/TweakInject/CydiaRootHideCompat.dylib"
+            test ! -e "$VALIDATE/usr/lib/TweakInject/CydiaRootHideCompat.plist"
             test ! -e "$VALIDATE/etc/apt/preferences.d/cydia"
             test ! -e "$VALIDATE/Library/LaunchDaemons"
             test "$(lipo -archs "$VALIDATE/Applications/Cydia.app/Cydia")" = arm64
 
+            python3 - "$VALIDATE/Applications/Cydia.app/Info.plist" <<'PY'
+          import plistlib, sys
+          with open(sys.argv[1], "rb") as handle:
+              info = plistlib.load(handle)
+          env = info.get("LSEnvironment", {})
+          assert env.get("DISABLE_TWEAKS") == "1"
+          assert env.get("_SafeMode") == "1"
+          assert env.get("_MSSafeMode") == "1"
+          print(env)
+          PY
+
             file "$VALIDATE/Applications/Cydia.app/Cydia"
             dpkg-deb -I "$OUTPUT"
-            shasum -a 256 "$OUTPUT" | tee "$RUNNER_TEMP/CydiaInstaller_RootHide_0.4.sha256"
+            shasum -a 256 "$OUTPUT" | tee "$RUNNER_TEMP/CydiaInstaller_RootHide_0.5.sha256"
             echo "OUTPUT_DEB=$OUTPUT" >> "$GITHUB_ENV"
-          } 2>&1 | tee "$RUNNER_TEMP/CydiaRootHide-0.4-build.log"
+          } 2>&1 | tee "$RUNNER_TEMP/CydiaRootHide-0.5-build.log"
 
       - name: Publish result to test branch
         if: always()
         run: |
           set -euxo pipefail
-          cp "$RUNNER_TEMP/CydiaRootHide-0.4-build.log" projects/CydiaRootHideCompat/CydiaRootHide-0.4-build.log
+          cp "$RUNNER_TEMP/CydiaRootHide-0.5-build.log" projects/CydiaRootHideCompat/CydiaRootHide-0.5-build.log
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add projects/CydiaRootHideCompat/CydiaRootHide-0.4-build.log
+          git add projects/CydiaRootHideCompat/CydiaRootHide-0.5-build.log
 
           if [ -n "${OUTPUT_DEB:-}" ] && [ -f "${OUTPUT_DEB:-}" ]; then
-            cp "$OUTPUT_DEB" debfiles/CydiaInstaller_RootHide_1.1.38-0.4_SafeLaunch_iOS16.deb
-            cp "$RUNNER_TEMP/CydiaInstaller_RootHide_0.4.sha256" debfiles/CydiaInstaller_RootHide_0.4.sha256
-            git add debfiles/CydiaInstaller_RootHide_1.1.38-0.4_SafeLaunch_iOS16.deb debfiles/CydiaInstaller_RootHide_0.4.sha256
+            cp "$OUTPUT_DEB" debfiles/CydiaInstaller_RootHide_1.1.38-0.5_NoInjection_iOS16.deb
+            cp "$RUNNER_TEMP/CydiaInstaller_RootHide_0.5.sha256" debfiles/CydiaInstaller_RootHide_0.5.sha256
+            git add debfiles/CydiaInstaller_RootHide_1.1.38-0.5_NoInjection_iOS16.deb debfiles/CydiaInstaller_RootHide_0.5.sha256
           fi
 
           if ! git diff --cached --quiet; then
-            git commit -m "Publish Cydia RootHide 0.4 safe-launch diagnostic [skip ci]"
+            git commit -m "Publish Cydia RootHide 0.5 no-injection diagnostic [skip ci]"
             git push origin HEAD:cydia-roothide-ios16
           fi
 
