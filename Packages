@@ -162,23 +162,6 @@ Description: Detects shakes directly, vibrates as confirmation, and runs the mos
 Author: Next Solution
 Name: Shake to Run Automation (RootHide)
 
-Package: com.nextsolution.unlockvibrate
-Version: 2.7.0
-Architecture: iphoneos-arm64e
-Maintainer: Next Solution
-Installed-Size: 632
-Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/SweatMyPhone_RootHide_2.7.0_AdjustableTemperature_iOS16.deb
-Size: 47924
-MD5sum: 349ec6e937c2d279a653379671e534b2
-SHA1: 4e41eaaf0293d6d214a8478b79008575c4ac0ee6
-SHA256: 2977cba3da24ba2bf17ede34c27f1ad48f95d0b86ba12444c3da1a69033c90fa
-Section: Tweaks
-Priority: optional
-Description: Adds an adjustable 30–50°C sweat trigger temperature in the Next Solution Tweaks Settings pane, defaulting to 37°C. Keeps all thermal and sweat hooks SpringBoard-only for stability, with the five-second Home Screen test, battery temperature colors, unlock vibration, and call-connect vibration. Built for RootHide on iOS 16.
-Author: Next Solution
-Name: Sweat My Phone (RootHide)
-
 Package: com.zeshan.phoneaura
 Version: 0.4.10
 Architecture: iphoneos-arm64
@@ -214,4 +197,22 @@ Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Versi
 Author: Next Solution
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
+
+
+Package: com.nextsolution.unlockvibrate
+Version: 3.0.0
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 812
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/SweatMyPhone_RootHide_3.0.0_20FeatureSuite_iOS16.deb
+Size: 55220
+MD5sum: 20bc816ac81c51753f64c7fa4c5665bd
+SHA1: 400256cb090ffac78d65417cdba9947d8de5527c
+SHA256: f3bbe6edc358d74d9153cd46f35ea1a4924bb72b1a96066a4f8aa7708ebf8652
+Section: Tweaks
+Priority: optional
+Description: Adds 20 individually configurable SpringBoard customizations to Next Solution Tweaks while preserving unlock and call vibration, thermal battery colors, adjustable sweat temperature, and the five-second sweat test. All tweak dylibs remain SpringBoard-only for RootHide stability on iOS 16.
+Author: Next Solution
+Name: Sweat My Phone (RootHide)
 
