@@ -1,0 +1,172 @@
+name: Build NextAura Test 15
+
+on:
+  pull_request:
+    paths:
+      - 'nextaura-test15/**'
+      - '.github/workflows/build-nextaura-test15.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install package tools
+        run: |
+          brew install dpkg zstd
+          brew install ldid || true
+
+      - name: Restore Test 14 switcher files
+        run: |
+          set -euxo pipefail
+          cat nextaura-test15/delta/part*.b64 | base64 --decode > "$RUNNER_TEMP/test14-switcher-delta.tar.zst"
+          echo "390de65529f4548870bd3d9a233ca919d90fe6acc9ef7ae962ea77b39f487b76  $RUNNER_TEMP/test14-switcher-delta.tar.zst" | shasum -a 256 -c -
+          mkdir -p "$RUNNER_TEMP/stage" "$RUNNER_TEMP/control"
+          dpkg-deb -x debfiles/NextAura_4.4.8_RootHide_iOS16.deb "$RUNNER_TEMP/stage"
+          dpkg-deb -e debfiles/NextAura_4.4.8_RootHide_iOS16.deb "$RUNNER_TEMP/control"
+          zstd -d "$RUNNER_TEMP/test14-switcher-delta.tar.zst" -o "$RUNNER_TEMP/test14-switcher-delta.tar"
+          tar -xf "$RUNNER_TEMP/test14-switcher-delta.tar" -C "$RUNNER_TEMP/stage"
+
+      - name: Compile universal opening guard and preview
+        run: |
+          set -euxo pipefail
+          SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+          mkdir -p "$RUNNER_TEMP/build"
+
+          # Keep the guard active while the switcher is closing as well, so the
+          # selected card cannot carry its transform into the destination app.
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('nextaura-test15/Guard.c')
+          s = p.read_text()
+          s = s.replace(
+              'if (IsSwitcherController(self)) EndSwitcherSession();',
+              'if (IsSwitcherController(self)) { gEndingSession = 1; gOpeningGuard = 1; gReleasedForBrowsing = 0; gReadyForHorizontalSwipe = 0; }'
+          )
+          s = s.replace(
+              '!gEndingSession && IsSwitcherView(view) && AddressIsSafeSuite(caller);',
+              'IsSwitcherView(view) && AddressIsSafeSuite(caller);'
+          )
+          s = s.replace(
+              '!gEndingSession && IsSwitcherLayer(layer) && AddressIsSafeSuite(caller);',
+              'IsSwitcherLayer(layer) && AddressIsSafeSuite(caller);'
+          )
+          p.write_text(s)
+          PY
+
+          compile_one() {
+            local src="$1" name="$2" install_name="$3"
+            xcrun --sdk iphoneos clang -arch arm64 -isysroot "$SDK" -miphoneos-version-min=16.0 \
+              -dynamiclib -Os -fvisibility=hidden -Wl,-dead_strip -Wl,-undefined,dynamic_lookup \
+              -Wl,-install_name,"$install_name" -framework Foundation -framework UIKit -framework QuartzCore \
+              "$src" -o "$RUNNER_TEMP/build/${name}-arm64.dylib"
+            xcrun --sdk iphoneos clang -arch arm64e -isysroot "$SDK" -miphoneos-version-min=16.0 \
+              -dynamiclib -Os -fvisibility=hidden -Wl,-dead_strip -Wl,-undefined,dynamic_lookup \
+              -Wl,-install_name,"$install_name" -framework Foundation -framework UIKit -framework QuartzCore \
+              "$src" -o "$RUNNER_TEMP/build/${name}-arm64e.dylib"
+            xcrun lipo -create "$RUNNER_TEMP/build/${name}-arm64.dylib" "$RUNNER_TEMP/build/${name}-arm64e.dylib" \
+              -output "$RUNNER_TEMP/build/${name}.dylib"
+            if command -v ldid >/dev/null 2>&1; then
+              ldid -S "$RUNNER_TEMP/build/${name}.dylib"
+            else
+              codesign --force --sign - "$RUNNER_TEMP/build/${name}.dylib"
+            fi
+            xcrun lipo -info "$RUNNER_TEMP/build/${name}.dylib"
+          }
+
+          compile_one nextaura-test15/Guard.c ZZNextAuraSwitcherOpeningGuard \
+            /Library/MobileSubstrate/DynamicLibraries/ZZNextAuraSwitcherOpeningGuard.dylib
+          compile_one nextaura-test15/Preview.c ZZNextAuraSwitcherSettingsPreview \
+            /Library/MobileSubstrate/DynamicLibraries/ZZNextAuraSwitcherSettingsPreview.dylib
+
+      - name: Assemble RootHide package
+        run: |
+          set -euxo pipefail
+          DYLIBS="$RUNNER_TEMP/stage/Library/MobileSubstrate/DynamicLibraries"
+          PREFS="$RUNNER_TEMP/stage/Library/PreferenceBundles/UnlockVibratePrefs.bundle"
+          mkdir -p "$DYLIBS"
+          cp "$RUNNER_TEMP/build/ZZNextAuraSwitcherOpeningGuard.dylib" "$DYLIBS/"
+          cp "$RUNNER_TEMP/build/ZZNextAuraSwitcherSettingsPreview.dylib" "$DYLIBS/"
+
+          cat > "$DYLIBS/ZZNextAuraSwitcherOpeningGuard.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict><key>Filter</key><dict><key>Bundles</key><array><string>com.apple.springboard</string></array></dict></dict></plist>
+          PLIST
+          cat > "$DYLIBS/ZZNextAuraSwitcherSettingsPreview.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict><key>Filter</key><dict><key>Bundles</key><array><string>com.apple.Preferences</string></array></dict></dict></plist>
+          PLIST
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import plistlib
+          import os
+
+          prefs = Path(os.environ['RUNNER_TEMP']) / 'stage/Library/PreferenceBundles/UnlockVibratePrefs.bundle/AppSwitcher.plist'
+          with prefs.open('rb') as f:
+              data = plistlib.load(f)
+          items = data.get('items', [])
+          if items:
+              items[0]['footerText'] = (
+                  'The preview above updates immediately as options change. '
+                  'The real App Switcher changes after tapping Apply Switcher Changes (Respring). '
+                  'When opening from Home or any app, NextAura effects stay disabled until the first deliberate horizontal swipe.'
+              )
+          blocked = {'Live Modification', 'Refresh Live Switcher', 'Show Live Preview'}
+          data['items'] = [item for item in items if item.get('label') not in blocked]
+          with prefs.open('wb') as f:
+              plistlib.dump(data, f, fmt=plistlib.FMT_XML, sort_keys=False)
+
+          control = Path(os.environ['RUNNER_TEMP']) / 'control/control'
+          lines = []
+          for line in control.read_text().splitlines():
+              if line.startswith('Version:'):
+                  line = 'Version: 4.4.9-test15'
+              elif line.startswith('Name:'):
+                  line = 'Name: NextAura Tester'
+              elif line.startswith('Description:'):
+                  line = ('Description: Private RootHide tester 15. Adds a live visual App Switcher preview inside the Switcher settings tab, '
+                          'keeps the active app straight while opening the switcher from Home or any app, releases the selected effect only after '
+                          'a deliberate horizontal swipe, and keeps Respring as the real apply action.')
+              lines.append(line)
+          control.write_text('\n'.join(lines) + '\n')
+          PY
+
+          rm -rf "$RUNNER_TEMP/pkg"
+          cp -a "$RUNNER_TEMP/stage" "$RUNNER_TEMP/pkg"
+          mkdir -p "$RUNNER_TEMP/pkg/DEBIAN"
+          cp -a "$RUNNER_TEMP/control/." "$RUNNER_TEMP/pkg/DEBIAN/"
+          find "$RUNNER_TEMP/pkg/DEBIAN" -type f \( -name preinst -o -name postinst -o -name prerm -o -name postrm \) -exec chmod 0755 {} + || true
+          mkdir -p output
+          OUT="output/NextAura_4.4.9_Test15_EmbeddedPreview_OpeningGuard_RootHide_iOS16.deb"
+          dpkg-deb --root-owner-group -Zzstd -b "$RUNNER_TEMP/pkg" "$OUT"
+          shasum -a 256 "$OUT" > "$OUT.sha256"
+
+      - name: Validate package
+        run: |
+          set -euxo pipefail
+          OUT="output/NextAura_4.4.9_Test15_EmbeddedPreview_OpeningGuard_RootHide_iOS16.deb"
+          dpkg-deb -I "$OUT" | grep -E 'Package: com.nextsolution.unlockvibrate|Version: 4.4.9-test15|Architecture: iphoneos-arm64e'
+          rm -rf "$RUNNER_TEMP/validate"
+          dpkg-deb -x "$OUT" "$RUNNER_TEMP/validate"
+          xcrun lipo -info "$RUNNER_TEMP/validate/Library/MobileSubstrate/DynamicLibraries/ZZNextAuraSwitcherOpeningGuard.dylib" | grep arm64e
+          xcrun lipo -info "$RUNNER_TEMP/validate/Library/MobileSubstrate/DynamicLibraries/ZZNextAuraSwitcherSettingsPreview.dylib" | grep arm64e
+          plutil -lint "$RUNNER_TEMP/validate/Library/PreferenceBundles/UnlockVibratePrefs.bundle/AppSwitcher.plist"
+          grep -q 'com.apple.springboard' "$RUNNER_TEMP/validate/Library/MobileSubstrate/DynamicLibraries/ZZNextAuraSwitcherOpeningGuard.plist"
+          grep -q 'com.apple.Preferences' "$RUNNER_TEMP/validate/Library/MobileSubstrate/DynamicLibraries/ZZNextAuraSwitcherSettingsPreview.plist"
+
+      - name: Upload Test 15 package
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextAura-Test15-RootHide
+          path: output/*
+          if-no-files-found: error
+          retention-days: 7
