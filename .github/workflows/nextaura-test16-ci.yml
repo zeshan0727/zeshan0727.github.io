@@ -1,0 +1,27 @@
+name: Build NextAura Test 16 Smoothness
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'nextaura-test16/**'
+      - '.github/workflows/nextaura-test16-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile universal smoothness helper
+        run: bash nextaura-test16/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAura-Test16-Smoothness
+          path: output/*
+          if-no-files-found: error
+      - name: Confirm compilation
+        run: test -f output/ZZNextAuraSwitcherSmoothness.dylib
