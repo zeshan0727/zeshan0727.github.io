@@ -2,6 +2,17 @@
 set -euo pipefail
 SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
 mkdir -p output
+
+# PSListController's private table accessor is invoked through KVC so ARC can
+# compile the preview without requiring private Preference headers.
+python3 - <<'PY'
+from pathlib import Path
+p = Path('nextaura-test15/Preview.m')
+s = p.read_text()
+s = s.replace('table = [controller table];', 'table = [controller valueForKey:@"table"];')
+p.write_text(s)
+PY
+
 build_universal() {
   local SRC="$1" NAME="$2"
   echo "Compiling $NAME"
