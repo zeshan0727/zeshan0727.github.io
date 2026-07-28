@@ -29,6 +29,6 @@ build_universal() {
   xcrun lipo -info "output/${NAME}.dylib"
   codesign -dvv "output/${NAME}.dylib" 2>&1 || true
 }
-build_universal nextaura-test15/OpeningGuard.m ZZNextAuraSwitcherOpeningGuard
+build_universal nextaura-test15/OpeningGuardV3.m ZZNextAuraSwitcherOpeningGuard
 build_universal nextaura-test15/Preview.m ZZNextAuraSwitcherPreview
 shasum -a 256 output/*.dylib > output/SHA256SUMS
