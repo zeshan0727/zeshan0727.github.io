@@ -1,0 +1,57 @@
+name: Build NextAura Test 15 Helpers
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'nextaura-test15/**'
+      - '.github/workflows/nextaura-test15-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ldid
+        run: |
+          git clone --depth=1 https://github.com/ProcursusTeam/ldid.git "$RUNNER_TEMP/ldid"
+          make -C "$RUNNER_TEMP/ldid" -j"$(sysctl -n hw.ncpu)"
+          sudo install -m 0755 "$RUNNER_TEMP/ldid/ldid" /usr/local/bin/ldid
+
+      - name: Compile universal helper dylibs
+        run: |
+          set -euxo pipefail
+          SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+          mkdir -p output
+          build_universal() {
+            SRC="$1"
+            NAME="$2"
+            for ARCH in arm64 arm64e; do
+              xcrun --sdk iphoneos clang \
+                -arch "$ARCH" -isysroot "$SDK" -miphoneos-version-min=16.0 \
+                -fobjc-arc -Os -dynamiclib \
+                -framework Foundation -framework UIKit -framework QuartzCore \
+                -Wl,-undefined,dynamic_lookup \
+                -Wl,-install_name,/Library/MobileSubstrate/DynamicLibraries/${NAME}.dylib \
+                "$SRC" -o "output/${NAME}.${ARCH}.dylib"
+            done
+            xcrun lipo -create "output/${NAME}.arm64.dylib" "output/${NAME}.arm64e.dylib" -output "output/${NAME}.dylib"
+            rm "output/${NAME}.arm64.dylib" "output/${NAME}.arm64e.dylib"
+            ldid -S "output/${NAME}.dylib"
+            xcrun lipo -info "output/${NAME}.dylib"
+            file "output/${NAME}.dylib"
+          }
+          build_universal nextaura-test15/OpeningGuard.m ZZNextAuraSwitcherOpeningGuard
+          build_universal nextaura-test15/Preview.m ZZNextAuraSwitcherPreview
+          shasum -a 256 output/*.dylib > output/SHA256SUMS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAura-Test15-Helpers
+          path: output/*
+          if-no-files-found: error
