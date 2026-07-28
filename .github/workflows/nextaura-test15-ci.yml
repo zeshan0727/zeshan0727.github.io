@@ -19,6 +19,9 @@ jobs:
 
       - name: Build ldid
         run: |
+          brew install libplist openssl@3 pkg-config
+          echo "PKG_CONFIG_PATH=$(brew --prefix openssl@3)/lib/pkgconfig:$(brew --prefix libplist)/lib/pkgconfig" >> "$GITHUB_ENV"
+          export PKG_CONFIG_PATH="$(brew --prefix openssl@3)/lib/pkgconfig:$(brew --prefix libplist)/lib/pkgconfig"
           git clone --depth=1 https://github.com/ProcursusTeam/ldid.git "$RUNNER_TEMP/ldid"
           make -C "$RUNNER_TEMP/ldid" -j"$(sysctl -n hw.ncpu)"
           sudo install -m 0755 "$RUNNER_TEMP/ldid/ldid" /usr/local/bin/ldid
