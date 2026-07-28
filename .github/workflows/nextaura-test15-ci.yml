@@ -19,22 +19,24 @@ jobs:
 
       - name: Build ldid
         run: |
-          brew install libplist openssl@3 pkg-config
+          brew install libplist openssl@3 pkg-config >/dev/null
           echo "PKG_CONFIG_PATH=$(brew --prefix openssl@3)/lib/pkgconfig:$(brew --prefix libplist)/lib/pkgconfig" >> "$GITHUB_ENV"
           export PKG_CONFIG_PATH="$(brew --prefix openssl@3)/lib/pkgconfig:$(brew --prefix libplist)/lib/pkgconfig"
-          git clone --depth=1 https://github.com/ProcursusTeam/ldid.git "$RUNNER_TEMP/ldid"
-          make -C "$RUNNER_TEMP/ldid" -j"$(sysctl -n hw.ncpu)"
+          git clone --quiet --depth=1 https://github.com/ProcursusTeam/ldid.git "$RUNNER_TEMP/ldid"
+          make -s -C "$RUNNER_TEMP/ldid" -j"$(sysctl -n hw.ncpu)"
           sudo install -m 0755 "$RUNNER_TEMP/ldid/ldid" /usr/local/bin/ldid
 
       - name: Compile universal helper dylibs
         run: |
-          set -euxo pipefail
+          set -euo pipefail
           SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
           mkdir -p output
           build_universal() {
             SRC="$1"
             NAME="$2"
+            echo "Compiling $NAME"
             for ARCH in arm64 arm64e; do
+              echo "Architecture: $ARCH"
               xcrun --sdk iphoneos clang \
                 -arch "$ARCH" -isysroot "$SDK" -miphoneos-version-min=16.0 \
                 -fobjc-arc -Os -dynamiclib \
@@ -47,7 +49,6 @@ jobs:
             rm "output/${NAME}.arm64.dylib" "output/${NAME}.arm64e.dylib"
             ldid -S "output/${NAME}.dylib"
             xcrun lipo -info "output/${NAME}.dylib"
-            file "output/${NAME}.dylib"
           }
           build_universal nextaura-test15/OpeningGuard.m ZZNextAuraSwitcherOpeningGuard
           build_universal nextaura-test15/Preview.m ZZNextAuraSwitcherPreview
