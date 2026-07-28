@@ -13,18 +13,9 @@ permissions:
 jobs:
   build:
     runs-on: macos-14
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-
-      - name: Build ldid
-        run: |
-          brew install libplist openssl@3 pkg-config >/dev/null
-          echo "PKG_CONFIG_PATH=$(brew --prefix openssl@3)/lib/pkgconfig:$(brew --prefix libplist)/lib/pkgconfig" >> "$GITHUB_ENV"
-          export PKG_CONFIG_PATH="$(brew --prefix openssl@3)/lib/pkgconfig:$(brew --prefix libplist)/lib/pkgconfig"
-          git clone --quiet --depth=1 https://github.com/ProcursusTeam/ldid.git "$RUNNER_TEMP/ldid"
-          make -s -C "$RUNNER_TEMP/ldid" -j"$(sysctl -n hw.ncpu)"
-          sudo install -m 0755 "$RUNNER_TEMP/ldid/ldid" /usr/local/bin/ldid
 
       - name: Compile universal helper dylibs
         run: |
@@ -41,14 +32,14 @@ jobs:
                 -arch "$ARCH" -isysroot "$SDK" -miphoneos-version-min=16.0 \
                 -fobjc-arc -Os -dynamiclib \
                 -framework Foundation -framework UIKit -framework QuartzCore \
-                -Wl,-undefined,dynamic_lookup \
+                -Wl,-undefined,dynamic_lookup -Wl,-adhoc_codesign \
                 -Wl,-install_name,/Library/MobileSubstrate/DynamicLibraries/${NAME}.dylib \
                 "$SRC" -o "output/${NAME}.${ARCH}.dylib"
             done
             xcrun lipo -create "output/${NAME}.arm64.dylib" "output/${NAME}.arm64e.dylib" -output "output/${NAME}.dylib"
             rm "output/${NAME}.arm64.dylib" "output/${NAME}.arm64e.dylib"
-            ldid -S "output/${NAME}.dylib"
             xcrun lipo -info "output/${NAME}.dylib"
+            codesign -dvv "output/${NAME}.dylib" 2>&1 || true
           }
           build_universal nextaura-test15/OpeningGuard.m ZZNextAuraSwitcherOpeningGuard
           build_universal nextaura-test15/Preview.m ZZNextAuraSwitcherPreview
