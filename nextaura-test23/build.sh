@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 # Test 24 rebuild trigger: true signed MH_BUNDLE.
+# Fresh PR synchronize trigger after CI existed on main.
 SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
 OUT="output/NextAuraCoreBridge.bundle"
 NAME="NextAuraCoreBridge"
