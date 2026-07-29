@@ -1,0 +1,36 @@
+name: Build NextAura Test 29 Native RootHide Engine
+
+on:
+  push:
+    branches:
+      - agent/nextaura-test29-native-roothide-engine
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile universal native preference bridge
+        run: bash nextaura-test29/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAura-Test29-NativeRootHideEngine
+          path: output-test29/*
+          if-no-files-found: error
+      - name: Save build metadata
+        run: |
+          mkdir -p nextaura-test29-output
+          echo "${{ github.run_id }}" > nextaura-test29-output/RunID.txt
+          cp output-test29/SHA256SUMS nextaura-test29-output/SHA256SUMS
+          git config user.name "nextaura-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add nextaura-test29-output
+          if ! git diff --cached --quiet; then
+            git commit -m "Store Test 29 build metadata"
+            git push origin HEAD:agent/nextaura-test29-native-roothide-engine
+          fi
