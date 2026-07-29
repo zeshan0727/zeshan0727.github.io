@@ -1,0 +1,27 @@
+name: Build NextAura Test 23 Core Bridge
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'nextaura-test23/**'
+      - '.github/workflows/nextaura-test23-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile universal dependency-free Core Bridge
+        run: bash nextaura-test23/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAura-Test23-CoreBridge
+          path: output/*
+          if-no-files-found: error
+      - name: Confirm bundle
+        run: test -f output/NextAuraCoreBridge.bundle/NextAuraCoreBridge
