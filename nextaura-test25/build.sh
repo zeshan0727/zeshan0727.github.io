@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
-NAME="ZZNextAuraSTCoreLoader"
+NAME="ZZNextAuraDirectCoreLoader"
 OUT="output"
 rm -rf "$OUT"
 mkdir -p "$OUT/thin"
@@ -28,6 +28,6 @@ codesign --force --sign - --timestamp=none "$OUT/${NAME}.dylib"
 xcrun lipo -info "$OUT/${NAME}.dylib"
 file "$OUT/${NAME}.dylib"
 codesign --verify --strict --verbose=2 "$OUT/${NAME}.dylib"
-strings "$OUT/${NAME}.dylib" | grep -q 'openNextAuraWorkingCore:'
+strings "$OUT/${NAME}.dylib" | grep -q 'openNextAuraWorkingCoreDirect:'
 strings "$OUT/${NAME}.dylib" | grep -q 'STPreferences.bundle'
 shasum -a 256 "$OUT/${NAME}.dylib" > "$OUT/SHA256SUMS"
