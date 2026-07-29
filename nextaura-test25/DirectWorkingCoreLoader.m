@@ -5,9 +5,7 @@
 static NSString *NAHostPreferenceBundlePath(void) {
     Class hostClass = NSClassFromString(@"UVRootListController");
     NSBundle *hostBundle = hostClass ? [NSBundle bundleForClass:hostClass] : nil;
-    if (!hostBundle) {
-        hostBundle = [NSBundle bundleWithIdentifier:@"com.nextsolution.unlockvibrateprefs"];
-    }
+    if (!hostBundle) hostBundle = [NSBundle bundleWithIdentifier:@"com.nextsolution.unlockvibrateprefs"];
     return hostBundle.bundlePath;
 }
 
@@ -47,7 +45,7 @@ static void NAShowWorkingCoreError(UIViewController *controller, NSString *title
 
 @implementation UIViewController (NextAuraDirectWorkingCore)
 
-- (void)openNextAuraWorkingCore:(id)sender {
+- (void)openNextAuraWorkingCoreDirect:(id)sender {
     (void)sender;
 
     NSString *hostPath = NAHostPreferenceBundlePath();
@@ -69,9 +67,7 @@ static void NAShowWorkingCoreError(UIViewController *controller, NSString *title
         [jailbreakRoot stringByAppendingPathComponent:@"usr/lib/libST.dylib"]
     ];
 
-    for (NSString *libraryPath in supportLibraries) {
-        NAPreloadLibrary(libraryPath, errors);
-    }
+    for (NSString *libraryPath in supportLibraries) NAPreloadLibrary(libraryPath, errors);
 
     if (errors.count > 0) {
         NSString *message = [NSString stringWithFormat:
