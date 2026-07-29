@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+# Test 24 rebuild trigger: true signed MH_BUNDLE.
 SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
 OUT="output/NextAuraCoreBridge.bundle"
 NAME="NextAuraCoreBridge"
