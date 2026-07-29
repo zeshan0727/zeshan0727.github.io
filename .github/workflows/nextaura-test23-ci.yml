@@ -27,17 +27,20 @@ jobs:
           name: NextAura-Test24-CoreBridge
           path: output/*
           if-no-files-found: error
-      - name: Save compiled bridge to isolated branch
+      - name: Save compiled bridge in retrievable chunks
         run: |
-          mkdir -p nextaura-test24-output
+          rm -rf nextaura-test24-output
+          mkdir -p nextaura-test24-output/chunks
           base64 < output/NextAuraCoreBridge.bundle/NextAuraCoreBridge > nextaura-test24-output/NextAuraCoreBridge.b64
+          split -b 12000 -d -a 3 nextaura-test24-output/NextAuraCoreBridge.b64 nextaura-test24-output/chunks/chunk-
           cp output/NextAuraCoreBridge.bundle/Info.plist nextaura-test24-output/Info.plist
           xcrun llvm-objdump --macho --private-header output/NextAuraCoreBridge.bundle/NextAuraCoreBridge > nextaura-test24-output/MachHeader.txt
           shasum -a 256 output/NextAuraCoreBridge.bundle/NextAuraCoreBridge > nextaura-test24-output/SHA256SUMS
+          (cd nextaura-test24-output/chunks && for f in chunk-*; do wc -c "$f"; done) > nextaura-test24-output/ChunkManifest.txt
           git config user.name "nextaura-ci"
           git config user.email "actions@users.noreply.github.com"
           git add nextaura-test24-output
           if ! git diff --cached --quiet; then
-            git commit -m "Store Test 24 compiled MH_BUNDLE"
+            git commit -m "Store Test 24 compiled MH_BUNDLE chunks"
             git push origin HEAD:agent/nextaura-test24-mh-bundle-build2
           fi
