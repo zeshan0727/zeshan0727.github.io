@@ -1,0 +1,27 @@
+name: Build NextAura Test 20 Reset Tools
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'nextaura-test20/**'
+      - '.github/workflows/nextaura-test20-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile universal preferences tools
+        run: bash nextaura-test20/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAura-Test20-PreferencesTools
+          path: output/*
+          if-no-files-found: error
+      - name: Confirm compilation
+        run: test -f output/ZZNextAuraPreferencesTools.dylib
