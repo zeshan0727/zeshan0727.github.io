@@ -1,0 +1,30 @@
+name: Build NextAura Test 24 True Bundle
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'nextaura-test23/**'
+      - '.github/workflows/nextaura-test24-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile signed MH_BUNDLE Core Bridge
+        run: bash nextaura-test23/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAura-Test24-CoreBridge
+          path: output/*
+          if-no-files-found: error
+      - name: Confirm true bundle
+        run: |
+          test -f output/NextAuraCoreBridge.bundle/NextAuraCoreBridge
+          xcrun llvm-objdump --macho --private-header output/NextAuraCoreBridge.bundle/NextAuraCoreBridge | grep BUNDLE
+          codesign --verify --deep --strict --verbose=2 output/NextAuraCoreBridge.bundle
