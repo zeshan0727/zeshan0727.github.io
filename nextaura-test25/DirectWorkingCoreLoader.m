@@ -1,6 +1,36 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
+#import <objc/runtime.h>
 #import <dlfcn.h>
+
+static NSString *NAWorkingCoreBundlePath = nil;
+static NSBundle *(*NAOriginalBundleWithPath)(id, SEL, NSString *) = NULL;
+
+static NSBundle *NARedirectedBundleWithPath(id receiver, SEL selector, NSString *path) {
+    NSString *resolvedPath = path;
+    NSString *workingCorePath = NAWorkingCoreBundlePath;
+
+    if (workingCorePath.length > 0 && [path isEqualToString:@"/Library/PreferenceBundles/STPreferences.bundle"]) {
+        resolvedPath = workingCorePath;
+    } else if (workingCorePath.length > 0 && [path isEqualToString:@"/Library/PreferenceBundles/STPreferences.bundle/en.lproj"]) {
+        resolvedPath = [workingCorePath stringByAppendingPathComponent:@"en.lproj"];
+    }
+
+    return NAOriginalBundleWithPath ? NAOriginalBundleWithPath(receiver, selector, resolvedPath) : nil;
+}
+
+static void NAInstallLegacyBundlePathRedirect(NSString *workingCorePath) {
+    NAWorkingCoreBundlePath = [workingCorePath copy];
+
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Method method = class_getClassMethod([NSBundle class], @selector(bundleWithPath:));
+        if (!method) return;
+
+        NAOriginalBundleWithPath = (NSBundle *(*)(id, SEL, NSString *))method_getImplementation(method);
+        method_setImplementation(method, (IMP)NARedirectedBundleWithPath);
+    });
+}
 
 static NSString *NAHostPreferenceBundlePath(void) {
     Class hostClass = NSClassFromString(@"UVRootListController");
@@ -60,6 +90,11 @@ static void NAShowWorkingCoreError(UIViewController *controller, NSString *title
     NSString *preferenceBundlesDirectory = [hostPath stringByDeletingLastPathComponent];
     NSString *workingCorePath = [preferenceBundlesDirectory stringByAppendingPathComponent:@"STPreferences.bundle"];
 
+    // Springtomize's localisation helper uses two stock absolute paths. RootHide
+    // cannot resolve those paths from Preferences. Redirect only those exact
+    // bundle lookups to the currently active randomized .jbroot location.
+    NAInstallLegacyBundlePathRedirect(workingCorePath);
+
     NSMutableArray<NSString *> *errors = [NSMutableArray array];
     NSArray<NSString *> *supportLibraries = @[
         [jailbreakRoot stringByAppendingPathComponent:@"usr/lib/librocketbootstrap.dylib"],
@@ -86,9 +121,7 @@ static void NAShowWorkingCoreError(UIViewController *controller, NSString *title
     }
 
     NSString *executablePath = workingCoreBundle.executablePath;
-    if (executablePath.length == 0) {
-        executablePath = [workingCorePath stringByAppendingPathComponent:@"STPreferences"];
-    }
+    if (executablePath.length == 0) executablePath = [workingCorePath stringByAppendingPathComponent:@"STPreferences"];
 
     if (![[NSFileManager defaultManager] fileExistsAtPath:executablePath]) {
         NAShowWorkingCoreError(self,
@@ -97,10 +130,8 @@ static void NAShowWorkingCoreError(UIViewController *controller, NSString *title
         return;
     }
 
-    // Springtomize 5 uses an old-style MH_DYLIB executable inside its
-    // preference bundle. NSBundle's modern load API rejects this layout even
-    // though the original Preferences loader opens it with dlopen. Use the
-    // same loading method here and preserve the original binary unchanged.
+    // The imported core uses an old-style MH_DYLIB executable inside its
+    // preference bundle. Match its original loader and open it with dlopen.
     dlerror();
     void *workingCoreHandle = dlopen(executablePath.fileSystemRepresentation, RTLD_NOW | RTLD_GLOBAL);
     if (!workingCoreHandle) {
