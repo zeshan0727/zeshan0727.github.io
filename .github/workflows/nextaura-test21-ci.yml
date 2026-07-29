@@ -1,0 +1,27 @@
+name: Build NextAura Test 21 RootHide Core Loader
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'nextaura-test21/**'
+      - '.github/workflows/nextaura-test21-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile universal RootHide loader
+        run: bash nextaura-test21/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAura-Test21-CoreLoader
+          path: output/*
+          if-no-files-found: error
+      - name: Confirm compilation
+        run: test -f output/ZZNextAuraSTCoreLoader.dylib
