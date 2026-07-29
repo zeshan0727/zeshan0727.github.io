@@ -85,22 +85,40 @@ static void NAShowWorkingCoreError(UIViewController *controller, NSString *title
         return;
     }
 
-    NSError *loadError = nil;
-    if (![workingCoreBundle loadAndReturnError:&loadError]) {
-        NSString *message = [NSString stringWithFormat:
-                             @"The Working Core bundle exists but iOS could not load it.\n\nPath:\n%@\n\nError:\n%@",
-                             workingCorePath,
-                             loadError.localizedDescription ?: @"Unknown bundle-loading error"];
-        NAShowWorkingCoreError(self, @"Working Core Load Error", message);
+    NSString *executablePath = workingCoreBundle.executablePath;
+    if (executablePath.length == 0) {
+        executablePath = [workingCorePath stringByAppendingPathComponent:@"STPreferences"];
+    }
+
+    if (![[NSFileManager defaultManager] fileExistsAtPath:executablePath]) {
+        NAShowWorkingCoreError(self,
+                               @"Working Core Executable Missing",
+                               [NSString stringWithFormat:@"The bundle exists, but its executable was not found.\n\nExpected:\n%@", executablePath]);
         return;
     }
 
-    Class controllerClass = NSClassFromString(@"STSettingsListController");
-    if (!controllerClass) controllerClass = workingCoreBundle.principalClass;
+    // Springtomize 5 uses an old-style MH_DYLIB executable inside its
+    // preference bundle. NSBundle's modern load API rejects this layout even
+    // though the original Preferences loader opens it with dlopen. Use the
+    // same loading method here and preserve the original binary unchanged.
+    dlerror();
+    void *workingCoreHandle = dlopen(executablePath.fileSystemRepresentation, RTLD_NOW | RTLD_GLOBAL);
+    if (!workingCoreHandle) {
+        NSString *message = [NSString stringWithFormat:
+                             @"The Working Core executable could not be loaded.\n\nExecutable:\n%@\n\nDynamic-loader error:\n%@",
+                             executablePath,
+                             NALastDLError()];
+        NAShowWorkingCoreError(self, @"Working Core Dynamic-Loader Error", message);
+        return;
+    }
+
+    NSString *principalClassName = [workingCoreBundle objectForInfoDictionaryKey:@"NSPrincipalClass"];
+    if (principalClassName.length == 0) principalClassName = @"STSettingsListController";
+    Class controllerClass = NSClassFromString(principalClassName);
     if (!controllerClass || ![controllerClass isSubclassOfClass:[UIViewController class]]) {
         NAShowWorkingCoreError(self,
                                @"Working Core Controller Missing",
-                               @"The bundle loaded, but STSettingsListController was not available.");
+                               [NSString stringWithFormat:@"The executable loaded, but %@ was not available.", principalClassName]);
         return;
     }
 
