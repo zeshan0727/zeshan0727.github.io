@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -17,13 +17,27 @@ jobs:
       - uses: actions/checkout@v4
       - name: Compile signed MH_BUNDLE Core Bridge
         run: bash nextaura-test23/build.sh
-      - uses: actions/upload-artifact@v4
-        with:
-          name: NextAura-Test24-CoreBridge
-          path: output/*
-          if-no-files-found: error
       - name: Confirm true bundle
         run: |
           test -f output/NextAuraCoreBridge.bundle/NextAuraCoreBridge
           xcrun llvm-objdump --macho --private-header output/NextAuraCoreBridge.bundle/NextAuraCoreBridge | grep BUNDLE
           codesign --verify --deep --strict --verbose=2 output/NextAuraCoreBridge.bundle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAura-Test24-CoreBridge
+          path: output/*
+          if-no-files-found: error
+      - name: Save compiled bridge to isolated branch
+        run: |
+          mkdir -p nextaura-test24-output
+          base64 < output/NextAuraCoreBridge.bundle/NextAuraCoreBridge > nextaura-test24-output/NextAuraCoreBridge.b64
+          cp output/NextAuraCoreBridge.bundle/Info.plist nextaura-test24-output/Info.plist
+          xcrun llvm-objdump --macho --private-header output/NextAuraCoreBridge.bundle/NextAuraCoreBridge > nextaura-test24-output/MachHeader.txt
+          shasum -a 256 output/NextAuraCoreBridge.bundle/NextAuraCoreBridge > nextaura-test24-output/SHA256SUMS
+          git config user.name "nextaura-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add nextaura-test24-output
+          if ! git diff --cached --quiet; then
+            git commit -m "Store Test 24 compiled MH_BUNDLE"
+            git push origin HEAD:agent/nextaura-test24-mh-bundle-build2
+          fi
