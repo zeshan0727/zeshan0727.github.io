@@ -1,3 +1,4 @@
+# PhoneAura 0.4.11 fixed keypad suggestion-space validation
 name: Build PhoneAura RootHide and Rootless
 
 on:
@@ -157,7 +158,7 @@ jobs:
           gzip -c9 Packages > Packages.gz
 
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898242+github-actions[bot]@users.noreply.github.com"
           git add debfiles Packages Packages.bz2 Packages.gz
           if git diff --cached --quiet; then
             echo "Sileo repo is already current."
