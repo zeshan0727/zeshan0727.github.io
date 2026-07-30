@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.12
+Version: 0.4.13
 Architecture: iphoneos-arm64e
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.12 replaces the keypad three-dot menu with the round Next Solution logo; tapping the logo opens the official Next Solution YouTube channel. It preserves the fixed saved-number suggestion area, Number not saved status, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for RootHide.
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.13 restores the original Number Options menu inside the orange number card and replaces only the upper-right three-dot button beside Keypad with the round Next Solution logo. Tapping the upper logo opens the official Next Solution YouTube channel. It preserves the fixed saved-number suggestion area, Number not saved status, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for RootHide.
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Homepage: https://zeshan0727.github.io/
 Maintainer: Next Solution
