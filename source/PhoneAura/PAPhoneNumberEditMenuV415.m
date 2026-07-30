@@ -3,6 +3,10 @@
 #import "PhoneAuraManager.h"
 #import "PAConceptDUI.h"
 
+@interface PhoneAuraManager (PAKeypadPasteBridgeV415)
+- (void)pasteNumberIntoKeypad:(NSString *)number;
+@end
+
 static const void *PA415MenuDelegateKey = &PA415MenuDelegateKey;
 static const void *PA415LongPressKey = &PA415LongPressKey;
 
