@@ -1,4 +1,4 @@
-# PR run trigger: Next Home Lock 1.0.5 simple on-off preferences.
+# PR run trigger 2: Next Home Lock 1.0.5 simple on-off preferences.
 name: Build and Publish Next Home Lock
 
 on:
@@ -136,7 +136,7 @@ jobs:
             grep -q NextHomeLockPreferences "$entry"
             grep -q NHLRootListController "$entry"
             grep -q 'Enable Next Home Lock' "$root"
-            grep -q '<string>1.0.5</string>' "$info"
+            test "$(plutil -extract CFBundleShortVersionString raw -o - "$info")" = "1.0.5"
             test "$(grep -c '<string>PSSwitchCell</string>' "$root")" -eq 1
             test "$(grep -c '<string>PSButtonCell</string>' "$root" || true)" -eq 0
             test "$(grep -c '<string>PSTitleValueCell</string>' "$root" || true)" -eq 0
