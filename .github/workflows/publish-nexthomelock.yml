@@ -1,4 +1,4 @@
-# Release trigger: Next Home Lock 1.0.1 iOS 16 runtime hook fix.
+# Release trigger 2: Next Home Lock 1.0.1 iOS 16 runtime hook fix.
 name: Build and Publish Next Home Lock
 
 on:
