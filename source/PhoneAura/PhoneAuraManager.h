@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)controllerDidLayout:(UIViewController *)controller;
 - (void)tabSelectionChanged:(UITabBarController *)tabController;
 - (void)reloadPreferences;
+- (void)pasteNumberIntoKeypad:(NSString *)number;
 @end
 
 NS_ASSUME_NONNULL_END
