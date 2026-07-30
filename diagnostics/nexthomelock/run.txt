@@ -1,0 +1,1 @@
+Run the isolated Next Home Lock RootHide and rootless build.
