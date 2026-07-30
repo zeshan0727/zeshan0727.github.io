@@ -20,27 +20,31 @@
   <main>
     <section class="card">
       <h1>Next Home Lock</h1>
-      <p>Double-tap a genuinely empty area of the Home Screen to lock your iPhone.</p>
-      <span class="badge">Version 1.0.3 · RootHide + Rootless · iOS 15+</span>
+      <p>Double-tap an empty Home Screen area to lock your iPhone.</p>
+      <span class="badge">Version 1.0.4 · RootHide + Rootless · iOS 16+</span>
 
-      <h2>Version 1.0.3 Diagnostics</h2>
-      <p class="fix">Adds a Settings pane that confirms package version, SpringBoard injection, root-folder hook, gesture attachment, last touch decision, last gesture result and lock route.</p>
+      <h2>Complete runtime rebuild</h2>
+      <p class="fix">Version 1.0.4 removes the failed root-folder gesture recognizer. It now hooks the Home Screen’s native <strong>SBIconListView</strong> touch callback and simulates Apple’s lock-button action—the established method used by the open-source Lock Screen Without Button tweak.</p>
 
-      <h2>Test Lock Now</h2>
-      <p>Open Settings → Next Home Lock and press <strong>Test Lock Now</strong>. This sends a direct diagnostic command to the injected SpringBoard tweak. If the phone locks, injection and the lock route are working independently of the Home Screen gesture.</p>
+      <h2>Built like the working Next Solution tweaks</h2>
+      <p>The RootHide scheme, dual architectures, segment alignment, PreferenceLoader bundle, CFPreferences storage and Darwin notifications now follow the proven Next Aura and PhoneAura package conventions.</p>
 
-      <h2>Privacy</h2>
-      <p>Diagnostics are stored locally. No daemon, analytics, clipboard access, messages, account data or network activity.</p>
+      <h2>Live diagnostics</h2>
+      <p>Settings → Next Home Lock shows SpringBoard injection, the runtime method, SBIconListView availability, whether its touch hook was reached, the last tap count, test-command delivery and the exact lock route used.</p>
 
       <h2>Test sequence</h2>
       <ol>
-        <li>Refresh the repo and confirm Sileo shows version 1.0.3.</li>
-        <li>Upgrade the matching package and respring.</li>
-        <li>Open Settings → Next Home Lock.</li>
-        <li>Record the Injection, Root Folder Hook and Gesture Attachment values.</li>
-        <li>Press Test Lock Now, then test the Home Screen double-tap.</li>
-        <li>Return to Settings and press Refresh Diagnostics.</li>
+        <li>Refresh the repo and confirm Sileo shows version 1.0.4.</li>
+        <li>Upgrade the matching package and perform a full respring.</li>
+        <li>Open Settings → Next Home Lock and confirm SpringBoard Injection says Active.</li>
+        <li>Press Test Lock Now.</li>
+        <li>After unlocking, tap empty Home Screen space once.</li>
+        <li>Refresh Diagnostics and confirm Touch Hook says Reached.</li>
+        <li>Double-tap the same empty area.</li>
       </ol>
+
+      <h2>Privacy</h2>
+      <p>No daemon, analytics, network access, clipboard access, messages or account data. Diagnostics remain local.</p>
     </section>
   </main>
 </body>
