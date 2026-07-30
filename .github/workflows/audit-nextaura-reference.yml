@@ -1,3 +1,4 @@
+# Trigger: inspect the proven NextAura RootHide implementation before rebuilding Next Home Lock.
 name: Audit NextAura Reference
 
 on:
