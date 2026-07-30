@@ -108,57 +108,38 @@ Author: NextSolution
 Name: Daily Ledger SMS Import
 
 Package: com.nextsolution.nexthomelock
-Version: 1.0.3
+Version: 1.0.4
 Architecture: iphoneos-arm64
 Maintainer: Next Solution
-Installed-Size: 156
-Depends: firmware (>= 15.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/NextHomeLock_1.0.3_Rootless.deb
-Size: 13616
-MD5sum: 31b0b88779f5147a315dff60045daba4
-SHA1: 08bb566c2e7884ee494b87dddb5a8d36cc2ce979
-SHA256: 67c9d8d966e7a477600c48dccc0d6988eb41b2f849d4aed77c569c01a0e659a2
+Installed-Size: 352
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/NextHomeLock_1.0.4_Rootless.deb
+Size: 15806
+MD5sum: ef7d660e1751c5e8c45faf9afe5be66c
+SHA1: b9afe71cbd1711a58ca7f1dcc152bda1e37bc55e
+SHA256: fc7221755c5ac6e3c9a488a1116045870539b3802f3c6ecaf74c09c9255c2094
 Section: Tweaks
 Priority: optional
-Description: Double-tap an empty Home Screen area to lock the device. Version 1.0.3 adds a Settings diagnostics pane showing SpringBoard injection, gesture attachment, touch decisions, and a Test Lock command.
+Description: Double-tap an empty Home Screen area to lock the device. Version 1.0.4 replaces the failed gesture-recognizer implementation with the proven SBIconListView touchesEnded method and SpringBoard simulated lock-button route. Includes live CFPreferences diagnostics and Test Lock Now.
 Author: Next Solution
 Name: Next Home Lock
 
 Package: com.nextsolution.nexthomelock
-Version: 1.0.3
+Version: 1.0.4
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 156
-Depends: firmware (>= 15.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/NextHomeLock_1.0.3_RootHide.deb
-Size: 13546
-MD5sum: 0464abca28903a18afbc20ad589ec3f3
-SHA1: 92d808242d343382aceab19304b6faa4bd5c2b85
-SHA256: 920e83d70e09283e7fc0a58bfc42ffbcee0dd8f4413855cc3de9241e25b9e81b
+Installed-Size: 352
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/NextHomeLock_1.0.4_RootHide.deb
+Size: 15778
+MD5sum: 41d26fece3873d6f9d3186188da7e354
+SHA1: 644b8ed2e73ddc137a11511b7d01a08d1a242a2f
+SHA256: 7fece88e46448523508f1b0e045b49dda48d83533a62eb3ddf62db97f5247f3f
 Section: Tweaks
 Priority: optional
-Description: Double-tap an empty Home Screen area to lock the device. Version 1.0.3 adds a Settings diagnostics pane showing SpringBoard injection, gesture attachment, touch decisions, and a Test Lock command.
+Description: Double-tap an empty Home Screen area to lock the device. Version 1.0.4 replaces the failed gesture-recognizer implementation with the proven SBIconListView touchesEnded method and SpringBoard simulated lock-button route. Includes live CFPreferences diagnostics and Test Lock Now.
 Author: Next Solution
 Name: Next Home Lock
-
-Package: com.nextsolution.nextmessage
-Version: 1.1.0
-Architecture: iphoneos-arm64e
-Maintainer: Next Solution
-Installed-Size: 424
-Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/NextMessage_1.1.0_RootHide_iOS16.deb
-Size: 47158
-MD5sum: df278ca66df86b7c84b8888f5bed4efb
-SHA1: 671f048fbec9b121db96f9cbfaab30b466dbb5f6
-SHA256: 3a5d181776dbb892510f0cd18e02c3dc9aa53baa3403d290b3633ed248d49140
-Section: Tweaks
-Homepage: https://zeshan0727.github.io/
-Description: A free PhoneAura-inspired redesign for the iOS 16 Messages app with elegant conversation cards, dark glass styling, swipe-to-view conversation details, message count, first-message date, safe conversation deletion, haptics, animations and a branded Settings pane. Built for RootHide.
-Author: Next Solution - zeshan0727
-Depiction: https://zeshan0727.github.io/depictions/nextmessage.html
-Icon: https://zeshan0727.github.io/CydiaIcon.png
-Name: Next Message
 
 Package: com.nextsolution.nextmessage
 Version: 1.1.0
@@ -174,6 +155,25 @@ SHA256: b371c2cecc2c1955e6f8d7d3cddc7e573b3c31574ef907bebac6dc1ad595dae2
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
 Description: A free PhoneAura-inspired redesign for the iOS 16 Messages app with elegant conversation cards, dark glass styling, swipe-to-view conversation details, message count, first-message date, safe conversation deletion, haptics, animations and a branded Settings pane. Built for rootless jailbreaks.
+Author: Next Solution - zeshan0727
+Depiction: https://zeshan0727.github.io/depictions/nextmessage.html
+Icon: https://zeshan0727.github.io/CydiaIcon.png
+Name: Next Message
+
+Package: com.nextsolution.nextmessage
+Version: 1.1.0
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 424
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/NextMessage_1.1.0_RootHide_iOS16.deb
+Size: 47158
+MD5sum: df278ca66df86b7c84b8888f5bed4efb
+SHA1: 671f048fbec9b121db96f9cbfaab30b466dbb5f6
+SHA256: 3a5d181776dbb892510f0cd18e02c3dc9aa53baa3403d290b3633ed248d49140
+Section: Tweaks
+Homepage: https://zeshan0727.github.io/
+Description: A free PhoneAura-inspired redesign for the iOS 16 Messages app with elegant conversation cards, dark glass styling, swipe-to-view conversation details, message count, first-message date, safe conversation deletion, haptics, animations and a branded Settings pane. Built for RootHide.
 Author: Next Solution - zeshan0727
 Depiction: https://zeshan0727.github.io/depictions/nextmessage.html
 Icon: https://zeshan0727.github.io/CydiaIcon.png
@@ -300,26 +300,6 @@ Name: Sweat My Phone (RootHide)
 
 Package: com.nextsolution.unlockvibrate
 Version: 4.4.8
-Architecture: iphoneos-arm64
-Maintainer: Next Solution
-Installed-Size: 2332
-Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/NextAura_4.4.8_Rootless_iOS16.deb
-Size: 234716
-MD5sum: eb2afbe7c2d5811140e7be86f1e9a033
-SHA1: fa6485f07085bf29ad2f6409b324968d7f290554
-SHA256: efdbc4e146fde4fd4f49257f28d1ea49228c51e15226fa67bcc46c78b70e630f
-Section: Tweaks
-Priority: optional
-Homepage: https://zeshan0727.github.io/
-Description: The complete Next Solution customization suite for iOS 16. NextAura adds Dynamic Island notifications with gestures, live preview, adjustable sizing, stock-banner suppression, notification stacking, configurable backgrounds and native blur. It also includes vibration feedback, thermal battery colors, Sweat My Phone effects, Control Center tools, notification glow and safety recovery controls.
-Author: Next Solution - zeshan0727
-Depiction: https://zeshan0727.github.io/depictions/nextaura.html
-Icon: https://zeshan0727.github.io/CydiaIcon.png
-Name: NextAura
-
-Package: com.nextsolution.unlockvibrate
-Version: 4.4.8
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
 Installed-Size: 2332
@@ -338,23 +318,25 @@ Depiction: https://zeshan0727.github.io/depictions/nextaura.html
 Icon: https://zeshan0727.github.io/CydiaIcon.png
 Name: NextAura
 
-Package: com.zeshan.phoneaura
-Version: 0.4.15
-Architecture: iphoneos-arm64e
+Package: com.nextsolution.unlockvibrate
+Version: 4.4.8
+Architecture: iphoneos-arm64
 Maintainer: Next Solution
-Installed-Size: 1100
+Installed-Size: 2332
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.15_RootHide_iOS16.deb
-Size: 168128
-MD5sum: 2cf645128bd386a74bf6c01c5f45df10
-SHA1: b90e68895ac4ad4221ce0d1f378e7905459f7633
-SHA256: 9ab860d65d0cd9ddeadf849de0492091d77c6fe1e18ee5c31d7b5c7548afef10
+Filename: ./debfiles/NextAura_4.4.8_Rootless_iOS16.deb
+Size: 234716
+MD5sum: eb2afbe7c2d5811140e7be86f1e9a033
+SHA1: fa6485f07085bf29ad2f6409b324968d7f290554
+SHA256: efdbc4e146fde4fd4f49257f28d1ea49228c51e15226fa67bcc46c78b70e630f
 Section: Tweaks
+Priority: optional
 Homepage: https://zeshan0727.github.io/
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.15 adds a native long-press editing menu wherever a phone number is displayed. Editable keypad numbers support Cut, Copy and Paste; read-only contact, recent-call and detail numbers support safe Copy and Paste to Keypad without changing saved contact data. It also preserves the fixed saved-number suggestion area, Number not saved status, corrected Next Solution header logo, original Number Options menu, custom Favorites, smart Recents filters, Contacts, haptics and animations. Built for RootHide.
-Author: Next Solution
-Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
-Name: PhoneAura
+Description: The complete Next Solution customization suite for iOS 16. NextAura adds Dynamic Island notifications with gestures, live preview, adjustable sizing, stock-banner suppression, notification stacking, configurable backgrounds and native blur. It also includes vibration feedback, thermal battery colors, Sweat My Phone effects, Control Center tools, notification glow and safety recovery controls.
+Author: Next Solution - zeshan0727
+Depiction: https://zeshan0727.github.io/depictions/nextaura.html
+Icon: https://zeshan0727.github.io/CydiaIcon.png
+Name: NextAura
 
 Package: com.zeshan.phoneaura
 Version: 0.4.15
@@ -370,6 +352,24 @@ SHA256: 2419b42848d6c8a92291eb1ce4556e8fa2cb7fdf352c8f1b8cb3f6493e5d3105
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
 Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.15 adds a native long-press editing menu wherever a phone number is displayed. Editable keypad numbers support Cut, Copy and Paste; read-only contact, recent-call and detail numbers support safe Copy and Paste to Keypad without changing saved contact data. It also preserves the fixed saved-number suggestion area, Number not saved status, corrected Next Solution header logo, original Number Options menu, custom Favorites, smart Recents filters, Contacts, haptics and animations. Built for rootless jailbreaks.
+Author: Next Solution
+Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
+Name: PhoneAura
+
+Package: com.zeshan.phoneaura
+Version: 0.4.15
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 1100
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/PhoneAura_0.4.15_RootHide_iOS16.deb
+Size: 168128
+MD5sum: 2cf645128bd386a74bf6c01c5f45df10
+SHA1: b90e68895ac4ad4221ce0d1f378e7905459f7633
+SHA256: 9ab860d65d0cd9ddeadf849de0492091d77c6fe1e18ee5c31d7b5c7548afef10
+Section: Tweaks
+Homepage: https://zeshan0727.github.io/
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.15 adds a native long-press editing menu wherever a phone number is displayed. Editable keypad numbers support Cut, Copy and Paste; read-only contact, recent-call and detail numbers support safe Copy and Paste to Keypad without changing saved contact data. It also preserves the fixed saved-number suggestion area, Number not saved status, corrected Next Solution header logo, original Number Options menu, custom Favorites, smart Recents filters, Contacts, haptics and animations. Built for RootHide.
 Author: Next Solution
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
