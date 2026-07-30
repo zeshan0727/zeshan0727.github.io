@@ -108,36 +108,36 @@ Author: NextSolution
 Name: Daily Ledger SMS Import
 
 Package: com.nextsolution.nexthomelock
-Version: 1.0.1
-Architecture: iphoneos-arm64e
-Maintainer: Next Solution
-Installed-Size: 72
-Depends: firmware (>= 15.0), mobilesubstrate
-Filename: ./debfiles/NextHomeLock_1.0.1_RootHide.deb
-Size: 5786
-MD5sum: 93deb993292692c63f3c52968c3ce395
-SHA1: a18a71dc62544c62adfc9576c7e825b042723ccd
-SHA256: 13a354c6c5454badf8559ed7dec3015c1a2df45911f352decde5c33ec7e96b46
-Section: Tweaks
-Priority: optional
-Description: Double-tap an empty area of the Home Screen to lock the device. Version 1.0.1 fixes the iOS 16 Home Screen gesture attachment and adds a compatible lock fallback.
-Author: Next Solution
-Name: Next Home Lock
-
-Package: com.nextsolution.nexthomelock
-Version: 1.0.1
+Version: 1.0.2
 Architecture: iphoneos-arm64
 Maintainer: Next Solution
 Installed-Size: 72
 Depends: firmware (>= 15.0), mobilesubstrate
-Filename: ./debfiles/NextHomeLock_1.0.1_Rootless.deb
-Size: 5856
-MD5sum: 9fd961e8d70edd7cc80c31ae208c3464
-SHA1: 639aa4e52dc574ea2d1fc573d349aaaf3812f123
-SHA256: 7df8e5c442063fc0a9f083f8f9f37cf14004e8f931b2ea2844477cecd8b139cc
+Filename: ./debfiles/NextHomeLock_1.0.2_Rootless.deb
+Size: 5870
+MD5sum: 71c70368e1b6c4efb38545437708dfb6
+SHA1: f1eefe06ad486dbe47ba765d7d9c45abe9746c14
+SHA256: 5bbbb9873f1adac456de18a631848d083649b2f8f5e2607d275449d8c30448ae
 Section: Tweaks
 Priority: optional
-Description: Double-tap an empty area of the Home Screen to lock the device. Version 1.0.1 fixes the iOS 16 Home Screen gesture attachment and adds a compatible lock fallback.
+Description: Double-tap an empty area of the Home Screen to lock the device. Version 1.0.2 fixes the Home Screen background touch filter on iOS 16.
+Author: Next Solution
+Name: Next Home Lock
+
+Package: com.nextsolution.nexthomelock
+Version: 1.0.2
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 72
+Depends: firmware (>= 15.0), mobilesubstrate
+Filename: ./debfiles/NextHomeLock_1.0.2_RootHide.deb
+Size: 5792
+MD5sum: c8094ef7839c23f0ecf1160c3caf9232
+SHA1: d4c800119fa7fa53c1658fa8fed58ef58a0c5933
+SHA256: 446e0671b6799c8a8481fadb7a0a0a5a12d92407aec819ec86f67f3d3d498200
+Section: Tweaks
+Priority: optional
+Description: Double-tap an empty area of the Home Screen to lock the device. Version 1.0.2 fixes the Home Screen background touch filter on iOS 16.
 Author: Next Solution
 Name: Next Home Lock
 
