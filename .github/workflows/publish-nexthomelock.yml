@@ -1,4 +1,4 @@
-# Temporary PR release trigger: Next Home Lock 1.0.5 simple on-off preferences.
+# PR run trigger: Next Home Lock 1.0.5 simple on-off preferences.
 name: Build and Publish Next Home Lock
 
 on:
