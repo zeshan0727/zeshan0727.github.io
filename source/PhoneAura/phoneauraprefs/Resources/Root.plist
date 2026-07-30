@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
-    <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>PHONEAURA 0.4.15</string><key>footerText</key><string>Long press any displayed phone number for the native Cut, Copy and Paste menu. Cut is enabled only on the editable keypad number; read-only contact and call-history numbers remain protected.</string></dict>
+    <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>PHONEAURA 0.4.16</string><key>footerText</key><string>Emergency stability hotfix: the crashing 0.4.15 global long-press phone-number editing hooks have been removed. This restores the stable 0.4.14 PhoneAura behavior.</string></dict>
     <dict><key>cell</key><string>PSButtonCell</string><key>label</key><string>Open PhoneAura Studio</string><key>action</key><string>openStudioApp</string></dict>
     <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Enable PhoneAura</string><key>defaults</key><string>com.zeshan.phoneaura</string><key>key</key><string>enabled</string><key>default</key><true/><key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string></dict>
     <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>CUSTOM PHONE TABS</string><key>footerText</key><string>Each option replaces only its matching root tab. Individual contact details and active calls continue using Apple’s normal controllers.</string></dict>
