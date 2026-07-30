@@ -1,4 +1,4 @@
-# Release trigger: workflow is now present on the default branch.
+# Release trigger: select each architecture package explicitly.
 name: Build and Publish Next Home Lock
 
 on:
@@ -44,8 +44,9 @@ jobs:
           export THEOS="$RUNNER_TEMP/theos-rootless"
           export THEOS_PACKAGE_SCHEME=rootless
           PROJECT="$RUNNER_TEMP/NextSolution/DailyTweaks/2026-07-30-NextHomeLock"
+          rm -rf "$PROJECT/packages"
           make -C "$PROJECT" clean package FINALPACKAGE=1
-          ROOTLESS_DEB="$(find "$PROJECT/packages" -type f -name '*.deb' -print -quit)"
+          ROOTLESS_DEB="$(find "$PROJECT/packages" -type f -name '*_iphoneos-arm64.deb' -print -quit)"
           test -n "$ROOTLESS_DEB"
           mkdir -p debfiles
           cp "$ROOTLESS_DEB" debfiles/NextHomeLock_1.0.0_Rootless.deb
@@ -63,8 +64,9 @@ jobs:
           sed -i '' 's/^Architecture: iphoneos-arm64$/Architecture: iphoneos-arm64e/' "$PROJECT/control"
           export THEOS="$RUNNER_TEMP/theos-roothide"
           export THEOS_PACKAGE_SCHEME=roothide
+          rm -rf "$PROJECT/packages"
           make -C "$PROJECT" clean package FINALPACKAGE=1
-          ROOTHIDE_DEB="$(find "$PROJECT/packages" -type f -name '*.deb' -print -quit)"
+          ROOTHIDE_DEB="$(find "$PROJECT/packages" -type f -name '*_iphoneos-arm64e.deb' -print -quit)"
           test -n "$ROOTHIDE_DEB"
           cp "$ROOTHIDE_DEB" debfiles/NextHomeLock_1.0.0_RootHide.deb
 
