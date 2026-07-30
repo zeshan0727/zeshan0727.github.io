@@ -1,0 +1,71 @@
+name: Ensure AdSense coverage
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.html"
+      - "ads.txt"
+      - ".github/workflows/ensure-adsense.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ensure-adsense:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add missing AdSense code and verify ads.txt
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          publisher = "ca-pub-4770123899731214"
+          snippet = (
+              '  <script async src="https://pagead2.googlesyndication.com/pagead/js/'
+              'adsbygoogle.js?client=ca-pub-4770123899731214" '
+              'crossorigin="anonymous"></script>\n'
+          )
+
+          changed = []
+          skipped = []
+          for path in sorted(Path('.').rglob('*.html')):
+              if '.git' in path.parts or path.name == '404.html':
+                  continue
+              text = path.read_text(encoding='utf-8')
+              if publisher in text:
+                  continue
+              match = re.search(r'</head\s*>', text, flags=re.IGNORECASE)
+              if not match:
+                  skipped.append(str(path))
+                  continue
+              text = text[:match.start()] + snippet + text[match.start():]
+              path.write_text(text, encoding='utf-8')
+              changed.append(str(path))
+
+          ads_line = "google.com, pub-4770123899731214, DIRECT, f08c47fec0942fa0\n"
+          ads_file = Path('ads.txt')
+          if not ads_file.exists() or ads_file.read_text(encoding='utf-8') != ads_line:
+              ads_file.write_text(ads_line, encoding='utf-8')
+              changed.append('ads.txt')
+
+          print('Updated:', ', '.join(changed) if changed else 'none')
+          if skipped:
+              raise SystemExit('HTML files without a </head> tag: ' + ', '.join(skipped))
+          PY
+
+      - name: Commit automatic fixes
+        run: |
+          if git diff --quiet; then
+            echo "All HTML pages already contain the AdSense code."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          git commit -m "Ensure AdSense coverage on all HTML pages [skip ci]"
+          git push
