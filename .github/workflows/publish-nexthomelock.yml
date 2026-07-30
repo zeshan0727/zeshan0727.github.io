@@ -1,9 +1,12 @@
-# Release trigger 3: Next Home Lock 1.0.5 simple on-off preferences.
+# Temporary PR release trigger: Next Home Lock 1.0.5 simple on-off preferences.
 name: Build and Publish Next Home Lock
 
 on:
   workflow_dispatch:
   push:
+    branches: [main]
+    paths: [".github/workflows/publish-nexthomelock.yml"]
+  pull_request:
     branches: [main]
     paths: [".github/workflows/publish-nexthomelock.yml"]
 
