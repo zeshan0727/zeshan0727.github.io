@@ -1,4 +1,4 @@
-# Release trigger 2: Next Home Lock 1.0.3 diagnostics with concurrency-safe publishing.
+# Release trigger: Next Home Lock 1.0.4 proven SBIconListView rebuild.
 name: Build and Publish Next Home Lock
 
 on:
@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: publish-nexthomelock-1.0.3
+  group: publish-nexthomelock-1.0.4
   cancel-in-progress: false
 
 jobs:
@@ -27,9 +27,9 @@ jobs:
       - name: Install build and repository tools
         run: brew install dpkg ldid xz zstd
 
-      - name: Check out and validate diagnostic source
+      - name: Check out and validate proven-method source
         env:
-          SOURCE_COMMIT: 5628121c33d3a008d16deff53e604847db05d53f
+          SOURCE_COMMIT: c401bcb128aa4f685006f6a1eaf9d72868b22698
         run: |
           set -euo pipefail
           git clone --no-checkout https://github.com/zeshan0727/NextSolution.git "$RUNNER_TEMP/NextSolution"
@@ -39,35 +39,73 @@ jobs:
           test -f "$PROJECT/Tweak.xm"
           test -f "$PROJECT/NextHomeLock.plist"
           test -f "$PROJECT/control"
+          test -f "$PROJECT/LICENSE"
+          test -f "$PROJECT/Preferences/Makefile"
+          test -f "$PROJECT/Preferences/NHLRootListController.h"
           test -f "$PROJECT/Preferences/NHLRootListController.m"
-          test -f "$PROJECT/Preferences/Root.plist"
-          test -f "$PROJECT/Preferences/Info.plist"
+          test -f "$PROJECT/Preferences/Resources/Root.plist"
+          test -f "$PROJECT/Preferences/Resources/Info.plist"
           test -f "$PROJECT/layout/Library/PreferenceLoader/Preferences/NextHomeLock.plist"
 
-          grep -q '^Version: 1.0.3$' "$PROJECT/control"
+          grep -q '^Version: 1.0.4$' "$PROJECT/control"
+          grep -q 'firmware (>= 16.0)' "$PROJECT/control"
           grep -q 'preferenceloader' "$PROJECT/control"
-          grep -q 'BUNDLE_NAME = NextHomeLockPreferences' "$PROJECT/Makefile"
-          grep -q 'com.nextsolution.nexthomelock.test-lock' "$PROJECT/Tweak.xm"
-          grep -q 'com.nextsolution.nexthomelock.runtime.plist' "$PROJECT/Tweak.xm"
-          grep -q 'Test Lock Now' "$PROJECT/Preferences/Root.plist"
-          grep -q 'SpringBoard Injection' "$PROJECT/Preferences/Root.plist"
-          grep -q 'Gesture Attachment' "$PROJECT/Preferences/Root.plist"
-          plutil -lint "$PROJECT/Preferences/Root.plist"
-          plutil -lint "$PROJECT/Preferences/Info.plist"
+          grep -q '^ARCHS = arm64 arm64e$' "$PROJECT/Makefile"
+          grep -q '^TARGET = iphone:clang:latest:16.0$' "$PROJECT/Makefile"
+          grep -q '^THEOS_PACKAGE_SCHEME ?= roothide$' "$PROJECT/Makefile"
+          grep -q 'SUBPROJECTS += Preferences' "$PROJECT/Makefile"
+          grep -q 'BUNDLE_NAME = NextHomeLockPreferences' "$PROJECT/Preferences/Makefile"
+          grep -q 'CFPreferences' "$PROJECT/Preferences/NHLRootListController.m"
+          grep -q 'Test Lock Now' "$PROJECT/Preferences/Resources/Root.plist"
+          grep -q 'Touch Hook' "$PROJECT/Preferences/Resources/Root.plist"
+          grep -q 'NHLRootListController' "$PROJECT/layout/Library/PreferenceLoader/Preferences/NextHomeLock.plist"
+          grep -q 'Hao Nguyen' "$PROJECT/LICENSE"
+
+          plutil -lint "$PROJECT/Preferences/Resources/Root.plist"
+          plutil -lint "$PROJECT/Preferences/Resources/Info.plist"
           plutil -lint "$PROJECT/layout/Library/PreferenceLoader/Preferences/NextHomeLock.plist"
 
           PROJECT="$PROJECT" python3 - <<'PY'
           import os
           from pathlib import Path
-          source = (Path(os.environ["PROJECT"]) / "Tweak.xm").read_text()
-          loop = source.index("for (UIView *current")
-          root_accept = source.index("if (current == rootView", loop)
-          control_reject = source.index("if ([current isKindOfClass:UIControl.class])", loop)
-          token_reject = source.index("if (NHLClassNameContainsAny(className, blockedTokens))", loop)
-          assert loop < root_accept < control_reject < token_reject
-          for required in ["NHLWriteStatus(@{", "gestureInstalled", "testCommandReceived", "NHLHandleTestLockNotification", "%ctor"]:
-              assert required in source
-          assert '@"Folder",' not in source
+
+          project = Path(os.environ["PROJECT"])
+          source = (project / "Tweak.xm").read_text()
+          required = [
+              "%hook SBIconListView",
+              "touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event",
+              "tapCount == 2",
+              "_simulateLockButtonPress",
+              "pluginUserAgent",
+              "lockAndDimDevice",
+              "SBLockScreenManager",
+              "SBSLockDevice",
+              "com.nextsolution.nexthomelock.runtime",
+              "com.nextsolution.nexthomelock.preferences.changed",
+              "com.nextsolution.nexthomelock.test-lock",
+              "CFPreferencesSetAppValue",
+              "CFPreferencesCopyAppValue",
+              "%ctor",
+          ]
+          for value in required:
+              assert value in source, value
+
+          forbidden = [
+              "%hook SBRootFolderView",
+              "%hook SBIconController",
+              "UITapGestureRecognizer",
+              "NHLGestureHandler",
+              "gestureInstalled",
+              "com.nextsolution.nexthomelock.runtime.plist",
+          ]
+          for value in forbidden:
+              assert value not in source, value
+
+          hook = source.index("%hook SBIconListView")
+          touch = source.index("touchesEnded:(NSSet *)touches", hook)
+          count = source.index("tapCount == 2", touch)
+          lock = source.index("NHLRequestLock", count)
+          assert hook < touch < count < lock
           PY
 
       - name: Build rootless package
@@ -82,7 +120,7 @@ jobs:
           ROOTLESS_DEB="$(find "$PROJECT/packages" -type f -name '*_iphoneos-arm64.deb' -print -quit)"
           test -n "$ROOTLESS_DEB"
           mkdir -p "$RUNNER_TEMP/nexthomelock-release"
-          cp "$ROOTLESS_DEB" "$RUNNER_TEMP/nexthomelock-release/NextHomeLock_1.0.3_Rootless.deb"
+          cp "$ROOTLESS_DEB" "$RUNNER_TEMP/nexthomelock-release/NextHomeLock_1.0.4_Rootless.deb"
 
       - name: Build RootHide package
         run: |
@@ -102,9 +140,9 @@ jobs:
           make -C "$PROJECT" clean package FINALPACKAGE=1
           ROOTHIDE_DEB="$(find "$PROJECT/packages" -type f -name '*_iphoneos-arm64e.deb' -print -quit)"
           test -n "$ROOTHIDE_DEB"
-          cp "$ROOTHIDE_DEB" "$RUNNER_TEMP/nexthomelock-release/NextHomeLock_1.0.3_RootHide.deb"
+          cp "$ROOTHIDE_DEB" "$RUNNER_TEMP/nexthomelock-release/NextHomeLock_1.0.4_RootHide.deb"
 
-      - name: Validate both diagnostic packages
+      - name: Validate both proven-method packages
         shell: bash
         run: |
           set -euo pipefail
@@ -117,9 +155,9 @@ jobs:
             extract_dir="$(mktemp -d)"
 
             test "$(dpkg-deb -f "$package_path" Package)" = "com.nextsolution.nexthomelock"
-            test "$(dpkg-deb -f "$package_path" Version)" = "1.0.3"
+            test "$(dpkg-deb -f "$package_path" Version)" = "1.0.4"
             test "$(dpkg-deb -f "$package_path" Architecture)" = "$expected_arch"
-            dpkg-deb -f "$package_path" Depends | grep -q 'firmware (>= 15.0)'
+            dpkg-deb -f "$package_path" Depends | grep -q 'firmware (>= 16.0)'
             dpkg-deb -f "$package_path" Depends | grep -q 'mobilesubstrate'
             dpkg-deb -f "$package_path" Depends | grep -q 'preferenceloader'
 
@@ -129,7 +167,6 @@ jobs:
             filter="$(find "$extract_dir" -type f -path '*MobileSubstrate*' -name 'NextHomeLock.plist' -print -quit)"
             entry="$(find "$extract_dir" -type f -path '*PreferenceLoader/Preferences*' -name 'NextHomeLock.plist' -print -quit)"
             bundle="$(find "$extract_dir" -type d -name 'NextHomeLockPreferences.bundle' -print -quit)"
-            test -n "$bundle"
             bundle_binary="$(find "$bundle" -type f -name 'NextHomeLockPreferences' -print -quit)"
             root_plist="$(find "$bundle" -type f -name 'Root.plist' -print -quit)"
             info_plist="$(find "$bundle" -type f -name 'Info.plist' -print -quit)"
@@ -137,6 +174,7 @@ jobs:
             test -n "$dylib"
             test -n "$filter"
             test -n "$entry"
+            test -n "$bundle"
             test -n "$bundle_binary"
             test -n "$root_plist"
             test -n "$info_plist"
@@ -144,33 +182,39 @@ jobs:
             file "$bundle_binary" | grep -q 'arm64'
             grep -q 'com.apple.springboard' "$filter"
             grep -q 'NextHomeLockPreferences' "$entry"
+            grep -q 'NHLRootListController' "$entry"
             grep -q 'Test Lock Now' "$root_plist"
             grep -q 'SpringBoard Injection' "$root_plist"
-            grep -q 'Gesture Attachment' "$root_plist"
+            grep -q 'Touch Hook' "$root_plist"
             plutil -lint "$entry"
             plutil -lint "$root_plist"
             plutil -lint "$info_plist"
 
-            strings "$dylib" | grep -q 'SBRootFolderView'
-            strings "$dylib" | grep -q 'SBLockScreenManager'
-            strings "$dylib" | grep -q 'SBSLockDevice'
-            strings "$dylib" | grep -q 'com.nextsolution.nexthomelock.test-lock'
-            strings "$dylib" | grep -q 'com.nextsolution.nexthomelock.runtime.plist'
-            strings "$dylib" | grep -q 'gestureInstalled'
-            strings "$bundle_binary" | grep -q 'NHLRootListController'
-            strings "$bundle_binary" | grep -q 'testLock'
+            strings -a "$dylib" | grep -q 'SBIconListView'
+            strings -a "$dylib" | grep -q 'touchesEnded:withEvent:'
+            strings -a "$dylib" | grep -q '_simulateLockButtonPress'
+            strings -a "$dylib" | grep -q 'pluginUserAgent'
+            strings -a "$dylib" | grep -q 'lockAndDimDevice'
+            strings -a "$dylib" | grep -q 'SBLockScreenManager'
+            strings -a "$dylib" | grep -q 'SBSLockDevice'
+            strings -a "$dylib" | grep -q 'com.nextsolution.nexthomelock.runtime'
+            strings -a "$dylib" | grep -q 'com.nextsolution.nexthomelock.preferences.changed'
+            strings -a "$dylib" | grep -q 'com.nextsolution.nexthomelock.test-lock'
+            strings -a "$bundle_binary" | grep -q 'NHLRootListController'
+            strings -a "$bundle_binary" | grep -q 'testLock'
+            strings -a "$bundle_binary" | grep -q 'CFPreferencesCopyAppValue'
 
-            if strings "$dylib" | grep -q 'SBIconController'; then
-              echo "Obsolete SBIconController hook remains in package" >&2
+            if strings -a "$dylib" | grep -Eq 'SBRootFolderView|SBIconController|NHLGestureHandler|gestureInstalled'; then
+              echo "Obsolete gesture-recognizer implementation remains in package" >&2
               exit 1
             fi
             rm -rf "$extract_dir"
           }
 
-          validate_deb "$RELEASE/NextHomeLock_1.0.3_Rootless.deb" iphoneos-arm64
-          validate_deb "$RELEASE/NextHomeLock_1.0.3_RootHide.deb" iphoneos-arm64e
-          shasum -a 256 "$RELEASE/NextHomeLock_1.0.3_Rootless.deb"
-          shasum -a 256 "$RELEASE/NextHomeLock_1.0.3_RootHide.deb"
+          validate_deb "$RELEASE/NextHomeLock_1.0.4_Rootless.deb" iphoneos-arm64
+          validate_deb "$RELEASE/NextHomeLock_1.0.4_RootHide.deb" iphoneos-arm64e
+          shasum -a 256 "$RELEASE/NextHomeLock_1.0.4_Rootless.deb"
+          shasum -a 256 "$RELEASE/NextHomeLock_1.0.4_RootHide.deb"
 
       - name: Publish against latest repository state
         run: |
@@ -184,8 +228,8 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             mkdir -p debfiles
-            cp "$RELEASE/NextHomeLock_1.0.3_Rootless.deb" debfiles/
-            cp "$RELEASE/NextHomeLock_1.0.3_RootHide.deb" debfiles/
+            cp "$RELEASE/NextHomeLock_1.0.4_Rootless.deb" debfiles/
+            cp "$RELEASE/NextHomeLock_1.0.4_RootHide.deb" debfiles/
 
             rm -f debfiles/NextHomeLock_1.0.0_Rootless.deb
             rm -f debfiles/NextHomeLock_1.0.0_RootHide.deb
@@ -193,13 +237,13 @@ jobs:
             rm -f debfiles/NextHomeLock_1.0.1_RootHide.deb
             rm -f debfiles/NextHomeLock_1.0.2_Rootless.deb
             rm -f debfiles/NextHomeLock_1.0.2_RootHide.deb
+            rm -f debfiles/NextHomeLock_1.0.3_Rootless.deb
+            rm -f debfiles/NextHomeLock_1.0.3_RootHide.deb
 
             dpkg-scanpackages -m ./debfiles /dev/null | sed 's|^Filename: debfiles/|Filename: ./debfiles/|' > Packages
             test "$(grep -c '^Package: com.nextsolution.nexthomelock$' Packages)" -eq 2
-            test "$(grep -c '^Version: 1.0.3$' Packages)" -ge 2
-            test "$(grep -c 'NextHomeLock_1.0.0' Packages || true)" -eq 0
-            test "$(grep -c 'NextHomeLock_1.0.1' Packages || true)" -eq 0
-            test "$(grep -c 'NextHomeLock_1.0.2' Packages || true)" -eq 0
+            test "$(grep -c '^Version: 1.0.4$' Packages)" -ge 2
+            test "$(grep -c 'NextHomeLock_1.0.[0-3]' Packages || true)" -eq 0
             gzip -9 -c Packages > Packages.gz
             bzip2 -9 -c Packages > Packages.bz2
             xz -9e -c Packages > Packages.xz
@@ -207,7 +251,7 @@ jobs:
 
             git add -A
             git diff --cached --check
-            git commit -m "Publish Next Home Lock 1.0.3 diagnostics"
+            git commit -m "Publish Next Home Lock 1.0.4 proven-method rebuild"
             if git push origin HEAD:main; then
               exit 0
             fi
