@@ -110,9 +110,8 @@ static NSArray<UIButton *> *PA411SuggestionButtons(UIView *card) {
 
     NSUInteger visibleMatches = 0;
     for (UIButton *button in suggestionButtons) {
-        if (!button.hidden && button.attributedTitleForState:UIControlStateNormal.length > 0) {
-            visibleMatches++;
-        }
+        NSAttributedString *title = [button attributedTitleForState:UIControlStateNormal];
+        if (!button.hidden && title.length > 0) visibleMatches++;
     }
 
     CGFloat width = CGRectGetWidth(self.bounds);
@@ -131,7 +130,8 @@ static NSArray<UIButton *> *PA411SuggestionButtons(UIView *card) {
     CGFloat buttonWidth = visibleMatches == 1 ? available : (available - gap) / 2.0;
     NSUInteger visibleIndex = 0;
     for (UIButton *button in suggestionButtons) {
-        if (button.hidden || button.attributedTitleForState:UIControlStateNormal.length == 0) continue;
+        NSAttributedString *title = [button attributedTitleForState:UIControlStateNormal];
+        if (button.hidden || title.length == 0) continue;
         button.frame = CGRectMake(inset + visibleIndex * (buttonWidth + gap),
                                   7.0,
                                   buttonWidth,
