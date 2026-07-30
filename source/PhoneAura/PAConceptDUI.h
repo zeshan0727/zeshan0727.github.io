@@ -35,7 +35,6 @@ NSArray<UIColor *> *PAPaletteForIndex(NSUInteger index);
 @property(nonatomic) BOOL hapticsEnabled;
 @property(nonatomic) BOOL animationsEnabled;
 @property(nonatomic) CGFloat studioCornerRadius;
-- (void)setDialNumber:(NSString *)number;
 - (void)clearNumber;
 @end
 
