@@ -1,3 +1,4 @@
+# Release trigger 2: workflow is now present on the default branch.
 name: Build and Publish Next Charge Pulse
 
 on:
