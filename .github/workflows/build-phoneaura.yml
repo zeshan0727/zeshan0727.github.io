@@ -1,4 +1,4 @@
-# PhoneAura 0.4.12 Next Solution keypad logo button
+# PhoneAura 0.4.15 long-press phone number editing menu
 name: Build PhoneAura RootHide and Rootless
 
 on:
@@ -15,6 +15,10 @@ on:
     paths:
       - "source/PhoneAura/**"
       - ".github/workflows/build-phoneaura.yml"
+
+concurrency:
+  group: phoneaura-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
