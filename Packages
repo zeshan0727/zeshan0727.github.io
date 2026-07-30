@@ -305,37 +305,37 @@ Icon: https://zeshan0727.github.io/CydiaIcon.png
 Name: NextAura
 
 Package: com.zeshan.phoneaura
-Version: 0.4.11
+Version: 0.4.12
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 1072
+Installed-Size: 1084
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.11_RootHide_iOS16.deb
-Size: 152710
-MD5sum: f9a0849502876d81d5b28b0c42207b93
-SHA1: 21227cf5f6338e677e7b77849dda25c4f18bce47
-SHA256: 35327bba536e99247142865f726a8451d7a255e45d92fa94b53ae0b6db73c078
+Filename: ./debfiles/PhoneAura_0.4.12_RootHide_iOS16.deb
+Size: 165408
+MD5sum: 8fa0ea8bc2e21abcf3c5461883b48aa7
+SHA1: 11f61154fe3ec746d96f77ca3f2ac2bbbf0f13e1
+SHA256: 0021ee88af67f17930ed903a390a78220cc3e6565238953f87adfc4cb250b48d
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.11 keeps a fixed saved-number suggestion area above the keypad so the digits never shift while typing. Matching contacts appear in the reserved card; when no saved number matches, it displays Number not saved. It also includes the native contact menu, clipboard Paste, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for RootHide.
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.12 replaces the keypad three-dot menu with the round Next Solution logo; tapping the logo opens the official Next Solution YouTube channel. It preserves the fixed saved-number suggestion area, Number not saved status, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for RootHide.
 Author: Next Solution
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
 
 Package: com.zeshan.phoneaura
-Version: 0.4.11
+Version: 0.4.12
 Architecture: iphoneos-arm64
 Maintainer: Next Solution
-Installed-Size: 1072
+Installed-Size: 1084
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.11_Rootless_iOS16.deb
-Size: 152738
-MD5sum: ee5221d38b178252c13e567925238c9f
-SHA1: 7a3c840f71d66ace5a7bb80304ea1ea244d8235c
-SHA256: 5039f1162a679a1e5570949f045f7bba5bfd03e2a1dce5fcf6d230394cbd34c1
+Filename: ./debfiles/PhoneAura_0.4.12_Rootless_iOS16.deb
+Size: 166658
+MD5sum: f64a18e3e6c8fd90e29c7e3634862fdd
+SHA1: c80b360ebf67ad1f041ba67191db833806b75320
+SHA256: 8593fbb3ae0f469a53aa02b58ce03bbc5cdfa45349e2670962b243bc0b47d2ae
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.11 keeps a fixed saved-number suggestion area above the keypad so the digits never shift while typing. Matching contacts appear in the reserved card; when no saved number matches, it displays Number not saved. It also includes the native contact menu, clipboard Paste, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for rootless jailbreaks.
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.12 replaces the keypad three-dot menu with the round Next Solution logo; tapping the logo opens the official Next Solution YouTube channel. It preserves the fixed saved-number suggestion area, Number not saved status, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for rootless jailbreaks.
 Author: Next Solution
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Name: PhoneAura
