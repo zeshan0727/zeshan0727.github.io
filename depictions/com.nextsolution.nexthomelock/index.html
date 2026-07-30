@@ -21,23 +21,25 @@
     <section class="card">
       <h1>Next Home Lock</h1>
       <p>Double-tap a genuinely empty area of the Home Screen to lock your iPhone.</p>
-      <span class="badge">Version 1.0.2 · RootHide + Rootless · iOS 15+</span>
+      <span class="badge">Version 1.0.3 · RootHide + Rootless · iOS 15+</span>
 
-      <h2>Version 1.0.2</h2>
-      <p class="fix">Fixes the background-touch filter that incorrectly rejected every Home Screen tap because the valid root container contains the word “Folder.”</p>
+      <h2>Version 1.0.3 Diagnostics</h2>
+      <p class="fix">Adds a Settings pane that confirms package version, SpringBoard injection, root-folder hook, gesture attachment, last touch decision, last gesture result and lock route.</p>
 
-      <h2>Designed not to interfere</h2>
-      <p>Touches on icons, widgets, folder icons, folder UI, the dock, search, App Library, Today View, Control Center, editing mode and the app switcher are ignored.</p>
+      <h2>Test Lock Now</h2>
+      <p>Open Settings → Next Home Lock and press <strong>Test Lock Now</strong>. This sends a direct diagnostic command to the injected SpringBoard tweak. If the phone locks, injection and the lock route are working independently of the Home Screen gesture.</p>
 
       <h2>Privacy</h2>
-      <p>No settings, daemon, analytics, clipboard access, network activity or stored user data.</p>
+      <p>Diagnostics are stored locally. No daemon, analytics, clipboard access, messages, account data or network activity.</p>
 
-      <h2>Test</h2>
+      <h2>Test sequence</h2>
       <ol>
-        <li>Refresh the repo and confirm Sileo shows version 1.0.2.</li>
-        <li>Upgrade the RootHide package and respring.</li>
-        <li>Double-tap empty space between Home Screen icons.</li>
-        <li>Confirm the device locks while icon, folder and widget taps remain normal.</li>
+        <li>Refresh the repo and confirm Sileo shows version 1.0.3.</li>
+        <li>Upgrade the matching package and respring.</li>
+        <li>Open Settings → Next Home Lock.</li>
+        <li>Record the Injection, Root Folder Hook and Gesture Attachment values.</li>
+        <li>Press Test Lock Now, then test the Home Screen double-tap.</li>
+        <li>Return to Settings and press Refresh Diagnostics.</li>
       </ol>
     </section>
   </main>
