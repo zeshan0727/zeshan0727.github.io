@@ -345,10 +345,10 @@ Maintainer: Next Solution
 Installed-Size: 1100
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
 Filename: ./debfiles/PhoneAura_0.4.15_RootHide_iOS16.deb
-Size: 168162
-MD5sum: bf9edb6868f5ecbe784dc4b0cf3295ce
-SHA1: 56a7c4168120123ed74d94e8fd5a26b0727c1ebc
-SHA256: 29e16277f3097b05bc7f6165d3fa6fd806843803f578898bdf243f5ac429618a
+Size: 168128
+MD5sum: 2cf645128bd386a74bf6c01c5f45df10
+SHA1: b90e68895ac4ad4221ce0d1f378e7905459f7633
+SHA256: 9ab860d65d0cd9ddeadf849de0492091d77c6fe1e18ee5c31d7b5c7548afef10
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
 Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.15 adds a native long-press editing menu wherever a phone number is displayed. Editable keypad numbers support Cut, Copy and Paste; read-only contact, recent-call and detail numbers support safe Copy and Paste to Keypad without changing saved contact data. It also preserves the fixed saved-number suggestion area, Number not saved status, corrected Next Solution header logo, original Number Options menu, custom Favorites, smart Recents filters, Contacts, haptics and animations. Built for RootHide.
@@ -363,10 +363,10 @@ Maintainer: Next Solution
 Installed-Size: 1100
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
 Filename: ./debfiles/PhoneAura_0.4.15_Rootless_iOS16.deb
-Size: 169014
-MD5sum: 718d861f6cc739313201fd7387abbab2
-SHA1: 20a2c256b3fca0affb9fd40e9fdefcfd29de9539
-SHA256: 32bdb95ab633f3fdd1688ef3fd5569c3e079b01ac653af0797c1c2ebff234883
+Size: 169840
+MD5sum: f88ec27d7e0279cede3bc22ee1236061
+SHA1: 4898bc989dcb0b5304b1b5a6c564c0b0d4844acb
+SHA256: 2419b42848d6c8a92291eb1ce4556e8fa2cb7fdf352c8f1b8cb3f6493e5d3105
 Section: Tweaks
 Homepage: https://zeshan0727.github.io/
 Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.15 adds a native long-press editing menu wherever a phone number is displayed. Editable keypad numbers support Cut, Copy and Paste; read-only contact, recent-call and detail numbers support safe Copy and Paste to Keypad without changing saved contact data. It also preserves the fixed saved-number suggestion area, Number not saved status, corrected Next Solution header logo, original Number Options menu, custom Favorites, smart Recents filters, Contacts, haptics and animations. Built for rootless jailbreaks.
