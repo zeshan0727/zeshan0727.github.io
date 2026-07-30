@@ -1,4 +1,4 @@
-# Release trigger 2: Next Home Lock 1.0.1 iOS 16 runtime hook fix.
+# Release trigger: Next Home Lock 1.0.2 touch-filter correction.
 name: Build and Publish Next Home Lock
 
 on:
@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: publish-nexthomelock-1.0.1
+  group: publish-nexthomelock-1.0.2
   cancel-in-progress: false
 
 jobs:
@@ -27,9 +27,9 @@ jobs:
       - name: Install build and repository tools
         run: brew install dpkg ldid xz zstd
 
-      - name: Check out fixed tweak source
+      - name: Check out corrected tweak source
         env:
-          SOURCE_COMMIT: 0d09f3a7e13f8649193189ae6e1ea43d4ac9d77c
+          SOURCE_COMMIT: 9b40f7ff97a70526772b4da9ce9a7b34c33aa9c7
         run: |
           git clone --no-checkout https://github.com/zeshan0727/NextSolution.git "$RUNNER_TEMP/NextSolution"
           git -C "$RUNNER_TEMP/NextSolution" checkout "$SOURCE_COMMIT"
@@ -38,7 +38,18 @@ jobs:
           test -f "$PROJECT/NextHomeLock.plist"
           test -f "$PROJECT/control"
           grep -q '%hook SBRootFolderView' "$PROJECT/Tweak.xm"
-          grep -q '^Version: 1.0.1$' "$PROJECT/control"
+          grep -q '^Version: 1.0.2$' "$PROJECT/control"
+          PROJECT="$PROJECT" python3 - <<'PY'
+          import os
+          from pathlib import Path
+          source = (Path(os.environ["PROJECT"]) / "Tweak.xm").read_text()
+          loop = source.index("for (UIView *current")
+          root_accept = source.index("if (current == rootView", loop)
+          control_reject = source.index("if ([current isKindOfClass:UIControl.class])", loop)
+          token_reject = source.index("if (NHLClassNameContainsAny(className, blockedTokens))", loop)
+          assert loop < root_accept < control_reject < token_reject
+          assert '@"Folder",' not in source
+          PY
 
       - name: Build rootless package
         run: |
@@ -51,7 +62,7 @@ jobs:
           ROOTLESS_DEB="$(find "$PROJECT/packages" -type f -name '*_iphoneos-arm64.deb' -print -quit)"
           test -n "$ROOTLESS_DEB"
           mkdir -p debfiles
-          cp "$ROOTLESS_DEB" debfiles/NextHomeLock_1.0.1_Rootless.deb
+          cp "$ROOTLESS_DEB" debfiles/NextHomeLock_1.0.2_Rootless.deb
 
       - name: Build RootHide package
         run: |
@@ -70,7 +81,7 @@ jobs:
           make -C "$PROJECT" clean package FINALPACKAGE=1
           ROOTHIDE_DEB="$(find "$PROJECT/packages" -type f -name '*_iphoneos-arm64e.deb' -print -quit)"
           test -n "$ROOTHIDE_DEB"
-          cp "$ROOTHIDE_DEB" debfiles/NextHomeLock_1.0.1_RootHide.deb
+          cp "$ROOTHIDE_DEB" debfiles/NextHomeLock_1.0.2_RootHide.deb
 
       - name: Validate both packages
         shell: bash
@@ -84,7 +95,7 @@ jobs:
             extract_dir="$(mktemp -d)"
 
             test "$(dpkg-deb -f "$package_path" Package)" = "com.nextsolution.nexthomelock"
-            test "$(dpkg-deb -f "$package_path" Version)" = "1.0.1"
+            test "$(dpkg-deb -f "$package_path" Version)" = "1.0.2"
             test "$(dpkg-deb -f "$package_path" Architecture)" = "$expected_arch"
             dpkg-deb -f "$package_path" Depends | grep -q 'firmware (>= 15.0)'
             dpkg-deb -f "$package_path" Depends | grep -q 'mobilesubstrate'
@@ -101,6 +112,7 @@ jobs:
             strings "$dylib" | grep -q 'SBRootFolderView'
             strings "$dylib" | grep -q 'SBLockScreenManager'
             strings "$dylib" | grep -q 'SBSLockDevice'
+            strings "$dylib" | grep -q 'FolderIcon'
             if strings "$dylib" | grep -q 'SBIconController'; then
               echo "Obsolete SBIconController hook remains in package" >&2
               exit 1
@@ -108,33 +120,36 @@ jobs:
             rm -rf "$extract_dir"
           }
 
-          validate_deb debfiles/NextHomeLock_1.0.1_Rootless.deb iphoneos-arm64
-          validate_deb debfiles/NextHomeLock_1.0.1_RootHide.deb iphoneos-arm64e
+          validate_deb debfiles/NextHomeLock_1.0.2_Rootless.deb iphoneos-arm64
+          validate_deb debfiles/NextHomeLock_1.0.2_RootHide.deb iphoneos-arm64e
 
-          shasum -a 256 debfiles/NextHomeLock_1.0.1_Rootless.deb
-          shasum -a 256 debfiles/NextHomeLock_1.0.1_RootHide.deb
+          shasum -a 256 debfiles/NextHomeLock_1.0.2_Rootless.deb
+          shasum -a 256 debfiles/NextHomeLock_1.0.2_RootHide.deb
 
-      - name: Withdraw broken version 1.0.0
+      - name: Withdraw broken earlier versions
         run: |
           rm -f debfiles/NextHomeLock_1.0.0_Rootless.deb
           rm -f debfiles/NextHomeLock_1.0.0_RootHide.deb
+          rm -f debfiles/NextHomeLock_1.0.1_Rootless.deb
+          rm -f debfiles/NextHomeLock_1.0.1_RootHide.deb
 
       - name: Regenerate repository indexes
         run: |
           dpkg-scanpackages -m ./debfiles /dev/null | sed 's|^Filename: debfiles/|Filename: ./debfiles/|' > Packages
           test "$(grep -c '^Package: com.nextsolution.nexthomelock$' Packages)" -eq 2
-          test "$(grep -c '^Version: 1.0.1$' Packages)" -ge 2
+          test "$(grep -c '^Version: 1.0.2$' Packages)" -ge 2
           test "$(grep -c 'NextHomeLock_1.0.0' Packages || true)" -eq 0
+          test "$(grep -c 'NextHomeLock_1.0.1' Packages || true)" -eq 0
           gzip -9 -c Packages > Packages.gz
           bzip2 -9 -c Packages > Packages.bz2
           xz -9e -c Packages > Packages.xz
           zstd -19 -q -c Packages > Packages.zst
 
-      - name: Commit verified fixed release
+      - name: Commit verified 1.0.2 release
         run: |
           git config user.name "Next Solution Build Bot"
           git config user.email "actions@users.noreply.github.com"
           git add -A
           git diff --cached --check
-          git commit -m "Fix Next Home Lock 1.0.1 for iOS 16 RootHide and rootless"
+          git commit -m "Fix Next Home Lock touch filtering in 1.0.2"
           git push
