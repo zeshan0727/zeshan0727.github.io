@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
-    <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>PHONEAURA 0.4.12</string><key>footerText</key><string>Stable RootHide and rootless controls. The keypad now uses the round Next Solution logo to open the official YouTube channel.</string></dict>
+    <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>PHONEAURA 0.4.13</string><key>footerText</key><string>The original Number Options button remains inside the number card. Only the upper-right Keypad header button uses the round Next Solution YouTube logo.</string></dict>
     <dict><key>cell</key><string>PSButtonCell</string><key>label</key><string>Open PhoneAura Studio</string><key>action</key><string>openStudioApp</string></dict>
     <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Enable PhoneAura</string><key>defaults</key><string>com.zeshan.phoneaura</string><key>key</key><string>enabled</string><key>default</key><true/><key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string></dict>
     <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>CUSTOM PHONE TABS</string><key>footerText</key><string>Each option replaces only its matching root tab. Individual contact details and active calls continue using Apple’s normal controllers.</string></dict>
@@ -18,7 +18,5 @@
     <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Haptic Feedback</string><key>defaults</key><string>com.zeshan.phoneaura</string><key>key</key><string>haptics</string><key>default</key><true/><key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string></dict>
     <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Fluid Animations</string><key>defaults</key><string>com.zeshan.phoneaura</string><key>key</key><string>animations</string><key>default</key><true/><key>PostNotification</key><string>com.zeshan.phoneaura/preferences.changed</string></dict>
     <dict><key>cell</key><string>PSGroupCell</string><key>footerText</key><string>Restart the Phone app after changing complete tab replacements.</string></dict>
-    <dict><key>cell</key><string>PSButtonCell</string><key>label</key><string>Restart Phone App</string><key>action</key><string>restartPhoneApp</string></dict>
-    <dict><key>cell</key><string>PSButtonCell</string><key>label</key><string>Reset PhoneAura Settings</string><key>action</key><string>resetPreferences</string></dict>
 </array>
 </plist>
