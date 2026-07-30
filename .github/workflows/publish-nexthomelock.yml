@@ -1,3 +1,4 @@
+# Release trigger: workflow is now present on the default branch.
 name: Build and Publish Next Home Lock
 
 on:
