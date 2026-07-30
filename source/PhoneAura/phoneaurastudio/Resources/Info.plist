@@ -11,8 +11,8 @@
     <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
     <key>CFBundleName</key><string>PhoneAuraStudio</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.4.12</string>
-    <key>CFBundleVersion</key><string>52</string>
+    <key>CFBundleShortVersionString</key><string>0.4.13</string>
+    <key>CFBundleVersion</key><string>53</string>
     <key>LSRequiresIPhoneOS</key><true/>
     <key>MinimumOSVersion</key><string>16.0</string>
     <key>NSContactsUsageDescription</key><string>PhoneAura uses Contacts to show saved-number suggestions and to create or update contacts from the redesigned keypad.</string>
