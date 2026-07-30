@@ -1,4 +1,4 @@
-# Release trigger 2: Next Home Lock 1.0.5 simple on-off preferences.
+# Release trigger 3: Next Home Lock 1.0.5 simple on-off preferences.
 name: Build and Publish Next Home Lock
 
 on:
