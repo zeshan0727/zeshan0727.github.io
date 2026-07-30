@@ -1,5 +1,5 @@
 Next Home Lock 1.0.4 diagnostic build
-UTC: 2026-07-30T11:06:31Z
+UTC: 2026-07-30T11:07:55Z
 
 ::warning::The following taps are not trusted:%0A  aws/tap%0A%0AHomebrew is currently ignoring formulae, casks and commands from these taps because tap trust is required.%0AUntap them with:%0A  brew untap aws/tap%0ATrust specific formulae, casks and commands with:%0A  brew trust --formula <user>/<tap>/<formula>%0A  brew trust --cask <user>/<tap>/<cask>%0A  brew trust --command <user>/<tap>/<command>%0AWhole-tap trust is broader and includes all current and future formulae,%0Acasks and commands from the listed taps. Trust whole taps with:%0A  brew trust aws/tap%0ATo disable trust checks:%0A  export HOMEBREW_NO_REQUIRE_TAP_TRUST=1%0AThis is not recommended and will be removed in a later release.%0AFor more information, see:%0A  https://docs.brew.sh/Tap-Trust%0A
 [34m==>[0m [1mWould install 2 formulae:[0m
@@ -12,13 +12,13 @@ libmd
 [34m==>[0m [1mWould install 1 dependency for ldid:[0m
 libplist
 [32m==>[0m [1mFetching downloads for: [32mdpkg[39m and [32mldid[39m[0m
-✔︎ Bottle Manifest gpatch (2.8)
 ✔︎ Bottle Manifest libmd (1.2.0)
+✔︎ Bottle Manifest gpatch (2.8)
 ✔︎ Bottle gpatch (2.8)
 ✔︎ Bottle ldid (2.1.5_1)
 ✔︎ Bottle libmd (1.2.0)
-✔︎ Bottle Manifest libplist (2.7.0)
 ✔︎ Bottle dpkg (1.23.7)
+✔︎ Bottle Manifest libplist (2.7.0)
 ✔︎ Bottle libplist (2.7.0)
 [32m==>[0m [1mInstalling dependencies for dpkg:[0m [32mgpatch[39m and [32mlibmd[39m[0m
 [32m==>[0m [1mInstalling dpkg dependency: [32mgpatch[39m[0m
@@ -144,19 +144,19 @@ Priority: optional
 Architecture: iphoneos-arm64
 Version: 1.0.4
 Installed-Size: 352
-drwxr-xr-x root/wheel        0 2026-07-30 11:07 .
-drwxr-xr-x root/wheel        0 2026-07-30 11:07 var
-drwxr-xr-x root/wheel        0 2026-07-30 11:07 var/jb
-drwxr-xr-x root/wheel        0 2026-07-30 11:07 var/jb/Library
-drwxr-xr-x root/wheel        0 2026-07-30 11:07 var/jb/Library/MobileSubstrate
-drwxr-xr-x root/wheel        0 2026-07-30 11:07 var/jb/Library/MobileSubstrate/DynamicLibraries
--rwxr-xr-x root/wheel   168864 2026-07-30 11:07 var/jb/Library/MobileSubstrate/DynamicLibraries/NextHomeLock.dylib
--rw-r--r-- root/wheel       93 2026-07-30 11:07 var/jb/Library/MobileSubstrate/DynamicLibraries/NextHomeLock.plist
-drwxr-xr-x root/wheel        0 2026-07-30 11:07 var/jb/Library/PreferenceBundles
-drwxr-xr-x root/wheel        0 2026-07-30 11:07 var/jb/Library/PreferenceBundles/NextHomeLockPreferences.bundle
--rw-r--r-- root/wheel      284 2026-07-30 11:07 var/jb/Library/PreferenceBundles/NextHomeLockPreferences.bundle/Info.plist
--rwxr-xr-x root/wheel   168224 2026-07-30 11:07 var/jb/Library/PreferenceBundles/NextHomeLockPreferences.bundle/NextHomeLockPreferences
--rw-r--r-- root/wheel     1480 2026-07-30 11:07 var/jb/Library/PreferenceBundles/NextHomeLockPreferences.bundle/Root.plist
-drwxr-xr-x root/wheel        0 2026-07-30 11:06 var/jb/Library/PreferenceLoader
-drwxr-xr-x root/wheel        0 2026-07-30 11:06 var/jb/Library/PreferenceLoader/Preferences
--rw-r--r-- root/wheel      189 2026-07-30 11:07 var/jb/Library/PreferenceLoader/Preferences/NextHomeLock.plist
+drwxr-xr-x root/wheel        0 2026-07-30 11:08 .
+drwxr-xr-x root/wheel        0 2026-07-30 11:08 var
+drwxr-xr-x root/wheel        0 2026-07-30 11:08 var/jb
+drwxr-xr-x root/wheel        0 2026-07-30 11:08 var/jb/Library
+drwxr-xr-x root/wheel        0 2026-07-30 11:08 var/jb/Library/MobileSubstrate
+drwxr-xr-x root/wheel        0 2026-07-30 11:08 var/jb/Library/MobileSubstrate/DynamicLibraries
+-rwxr-xr-x root/wheel   168864 2026-07-30 11:08 var/jb/Library/MobileSubstrate/DynamicLibraries/NextHomeLock.dylib
+-rw-r--r-- root/wheel       93 2026-07-30 11:08 var/jb/Library/MobileSubstrate/DynamicLibraries/NextHomeLock.plist
+drwxr-xr-x root/wheel        0 2026-07-30 11:08 var/jb/Library/PreferenceBundles
+drwxr-xr-x root/wheel        0 2026-07-30 11:08 var/jb/Library/PreferenceBundles/NextHomeLockPreferences.bundle
+-rw-r--r-- root/wheel      284 2026-07-30 11:08 var/jb/Library/PreferenceBundles/NextHomeLockPreferences.bundle/Info.plist
+-rwxr-xr-x root/wheel   168224 2026-07-30 11:08 var/jb/Library/PreferenceBundles/NextHomeLockPreferences.bundle/NextHomeLockPreferences
+-rw-r--r-- root/wheel     1480 2026-07-30 11:08 var/jb/Library/PreferenceBundles/NextHomeLockPreferences.bundle/Root.plist
+drwxr-xr-x root/wheel        0 2026-07-30 11:08 var/jb/Library/PreferenceLoader
+drwxr-xr-x root/wheel        0 2026-07-30 11:08 var/jb/Library/PreferenceLoader/Preferences
+-rw-r--r-- root/wheel      189 2026-07-30 11:08 var/jb/Library/PreferenceLoader/Preferences/NextHomeLock.plist
