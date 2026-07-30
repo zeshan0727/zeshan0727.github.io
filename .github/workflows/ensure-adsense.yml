@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Add missing AdSense code and verify ads.txt
+      - name: Add AdSense to content pages and protect utility pages
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -30,13 +30,29 @@ jobs:
               'adsbygoogle.js?client=ca-pub-4770123899731214" '
               'crossorigin="anonymous"></script>\n'
           )
+          adsense_tag = re.compile(
+              r'\s*<script\s+async\s+src="https://pagead2\.googlesyndication\.com/'
+              r'pagead/js/adsbygoogle\.js\?client=ca-pub-4770123899731214"\s+'
+              r'crossorigin="anonymous"></script>\s*',
+              flags=re.IGNORECASE,
+          )
 
           changed = []
           skipped = []
           for path in sorted(Path('.').rglob('*.html')):
-              if '.git' in path.parts or path.name == '404.html':
+              if '.git' in path.parts:
                   continue
+
               text = path.read_text(encoding='utf-8')
+              utility_page = path.name == '404.html' or 'depictions' in path.parts
+
+              if utility_page:
+                  cleaned = adsense_tag.sub('\n', text)
+                  if cleaned != text:
+                      path.write_text(cleaned, encoding='utf-8')
+                      changed.append(str(path))
+                  continue
+
               if publisher in text:
                   continue
               match = re.search(r'</head\s*>', text, flags=re.IGNORECASE)
@@ -55,17 +71,17 @@ jobs:
 
           print('Updated:', ', '.join(changed) if changed else 'none')
           if skipped:
-              raise SystemExit('HTML files without a </head> tag: ' + ', '.join(skipped))
+              raise SystemExit('Content HTML files without a </head> tag: ' + ', '.join(skipped))
           PY
 
       - name: Commit automatic fixes
         run: |
           if git diff --quiet; then
-            echo "All HTML pages already contain the AdSense code."
+            echo "All eligible content pages already contain the AdSense code."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add --all
-          git commit -m "Ensure AdSense coverage on all HTML pages [skip ci]"
+          git commit -m "Keep AdSense on eligible content pages only [skip ci]"
           git push
