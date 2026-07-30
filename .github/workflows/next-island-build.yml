@@ -1,0 +1,42 @@
+name: Build Next Island Preferences
+
+on:
+  push:
+    branches:
+      - agent/next-island-split
+    paths:
+      - 'next-island/**'
+      - '.github/workflows/next-island-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build universal RootHide preference bundle
+        run: bash next-island/build.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Next-Island-Preferences
+          path: output/*
+          if-no-files-found: error
+
+      - name: Save artifact retrieval metadata
+        run: |
+          mkdir -p next-island-output
+          echo "${{ github.run_id }}" > next-island-output/RunID.txt
+          cp output/SHA256SUMS next-island-output/SHA256SUMS
+          git config user.name "next-island-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add next-island-output
+          if ! git diff --cached --quiet; then
+            git commit -m "Store Next Island build metadata"
+            git push origin HEAD:agent/next-island-split
+          fi
