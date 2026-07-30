@@ -2,7 +2,7 @@
 #import "PhoneAuraManager.h"
 #import "PAConceptDUI.h"
 
-@interface PhoneAuraManager (PAKeypadPasteBridgeV415)
+@interface PhoneAuraManager (PAPhoneNumberMenuDeclarationV415)
 - (void)pasteNumberIntoKeypad:(NSString *)number;
 @end
 
