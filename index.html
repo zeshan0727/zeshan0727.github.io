@@ -3,199 +3,113 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#07111f">
-  <title>Next Solution Repo</title>
-  <meta name="description" content="Add the Next Solution jailbreak repository to Sileo, Cydia, or Zebra.">
-  <style>
-    :root {
-      color-scheme: dark;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --text: #ffffff;
-      --muted: #b9c8df;
-      --card: rgba(12, 24, 48, 0.76);
-      --border: rgba(255, 255, 255, 0.14);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      min-height: 100svh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      overflow-x: hidden;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 12% 15%, rgba(42, 151, 255, 0.34), transparent 34%),
-        radial-gradient(circle at 88% 82%, rgba(163, 65, 255, 0.30), transparent 36%),
-        linear-gradient(145deg, #020712 0%, #07152a 48%, #160b2d 100%);
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.18;
-      background-image:
-        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-      background-size: 44px 44px;
-      mask-image: linear-gradient(to bottom, black, transparent 88%);
-    }
-
-    main {
-      position: relative;
-      width: min(100%, 610px);
-      padding: clamp(30px, 7vw, 54px);
-      border: 1px solid var(--border);
-      border-radius: 34px;
-      background: var(--card);
-      box-shadow: 0 34px 100px rgba(0, 0, 0, 0.48);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      text-align: center;
-    }
-
-    .logo {
-      width: 104px;
-      height: 104px;
-      margin: 0 auto 22px;
-      padding: 7px;
-      display: block;
-      object-fit: cover;
-      border-radius: 29px;
-      border: 1px solid rgba(255,255,255,.30);
-      background: rgba(255,255,255,.08);
-      box-shadow: 0 18px 46px rgba(88, 90, 255, 0.42), inset 0 1px rgba(255,255,255,.25);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(34px, 8vw, 52px);
-      line-height: 1.06;
-      letter-spacing: -1.6px;
-    }
-
-    .subtitle {
-      margin: 14px auto 30px;
-      max-width: 430px;
-      color: var(--muted);
-      font-size: 17px;
-      line-height: 1.55;
-    }
-
-    .buttons {
-      display: grid;
-      gap: 14px;
-    }
-
-    .repo-button {
-      min-height: 68px;
-      display: grid;
-      grid-template-columns: 48px 1fr 30px;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 18px 10px 12px;
-      border: 1px solid rgba(255,255,255,.16);
-      border-radius: 20px;
-      color: #fff;
-      text-decoration: none;
-      font-size: 18px;
-      font-weight: 800;
-      text-align: left;
-      box-shadow: 0 12px 34px rgba(0,0,0,.22);
-      transition: transform .18s ease, filter .18s ease, border-color .18s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .repo-button:hover,
-    .repo-button:focus-visible {
-      transform: translateY(-2px) scale(1.01);
-      filter: brightness(1.08);
-      border-color: rgba(255,255,255,.34);
-      outline: none;
-    }
-
-    .repo-button:active { transform: scale(.985); }
-
-    .badge {
-      width: 46px;
-      height: 46px;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      background: rgba(255,255,255,.16);
-      box-shadow: inset 0 1px rgba(255,255,255,.22);
-      font-size: 21px;
-      font-weight: 900;
-    }
-
-    .label small {
-      display: block;
-      margin-top: 3px;
-      color: rgba(255,255,255,.68);
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .arrow {
-      justify-self: end;
-      color: rgba(255,255,255,.78);
-      font-size: 28px;
-      font-weight: 400;
-    }
-
-    .sileo { background: linear-gradient(120deg, #1457e6, #318dff); }
-    .cydia { background: linear-gradient(120deg, #7b4b2e, #b97b4c); }
-    .zebra { background: linear-gradient(120deg, #222831, #495361); }
-
-    footer {
-      margin-top: 28px;
-      color: rgba(218, 228, 244, .62);
-      font-size: 12px;
-      font-weight: 650;
-      letter-spacing: .8px;
-      text-transform: uppercase;
-    }
-
-    @media (max-width: 430px) {
-      body { padding: 16px; }
-      main { border-radius: 27px; }
-      .repo-button { min-height: 65px; font-size: 17px; }
-      .logo { width: 94px; height: 94px; border-radius: 26px; }
-    }
-  </style>
+  <meta name="theme-color" content="#06101d">
+  <title>Next Solution | Practical iOS Guides and Development Notes</title>
+  <meta name="description" content="Original iOS customization, design, development and troubleshooting guides from Next Solution.">
+  <link rel="canonical" href="https://nextsolution.cc/">
+  <link rel="stylesheet" href="site.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4770123899731214" crossorigin="anonymous"></script>
 </head>
 <body>
-  <main>
-    <img class="logo" src="CydiaIcon.png" alt="Next Solution logo">
-    <h1>Next Solution Repo</h1>
-    <p class="subtitle">Choose your package manager to add the repository.</p>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="index.html"><span class="brand-mark">N</span>Next Solution</a>
+      <div class="nav-links">
+        <a href="index.html" aria-current="page">Home</a>
+        <a href="tutorials.html">Tutorials</a>
+        <a href="videos.html">Videos</a>
+        <a href="repo.html">Repository</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </nav>
+  </header>
 
-    <div class="buttons">
-      <a class="repo-button sileo" href="sileo://source/https://zeshan0727.github.io/">
-        <span class="badge">S</span>
-        <span class="label">Add to Sileo<small>Open and add the source</small></span>
-        <span class="arrow">›</span>
-      </a>
+  <main id="content">
+    <section class="hero">
+      <div>
+        <span class="eyebrow"><span class="dot"></span>Original guides for device owners</span>
+        <h1>Understand, customize and troubleshoot iOS with confidence.</h1>
+        <p class="lead">Next Solution publishes practical, clearly explained guides for iPhone and iPad users, including rootless customization concepts, safer troubleshooting, interface design and battery-health basics.</p>
+        <div class="actions">
+          <a class="button primary" href="tutorials.html">Browse tutorials</a>
+          <a class="button" href="repo.html">Open the repository</a>
+        </div>
+      </div>
+      <aside class="hero-panel" aria-label="Site principles">
+        <div class="stat"><span class="stat-icon">✓</span><div><b>Original explanations</b><span>Written for Next Solution rather than copied from other sites.</span></div></div>
+        <div class="stat"><span class="stat-icon">⚙</span><div><b>Practical testing</b><span>Steps focus on backups, compatibility checks and reversible changes.</span></div></div>
+        <div class="stat"><span class="stat-icon">♿</span><div><b>Readable design</b><span>Responsive pages, clear navigation and reduced-motion support.</span></div></div>
+      </aside>
+    </section>
 
-      <a class="repo-button cydia" href="cydia://url/https://cydia.saurik.com/api/share#?source=https://zeshan0727.github.io/">
-        <span class="badge">C</span>
-        <span class="label">Add to Cydia<small>Open and add the source</small></span>
-        <span class="arrow">›</span>
-      </a>
+    <section class="section" aria-labelledby="featured-title">
+      <div class="section-head">
+        <span class="eyebrow">Featured learning</span>
+        <h2 id="featured-title">Start with the fundamentals</h2>
+        <p>These guides explain the reasoning behind common iOS customization tasks so you can make informed choices instead of following risky one-line fixes.</p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <span class="tag">Rootless basics</span>
+          <h3>What rootless customization changes</h3>
+          <p>Learn the difference between system files and the separate paths used by modern rootless environments, plus why package compatibility matters.</p>
+          <a class="more" href="tutorial-rootless-basics.html">Read the guide →</a>
+        </article>
+        <article class="card">
+          <span class="tag">Troubleshooting</span>
+          <h3>Diagnose a tweak problem safely</h3>
+          <p>Use a structured process to identify conflicts, preserve data and avoid repeated crashes or boot-loop situations.</p>
+          <a class="more" href="tutorial-tweak-troubleshooting.html">Read the guide →</a>
+        </article>
+        <article class="card">
+          <span class="tag">Battery</span>
+          <h3>Understand battery-health readings</h3>
+          <p>Separate estimated capacity, cycle count, temperature effects and real-world runtime before deciding whether a battery needs service.</p>
+          <a class="more" href="tutorial-battery-health.html">Read the guide →</a>
+        </article>
+      </div>
+    </section>
 
-      <a class="repo-button zebra" href="zbra://sources/add/https://zeshan0727.github.io/">
-        <span class="badge">Z</span>
-        <span class="label">Add to Zebra<small>Open and add the source</small></span>
-        <span class="arrow">›</span>
-      </a>
-    </div>
+    <section class="section" aria-labelledby="approach-title">
+      <div class="grid two">
+        <article class="card">
+          <h2 id="approach-title">Our approach</h2>
+          <ul class="clean-list">
+            <li>Use customization tools only on devices you own or are authorized to manage.</li>
+            <li>Back up important data before system-level changes.</li>
+            <li>Avoid pirated packages, cracked applications and unknown repositories.</li>
+            <li>Check iOS version, architecture and jailbreak type before installation.</li>
+            <li>Prefer reversible changes and test one modification at a time.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h2>What you will find here</h2>
+          <p>Next Solution covers interface concepts, rootless and RootHide package compatibility, practical iOS troubleshooting, app-development notes and video tutorials. The site does not provide stolen software, account-bypass services or instructions for unauthorized access.</p>
+          <a class="more" href="about.html">Learn about the site →</a>
+        </article>
+      </div>
+    </section>
 
-    <footer>Next Solution — zeshan0727</footer>
+    <section class="section">
+      <div class="notice">
+        <h3>Important safety note</h3>
+        <p>Device modification can affect stability, security, warranty support and software updates. Read the complete instructions, confirm compatibility and maintain a current backup before making changes.</p>
+      </div>
+    </section>
   </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span>© 2026 Next Solution. Original educational content.</span>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
