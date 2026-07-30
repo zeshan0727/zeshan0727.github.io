@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.14
+Version: 0.4.15
 Architecture: iphoneos-arm64e
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.14 attaches the round Next Solution YouTube logo directly to the real upper-right Keypad header button, while preserving the original three-dot Number Options menu inside the orange number card. It also keeps the fixed saved-number suggestion area, Number not saved status, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Available for RootHide and rootless jailbreaks.
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.15 adds a native long-press editing menu wherever a phone number is displayed. Editable keypad numbers support Cut, Copy and Paste; read-only contact, recent-call and detail numbers support safe Copy and Paste to Keypad without changing saved contact data. It also preserves the fixed saved-number suggestion area, Number not saved status, corrected Next Solution header logo, original Number Options menu, custom Favorites, smart Recents filters, Contacts, haptics and animations. Available for RootHide and rootless jailbreaks.
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Homepage: https://zeshan0727.github.io/
 Maintainer: Next Solution
