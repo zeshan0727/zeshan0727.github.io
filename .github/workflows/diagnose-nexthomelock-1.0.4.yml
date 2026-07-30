@@ -1,0 +1,68 @@
+name: Diagnose Next Home Lock 1.0.4
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/diagnose-nexthomelock-1.0.4.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diagnose-nexthomelock-1.0.4
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run diagnostic build
+        shell: bash
+        run: |
+          set +e
+          REPORT="$RUNNER_TEMP/nexthomelock-1.0.4-build.txt"
+          {
+            echo "Next Home Lock 1.0.4 diagnostic build"
+            echo "UTC: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+            echo
+            brew install dpkg ldid
+            git clone --no-checkout https://github.com/zeshan0727/NextSolution.git "$RUNNER_TEMP/NextSolution"
+            git -C "$RUNNER_TEMP/NextSolution" checkout c401bcb128aa4f685006f6a1eaf9d72868b22698
+            P="$RUNNER_TEMP/NextSolution/DailyTweaks/2026-07-30-NextHomeLock"
+            echo "=== Project tree ==="
+            find "$P" -maxdepth 4 -type f | sort
+            echo "=== Rootless build ==="
+            git clone --recursive --depth 1 https://github.com/theos/theos.git "$RUNNER_TEMP/theos"
+            export THEOS="$RUNNER_TEMP/theos"
+            export THEOS_PACKAGE_SCHEME=rootless
+            make -C "$P" clean package FINALPACKAGE=1 V=1
+            BUILD_RC=$?
+            echo "ROOTLESS_BUILD_RC=$BUILD_RC"
+            echo "=== Packages ==="
+            find "$P/packages" -type f -maxdepth 2 -print 2>/dev/null || true
+            if [ "$BUILD_RC" -eq 0 ]; then
+              D="$(find "$P/packages" -type f -name '*.deb' -print -quit)"
+              dpkg-deb -f "$D" || true
+              dpkg-deb -c "$D" || true
+            fi
+          } > "$REPORT" 2>&1
+          BUILD_RC="$(grep 'ROOTLESS_BUILD_RC=' "$REPORT" | tail -1 | cut -d= -f2)"
+          [ -n "$BUILD_RC" ] || BUILD_RC=99
+
+          git fetch origin main
+          git reset --hard origin/main
+          mkdir -p diagnostics
+          cp "$REPORT" diagnostics/nexthomelock-1.0.4-build.txt
+          git config user.name "Next Solution Diagnostic Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add diagnostics/nexthomelock-1.0.4-build.txt
+          git commit -m "Record Next Home Lock 1.0.4 diagnostic build"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            git push origin HEAD:main && break
+            sleep $((attempt * 3))
+          done
+          exit "$BUILD_RC"
