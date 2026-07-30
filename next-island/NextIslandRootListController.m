@@ -19,6 +19,9 @@ extern char **environ;
 }
 @end
 
+// Keep the original NextAura preference domain and Darwin notifications so
+// existing Dynamic Island choices carry over without any migration and the
+// runtime binary can remain byte-for-byte unchanged.
 static NSString * const NIPreferencesDomain = @"com.nextsolution.unlockvibrate";
 static CFStringRef const NIChangedNotification = CFSTR("com.nextsolution.unlockvibrate/preferences.changed");
 static CFStringRef const NIPreviewShowNotification = CFSTR("com.nextsolution.unlockvibrate/dynamic-island-preview-show");
@@ -198,6 +201,15 @@ static void NIRespring(void) {
     NIPost(NIPreviewHideNotification);
     NIPost(NIChangedNotification);
     NIRespring();
+}
+
+// Compatibility selectors preserve the original DynamicIsland.plist exactly.
+- (void)applySuiteChanges:(id)sender {
+    [self applyNextIslandChanges:sender];
+}
+
+- (void)resetCurrentNextAuraSection:(id)sender {
+    [self resetNextIslandSection:sender];
 }
 
 @end
