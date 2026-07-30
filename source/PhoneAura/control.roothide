@@ -1,8 +1,8 @@
 Package: com.zeshan.phoneaura
 Name: PhoneAura
-Version: 0.4.15
+Version: 0.4.16
 Architecture: iphoneos-arm64e
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.15 adds a native long-press editing menu wherever a phone number is displayed. Editable keypad numbers support Cut, Copy and Paste; read-only contact, recent-call and detail numbers support safe Copy and Paste to Keypad without changing saved contact data. It also preserves the fixed saved-number suggestion area, Number not saved status, corrected Next Solution header logo, original Number Options menu, custom Favorites, smart Recents filters, Contacts, haptics and animations. Built for RootHide.
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.16 is an emergency stability hotfix that removes the crashing global long-press phone-number editing hooks introduced in 0.4.15 and restores the proven 0.4.14 runtime behavior. It preserves the fixed saved-number suggestion area, Number not saved status, corrected Next Solution header logo, original Number Options menu, custom Favorites, smart Recents filters, Contacts, haptics and animations. Built for RootHide.
 Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
 Homepage: https://zeshan0727.github.io/
 Maintainer: Next Solution
