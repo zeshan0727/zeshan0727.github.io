@@ -1,3 +1,4 @@
+# Trigger diagnostic compiler report.
 name: Diagnose Next Home Lock 1.0.4
 
 on:
