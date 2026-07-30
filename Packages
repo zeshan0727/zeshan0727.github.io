@@ -162,41 +162,73 @@ Description: Detects shakes directly, vibrates as confirmation, and runs the mos
 Author: Next Solution
 Name: Shake to Run Automation (RootHide)
 
-Package: com.zeshan.phoneaura
-Version: 0.4.10
-Architecture: iphoneos-arm64
-Maintainer: Next Solution
-Installed-Size: 1056
-Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.10_Rootless_iOS16.deb
-Size: 149318
-MD5sum: 24c0e38cb9fe022e0c260a03f4eeeaec
-SHA1: a7d403841462e8d0227a391eaa915af09a82be8e
-SHA256: 271c69718e149df6ca80d3fd62ebff4806ba2acb4edb91fb91063fa54c01e92b
-Section: Tweaks
-Homepage: https://zeshan0727.github.io/
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.10 fixes Add Number with a native three-dot keypad menu for creating a new contact or adding the dialed number to an existing contact. It also includes live saved-contact suggestions, clipboard Paste, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for rootless jailbreaks.
-Author: Next Solution
-Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
-Name: PhoneAura
-
-Package: com.zeshan.phoneaura
-Version: 0.4.10
+Package: com.nextsolution.unlockvibrate
+Version: 2.7.0
 Architecture: iphoneos-arm64e
 Maintainer: Next Solution
-Installed-Size: 1056
+Installed-Size: 632
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Filename: ./debfiles/PhoneAura_0.4.10_RootHide_iOS16.deb
-Size: 149904
-MD5sum: 649f359d7b6129f6028d48d65a73212b
-SHA1: 6df75e596128baae1fe43a7fbc13fcbbc8e810a0
-SHA256: 32764ce245e0f49ea6feda34834429e1a656ef0828686cc3d2ce5d28d98c3b44
+Filename: ./debfiles/SweatMyPhone_RootHide_2.7.0_AdjustableTemperature_iOS16.deb
+Size: 47924
+MD5sum: 349ec6e937c2d279a653379671e534b2
+SHA1: 4e41eaaf0293d6d214a8478b79008575c4ac0ee6
+SHA256: 2977cba3da24ba2bf17ede34c27f1ad48f95d0b86ba12444c3da1a69033c90fa
 Section: Tweaks
-Homepage: https://zeshan0727.github.io/
-Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.10 fixes Add Number with a native three-dot keypad menu for creating a new contact or adding the dialed number to an existing contact. It also includes live saved-contact suggestions, clipboard Paste, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for RootHide.
+Priority: optional
+Description: Adds an adjustable 30–50°C sweat trigger temperature in the Next Solution Tweaks Settings pane, defaulting to 37°C. Keeps all thermal and sweat hooks SpringBoard-only for stability, with the five-second Home Screen test, battery temperature colors, unlock vibration, and call-connect vibration. Built for RootHide on iOS 16.
 Author: Next Solution
-Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
-Name: PhoneAura
+Name: Sweat My Phone (RootHide)
+
+Package: com.nextsolution.unlockvibrate
+Version: 3.0.0
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 812
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/SweatMyPhone_RootHide_3.0.0_20FeatureSuite_iOS16.deb
+Size: 55220
+MD5sum: 20bc816ac81c51753f64c7fa4c5665bd
+SHA1: 400256cb090ffac78d65417cdba9947d8de5527c
+SHA256: f3bbe6edc358d74d9153cd46f35ea1a4924bb72b1a96066a4f8aa7708ebf8652
+Section: Tweaks
+Priority: optional
+Description: Adds 20 individually configurable SpringBoard customizations to Next Solution Tweaks while preserving unlock and call vibration, thermal battery colors, adjustable sweat temperature, and the five-second sweat test. All tweak dylibs remain SpringBoard-only for RootHide stability on iOS 16.
+Author: Next Solution
+Name: Sweat My Phone (RootHide)
+
+Package: com.nextsolution.unlockvibrate
+Version: 3.1.0
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 1012
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/SweatMyPhone_RootHide_3.1.0_50MoreFeatures_iOS16.deb
+Size: 67374
+MD5sum: 8e6a98f24ed2a06dc19f386305d6d4e1
+SHA1: cbddff7d9a08067a9fcd965850d32d797fa28048
+SHA256: cd08678dd450fd441dcb2950736cab49d6992d9a28d9025a464c6eb0d096effb
+Section: Tweaks
+Priority: optional
+Description: Adds 50 more opt-in Home Screen, Status Bar, Control Center, Lock Screen, Now Playing, and notification controls to the existing 20-feature suite. Preserves vibration, thermal battery, and sweat features with SpringBoard-only RootHide stability on iOS 16.
+Author: Next Solution
+Name: Sweat My Phone (RootHide)
+
+Package: com.nextsolution.unlockvibrate
+Version: 3.2.0
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 1240
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/SweatMyPhone_RootHide_3.2.0_Organized100Features_CCSecondPage_iOS16.deb
+Size: 86464
+MD5sum: 171446778ed8b68032885cb8b0325b44
+SHA1: ad0c74b624d5af348674cebbe22e59853c90fddd
+SHA256: 6092d1995cb7bca8ff702f21bdfe7c56bff8572e1cf44355b8e4ccf57b4d4c42
+Section: Tweaks
+Priority: optional
+Description: Organizes approximately 100 controls into clear Settings groups with a short explanation beneath every function. Adds a swipeable second Control Center page, adjustable grid columns and rows, quick-launch tiles, live battery, temperature and memory information, plus 18 related layout controls. SpringBoard-only RootHide build for iOS 16.
+Author: Next Solution
+Name: Sweat My Phone (RootHide)
 
 Package: com.nextsolution.unlockvibrate
 Version: 4.0.0
@@ -211,7 +243,7 @@ SHA1: 637de4bfb9d1b960a256a3f228c958a98ccc291a
 SHA256: 54edb75f51441e4c97d4aae37e2fd621dec6480ee977c56422dcdfc7c6acdd34
 Section: Tweaks
 Priority: optional
-Description: Adds 100 opt-in Safety Lab appearance controls to the organized suite, for approximately 200 controls total. The new module and every new feature are disabled by default. Includes a 25-second automatic crash guard, reset and recovery controls, exact SpringBoard-only injection, and no daemon or system-file patches. RootHide iOS 16 build.
+Description: Adds 100 opt-in Safety Lab appearance controls to the existing organized suite, for approximately 200 controls total. The new module is disabled by default and automatically disables itself after an incomplete SpringBoard startup. Includes a reset button, crash-guard recovery, exact SpringBoard-only injection, and no daemon or system-file patches. RootHide iOS 16 build.
 Author: Next Solution
 Name: Sweat My Phone (RootHide)
 
@@ -228,7 +260,7 @@ SHA1: 112f9e3c1774434ad7b7466a114904ddc4fb8bc4
 SHA256: 2a0d35e387714e5c5be5e15bf2e17875b466fb3f4ebf9f2364cf01d667f2e55c
 Section: Tweaks
 Priority: optional
-Description: Unified RootHide iOS 16 suite with reliable choice controls, icon-labeled Settings categories, a selectable second Control Center page, and separate local background images for Control Center modules. Advanced visual controls activate when changed and reset automatically after an incomplete SpringBoard startup. Every dylib remains SpringBoard-only.
+Description: Unified RootHide iOS 16 tweak suite with reliable choice controls, icon-labeled Settings categories, a selectable second Control Center page, and separate local background images for Control Center modules. Advanced visual controls activate when changed and reset automatically after an incomplete SpringBoard startup. Every dylib remains SpringBoard-only.
 Author: Next Solution
 Name: Sweat My Phone (RootHide)
 
@@ -271,3 +303,40 @@ Author: Next Solution - zeshan0727
 Depiction: https://zeshan0727.github.io/depictions/nextaura.html
 Icon: https://zeshan0727.github.io/CydiaIcon.png
 Name: NextAura
+
+Package: com.zeshan.phoneaura
+Version: 0.4.11
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution
+Installed-Size: 1072
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/PhoneAura_0.4.11_RootHide_iOS16.deb
+Size: 152710
+MD5sum: f9a0849502876d81d5b28b0c42207b93
+SHA1: 21227cf5f6338e677e7b77849dda25c4f18bce47
+SHA256: 35327bba536e99247142865f726a8451d7a255e45d92fa94b53ae0b6db73c078
+Section: Tweaks
+Homepage: https://zeshan0727.github.io/
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.11 keeps a fixed saved-number suggestion area above the keypad so the digits never shift while typing. Matching contacts appear in the reserved card; when no saved number matches, it displays Number not saved. It also includes the native contact menu, clipboard Paste, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for RootHide.
+Author: Next Solution
+Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
+Name: PhoneAura
+
+Package: com.zeshan.phoneaura
+Version: 0.4.11
+Architecture: iphoneos-arm64
+Maintainer: Next Solution
+Installed-Size: 1072
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/PhoneAura_0.4.11_Rootless_iOS16.deb
+Size: 152738
+MD5sum: ee5221d38b178252c13e567925238c9f
+SHA1: 7a3c840f71d66ace5a7bb80304ea1ea244d8235c
+SHA256: 5039f1162a679a1e5570949f045f7bba5bfd03e2a1dce5fcf6d230394cbd34c1
+Section: Tweaks
+Homepage: https://zeshan0727.github.io/
+Description: PhoneAura is a free, modern redesign of the iOS 16 Phone app. Version 0.4.11 keeps a fixed saved-number suggestion area above the keypad so the digits never shift while typing. Matching contacts appear in the reserved card; when no saved number matches, it displays Number not saved. It also includes the native contact menu, clipboard Paste, custom Favorites, smart Recents filters, call details, Contacts, swipe-to-delete controls, haptics and fluid animations. Built for rootless jailbreaks.
+Author: Next Solution
+Depiction: https://zeshan0727.github.io/depictions/phoneaura.html
+Name: PhoneAura
+
