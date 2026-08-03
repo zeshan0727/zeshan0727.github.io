@@ -5,11 +5,14 @@ THEOS_PACKAGE_SCHEME ?= roothide
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = NextMessage
-NextMessage_FILES = Tweak.xm
+NextMessage_FILES = NMCore.m NMSwipeV130.xm NMThemeV130.xm NMRuntimeV13.xm
 NextMessage_FRAMEWORKS = UIKit QuartzCore
 NextMessage_LIBRARIES = sqlite3
-NextMessage_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unguarded-availability-new
+NextMessage_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unguarded-availability-new -Wno-unused-function -Wno-nonnull
 NextMessage_LDFLAGS = -Wl,-segalign,4000
+
+before-all::
+	$(ECHO_NOTHING)python3 -c 'from pathlib import Path; p=Path("NMThemeV130.xm"); s=p.read_text(); s=s.replace("original = [NMOriginalLayoutIMPs[NSStringFromClass([object class])] pointerValue];", "NSValue *storedIMP = NMOriginalLayoutIMPs[NSStringFromClass([object class])];" + chr(10) + "        if (storedIMP) [storedIMP getValue:&original];"); s=s.replace("NMOriginalLayoutIMPs[className] = [NSValue valueWithPointer:original];", "NMOriginalLayoutIMPs[className] = [NSValue valueWithBytes:&original objCType:@encode(IMP)];"); p.write_text(s)'$(ECHO_END)
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
@@ -23,6 +26,8 @@ after-stage::
 	$(ECHO_NOTHING)chmod 0755 "$(THEOS_STAGING_DIR)/DEBIAN/postinst" "$(THEOS_STAGING_DIR)/DEBIAN/prerm"$(ECHO_END)
 	$(ECHO_NOTHING)mkdir -p "$(THEOS_STAGING_DIR)/Library/PreferenceBundles/NextMessagePrefs.bundle"$(ECHO_END)
 	$(ECHO_NOTHING)cp ../../CydiaIcon.png "$(THEOS_STAGING_DIR)/Library/PreferenceBundles/NextMessagePrefs.bundle/icon.png"$(ECHO_END)
+	$(ECHO_NOTHING)mkdir -p "$(THEOS_STAGING_DIR)/Library/PreferenceLoader/Preferences"$(ECHO_END)
+	$(ECHO_NOTHING)cp nextmessageprefs/entry.plist "$(THEOS_STAGING_DIR)/Library/PreferenceLoader/Preferences/NextMessagePrefs.plist"$(ECHO_END)
 
 after-install::
 	install.exec "uicache -a 2>/dev/null || true; killall -9 Preferences MobileSMS 2>/dev/null || true"
