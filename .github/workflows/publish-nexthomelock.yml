@@ -1,4 +1,4 @@
-# Temporary PR release trigger: Next Home Lock 1.0.5 simple on-off preferences.
+# PR run trigger 3: Next Home Lock 1.0.5 simple on-off preferences.
 name: Build and Publish Next Home Lock
 
 on:
@@ -135,12 +135,15 @@ jobs:
             grep -q com.apple.springboard "$filter"
             grep -q NextHomeLockPreferences "$entry"
             grep -q NHLRootListController "$entry"
-            grep -q 'Enable Next Home Lock' "$root"
-            grep -q '<string>1.0.5</string>' "$info"
-            test "$(grep -c '<string>PSSwitchCell</string>' "$root")" -eq 1
-            test "$(grep -c '<string>PSButtonCell</string>' "$root" || true)" -eq 0
-            test "$(grep -c '<string>PSTitleValueCell</string>' "$root" || true)" -eq 0
-            ! grep -Eq 'Installed Version|Runtime Method|SpringBoard Injection|Touch Hook|Test Lock Now|Refresh Diagnostics' "$root"
+            test "$(plutil -extract CFBundleShortVersionString raw -o - "$info")" = "1.0.5"
+
+            root_xml="$x/Root.xml"
+            plutil -convert xml1 -o "$root_xml" "$root"
+            grep -q 'Enable Next Home Lock' "$root_xml"
+            test "$(grep -c '<string>PSSwitchCell</string>' "$root_xml")" -eq 1
+            test "$(grep -c '<string>PSButtonCell</string>' "$root_xml" || true)" -eq 0
+            test "$(grep -c '<string>PSTitleValueCell</string>' "$root_xml" || true)" -eq 0
+            ! grep -Eq 'Installed Version|Runtime Method|SpringBoard Injection|Touch Hook|Test Lock Now|Refresh Diagnostics' "$root_xml"
             plutil -lint "$entry"; plutil -lint "$root"; plutil -lint "$info"
 
             for s in SBIconListView 'touchesEnded:withEvent:' _simulateLockButtonPress pluginUserAgent lockAndDimDevice SBLockScreenManager SBSLockDevice com.nextsolution.nexthomelock.preferences.changed; do
