@@ -21,14 +21,13 @@ permissions:
   contents: write
 
 env:
-  VERSION: 1.1.0
+  VERSION: 1.4.0
 
 jobs:
   build-roothide:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-
       - name: Install RootHide toolchain
         run: |
           brew install dpkg ldid >/dev/null
@@ -36,26 +35,26 @@ jobs:
           git clone --quiet --recursive https://github.com/roothide/theos.git "$THEOS"
           mkdir -p "$THEOS/sdks"
           curl -fsSL --retry 3 https://github.com/theos/sdks/releases/latest/download/iPhoneOS16.5.sdk.tar.xz | tar -xJ -C "$THEOS/sdks"
-
       - name: Build RootHide package
         run: |
           export THEOS="$HOME/theos"
           cd source/NextMessage
           cp control.roothide control
+          python3 -c 'from pathlib import Path; p=Path("NextMessageRuntime.swift"); s=p.read_text().replace("private func refreshAllWindows()", "func refreshAllWindows()"); p.write_text(s)'
           set +e
           make clean > build-roothide.log 2>&1
           make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide >> build-roothide.log 2>&1
           STATUS=$?
-          tail -n 250 build-roothide.log
+          tail -n 350 build-roothide.log
           if [ "$STATUS" -ne 0 ]; then exit "$STATUS"; fi
           DEB="$(find packages -name '*.deb' -type f | head -n 1)"
           test -n "$DEB"
           test "$(dpkg-deb -f "$DEB" Package)" = "com.nextsolution.nextmessage"
           test "$(dpkg-deb -f "$DEB" Architecture)" = "iphoneos-arm64e"
           test "$(dpkg-deb -f "$DEB" Version)" = "$VERSION"
+          dpkg-deb -c "$DEB" | grep -q 'Library/PreferenceLoader/Preferences/NextMessagePrefs.plist'
           mkdir -p "$GITHUB_WORKSPACE/output"
           cp "$DEB" "$GITHUB_WORKSPACE/output/NextMessage_${VERSION}_RootHide_iOS16.deb"
-
       - name: Upload RootHide build log
         if: always()
         uses: actions/upload-artifact@v4
@@ -63,7 +62,6 @@ jobs:
           name: NextMessage-RootHide-Build-Log
           path: source/NextMessage/build-roothide.log
           if-no-files-found: warn
-
       - name: Upload RootHide package
         uses: actions/upload-artifact@v4
         with:
@@ -75,7 +73,6 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-
       - name: Install rootless toolchain
         run: |
           brew install dpkg ldid >/dev/null
@@ -83,26 +80,26 @@ jobs:
           git clone --quiet --recursive https://github.com/theos/theos.git "$THEOS"
           mkdir -p "$THEOS/sdks"
           curl -fsSL --retry 3 https://github.com/theos/sdks/releases/latest/download/iPhoneOS16.5.sdk.tar.xz | tar -xJ -C "$THEOS/sdks"
-
       - name: Build rootless package
         run: |
           export THEOS="$HOME/theos"
           cd source/NextMessage
           cp control.rootless control
+          python3 -c 'from pathlib import Path; p=Path("NextMessageRuntime.swift"); s=p.read_text().replace("private func refreshAllWindows()", "func refreshAllWindows()"); p.write_text(s)'
           set +e
           make clean > build-rootless.log 2>&1
           make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless >> build-rootless.log 2>&1
           STATUS=$?
-          tail -n 250 build-rootless.log
+          tail -n 350 build-rootless.log
           if [ "$STATUS" -ne 0 ]; then exit "$STATUS"; fi
           DEB="$(find packages -name '*.deb' -type f | head -n 1)"
           test -n "$DEB"
           test "$(dpkg-deb -f "$DEB" Package)" = "com.nextsolution.nextmessage"
           test "$(dpkg-deb -f "$DEB" Architecture)" = "iphoneos-arm64"
           test "$(dpkg-deb -f "$DEB" Version)" = "$VERSION"
+          dpkg-deb -c "$DEB" | grep -q 'Library/PreferenceLoader/Preferences/NextMessagePrefs.plist'
           mkdir -p "$GITHUB_WORKSPACE/output"
           cp "$DEB" "$GITHUB_WORKSPACE/output/NextMessage_${VERSION}_Rootless_iOS16.deb"
-
       - name: Upload rootless build log
         if: always()
         uses: actions/upload-artifact@v4
@@ -110,7 +107,6 @@ jobs:
           name: NextMessage-Rootless-Build-Log
           path: source/NextMessage/build-rootless.log
           if-no-files-found: warn
-
       - name: Upload rootless package
         uses: actions/upload-artifact@v4
         with:
@@ -126,22 +122,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Install repository tools
         run: sudo apt-get update -qq && sudo apt-get install -y -qq dpkg-dev bzip2 gzip
-
       - name: Download RootHide package
         uses: actions/download-artifact@v4
         with:
           name: NextMessage-RootHide
           path: release
-
       - name: Download rootless package
         uses: actions/download-artifact@v4
         with:
           name: NextMessage-Rootless
           path: release
-
       - name: Publish both variants
         run: |
           test -f "release/NextMessage_${VERSION}_RootHide_iOS16.deb"
@@ -155,9 +147,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add debfiles Packages Packages.bz2 Packages.gz
-          if git diff --cached --quiet; then
-            echo "Sileo repo is already current."
-            exit 0
-          fi
+          if git diff --cached --quiet; then exit 0; fi
           git commit -m "Publish Next Message ${VERSION} RootHide and rootless"
           git push origin HEAD:main
