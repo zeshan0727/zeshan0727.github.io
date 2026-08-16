@@ -82,6 +82,11 @@ jobs:
             cp "$OUT/NextLock_1.0.0_RootHide.deb" debfiles/
 
             dpkg-scanpackages -m ./debfiles /dev/null | sed 's|^Filename: debfiles/|Filename: ./debfiles/|' > Packages
+            python3 - <<'PY'
+          from pathlib import Path
+          p=Path('Packages')
+          p.write_text(p.read_text().rstrip()+"\n")
+          PY
             test "$(grep -c '^Package: com.nextsolution.lockglyphtime$' Packages)" -eq 2
             test "$(grep -c '^Name: NextLock$' Packages)" -eq 2
             test "$(grep -c '^Version: 1.0.0$' Packages)" -ge 2
