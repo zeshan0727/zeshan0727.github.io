@@ -147,6 +147,46 @@ Icon: https://nextsolution.cc/NextLockIcon.png
 Name: NextLock
 Sileodepiction: https://nextsolution.cc/depictions/nextlock.html
 
+Package: com.nextsolution.lockglyphtime
+Version: 1.0.1
+Architecture: iphoneos-arm64e
+Maintainer: Next Solution - Zeeshan Barvi
+Installed-Size: 528
+Depends: firmware (>= 15.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/NextLock_1.0.1_RootHide.deb
+Size: 54126
+MD5sum: 40ef71c102ba4ca57f92020e2d41d67b
+SHA1: 39bbf1ece4cdc0c548ab0da056819aae276dbb20
+SHA256: 8ef667eb560c134d074652c499d351363bed30c2a8815c3dccffd60271264e60
+Section: Tweaks
+Homepage: https://nextsolution.cc
+Description: Next Solution lock-screen customization suite for time, date, fonts, colors, positioning, shadows, SF Symbols and custom photos with transparent sticker support.
+Author: Next Solution - Zeeshan Barvi
+Depiction: https://nextsolution.cc/depictions/nextlock.html
+Icon: https://nextsolution.cc/NextLockIcon.png
+Name: NextLock
+Sileodepiction: https://nextsolution.cc/depictions/nextlock.html
+
+Package: com.nextsolution.lockglyphtime
+Version: 1.0.1
+Architecture: iphoneos-arm64
+Maintainer: Next Solution - Zeeshan Barvi
+Installed-Size: 528
+Depends: firmware (>= 15.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/NextLock_1.0.1_Rootless.deb
+Size: 54046
+MD5sum: 838603a221e5e40b17f424b5fd092732
+SHA1: 2cd3b34b2a1a49dc5ef8d809dac88741cd0a86dd
+SHA256: 53a7eea48a36b06fa0b529e53fc6ec3fde2e73a96d47350ee684f5d33fe2aa48
+Section: Tweaks
+Homepage: https://nextsolution.cc
+Description: Next Solution lock-screen customization suite for time, date, fonts, colors, positioning, shadows, SF Symbols and custom photos with transparent sticker support.
+Author: Next Solution - Zeeshan Barvi
+Depiction: https://nextsolution.cc/depictions/nextlock.html
+Icon: https://nextsolution.cc/NextLockIcon.png
+Name: NextLock
+Sileodepiction: https://nextsolution.cc/depictions/nextlock.html
+
 Package: com.nextsolution.nexthomelock
 Version: 1.0.4
 Architecture: iphoneos-arm64
