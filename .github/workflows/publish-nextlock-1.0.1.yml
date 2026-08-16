@@ -1,0 +1,99 @@
+name: Publish NextLock 1.0.1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/publish-nextlock-1.0.1.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-nextlock-1.0.1
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install repo tools
+        run: brew install dpkg xz zstd
+      - name: Download validated NextLock 1.0.1 DEBs
+        shell: bash
+        run: |
+          set -euo pipefail
+          O="$RUNNER_TEMP/nextlock"; mkdir -p "$O"
+          curl -fL --retry 4 --retry-delay 2 'https://nextsolution.cc/transfer/files/NextLock/1.0.1/NextLock_1.0.1_Rootless.deb' -o "$O/NextLock_1.0.1_Rootless.deb"
+          curl -fL --retry 4 --retry-delay 2 'https://nextsolution.cc/transfer/files/NextLock/1.0.1/NextLock_1.0.1_RootHide.deb' -o "$O/NextLock_1.0.1_RootHide.deb"
+          echo '53a7eea48a36b06fa0b529e53fc6ec3fde2e73a96d47350ee684f5d33fe2aa48  '"$O/NextLock_1.0.1_Rootless.deb" | shasum -a 256 -c -
+          echo '8ef667eb560c134d074652c499d351363bed30c2a8815c3dccffd60271264e60  '"$O/NextLock_1.0.1_RootHide.deb" | shasum -a 256 -c -
+      - name: Validate packages and Settings icons
+        shell: bash
+        run: |
+          set -euo pipefail
+          validate(){
+            deb="$1"; arch="$2"; x="$(mktemp -d)"
+            test "$(dpkg-deb -f "$deb" Package)" = com.nextsolution.lockglyphtime
+            test "$(dpkg-deb -f "$deb" Name)" = NextLock
+            test "$(dpkg-deb -f "$deb" Version)" = 1.0.1
+            test "$(dpkg-deb -f "$deb" Architecture)" = "$arch"
+            dpkg-deb -f "$deb" Depends | grep -q 'firmware (>= 15.0)'
+            dpkg-deb -f "$deb" Depends | grep -q mobilesubstrate
+            dpkg-deb -f "$deb" Depends | grep -q preferenceloader
+            test "$(dpkg-deb -f "$deb" Icon)" = 'https://nextsolution.cc/NextLockIcon.png'
+            dpkg-deb -x "$deb" "$x"
+            ld="$(find "$x" -type d -path '*PreferenceLoader/Preferences' -print -quit)"
+            test -n "$ld"
+            entry="$ld/LockGlyphTime.plist"; i1="$ld/NextLockIcon.png"; i2="$ld/NextLockIcon@2x.png"; i3="$ld/NextLockIcon@3x.png"
+            for f in "$entry" "$i1" "$i2" "$i3"; do test -f "$f"; done
+            plutil -convert xml1 -o "$x/entry.xml" "$entry"
+            grep -q '<string>NextLock</string>' "$x/entry.xml"
+            grep -q '<string>NextLockIcon.png</string>' "$x/entry.xml"
+            grep -q '<string>LGTListController</string>' "$x/entry.xml"
+            test "$(sips -g pixelWidth "$i1" | awk '/pixelWidth/{print $2}')" = 29
+            test "$(sips -g pixelWidth "$i2" | awk '/pixelWidth/{print $2}')" = 58
+            test "$(sips -g pixelWidth "$i3" | awk '/pixelWidth/{print $2}')" = 87
+            test -z "$(find "$x" -name 'NextStyleIcon*' -print -quit)"
+            rm -rf "$x"
+          }
+          O="$RUNNER_TEMP/nextlock"
+          validate "$O/NextLock_1.0.1_Rootless.deb" iphoneos-arm64
+          validate "$O/NextLock_1.0.1_RootHide.deb" iphoneos-arm64e
+      - name: Publish and rebuild Sileo indexes
+        shell: bash
+        run: |
+          set -euo pipefail
+          O="$RUNNER_TEMP/nextlock"
+          git config user.name 'Next Solution Build Bot'
+          git config user.email actions@users.noreply.github.com
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p debfiles
+            cp "$O/NextLock_1.0.1_Rootless.deb" debfiles/
+            cp "$O/NextLock_1.0.1_RootHide.deb" debfiles/
+            dpkg-scanpackages -m ./debfiles /dev/null | sed 's|^Filename: debfiles/|Filename: ./debfiles/|' > Packages
+            python3 - <<'PY'
+          from pathlib import Path
+          p=Path('Packages'); p.write_text(p.read_text().rstrip()+"\n")
+          PY
+            test "$(grep -c '^Package: com.nextsolution.lockglyphtime$' Packages)" -ge 4
+            test "$(grep -c '^Version: 1.0.1$' Packages)" -eq 2
+            test "$(grep -c '^Name: NextLock$' Packages)" -ge 4
+            grep -q 'NextLock_1.0.1_Rootless.deb' Packages
+            grep -q 'NextLock_1.0.1_RootHide.deb' Packages
+            grep -q '^Icon: https://nextsolution.cc/NextLockIcon.png$' Packages
+            gzip -9 -c Packages > Packages.gz
+            bzip2 -9 -c Packages > Packages.bz2
+            xz -9e -c Packages > Packages.xz
+            zstd -19 -q -c Packages > Packages.zst
+            git add debfiles/NextLock_1.0.1_Rootless.deb debfiles/NextLock_1.0.1_RootHide.deb Packages Packages.gz Packages.bz2 Packages.xz Packages.zst NextLockIcon.png depictions/nextlock.html
+            git diff --cached --check
+            git commit -m 'Publish NextLock 1.0.1 with Settings icon fix' || exit 0
+            git push origin HEAD:main && exit 0
+            sleep $((attempt*3))
+          done
+          exit 1
